@@ -22,7 +22,7 @@ import java.time.LocalDate;
         private LocalDate garantiBaslangic;
 
 
-        // Constructor 1
+        // Constructor 199999
         public Cihaz(String seriNo, String marka, String model) {
             this.seriNo = seriNo;
             this.marka = marka;
