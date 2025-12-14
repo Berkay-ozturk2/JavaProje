@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
         private static final long serialVersionUID = 1L;
 
-
+//CİHAZ deneme
         private String seriNo;
         private String marka;
         private String model;
