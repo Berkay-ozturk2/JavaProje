@@ -2,6 +2,8 @@ package gui;
 //0000000
 
 import Cihazlar.Cihaz;
+import Garantiler.Garanti;
+import Garantiler.StandartGaranti;
 import Servis.ServisKaydı;
 import Servis.ServisYonetimi;
 
@@ -116,9 +118,19 @@ public class Main extends JFrame implements CihazEkleListener {
             if (selectedRow >= 0) {
                 Cihaz selectedCihaz = cihazListesi.get(selectedRow);
 
+                // YENİ: Garanti Durumuna göre servis ücretini hesapla
+                // Bu örnekte, sadece Standart Garanti kullanıldığını varsayıyoruz.
+                // Gerçek bir uygulamada, cihaza tanımlı olan garanti tipi (Standart/Uzatılmış) kullanılmalıdır.
+                Garanti standartGaranti = new StandartGaranti(selectedCihaz.getGarantiSuresiYil());
+                double servisUcreti = standartGaranti.servisUcretiHesapla(selectedCihaz.getFiyat(), selectedCihaz.isGarantiAktif());
+
+                String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "Sona Ermiş";
+
                 String sorun = JOptionPane.showInputDialog(this,
-                        selectedCihaz.toString() + " için sorun açıklamasını girin:",
+                        String.format("%s için sorun açıklamasını girin:\nGaranti Durumu: %s\nTahmini Servis Ücreti: %.2f TL",
+                                selectedCihaz.toString(), garantiDurumu, servisUcreti),
                         "Servis Kaydı Oluştur", JOptionPane.PLAIN_MESSAGE);
+
 
                 if (sorun != null && !sorun.trim().isEmpty()) {
                     ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, sorun.trim());
