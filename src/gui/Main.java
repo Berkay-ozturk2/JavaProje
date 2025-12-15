@@ -269,7 +269,9 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
+    // src/gui/Main.java içindeki main metodu
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
+        // Doğrudan Main çalıştırılırsa, güvenlik için Giriş Ekranına yönlendirsin
+        SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
