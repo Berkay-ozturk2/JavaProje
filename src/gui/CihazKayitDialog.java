@@ -37,9 +37,6 @@ public class CihazKayitDialog extends JDialog {
 
     private JPanel specificPanel;
     private CardLayout cardLayout;
-    private JCheckBox chkCiftSim;
-    private JCheckBox chkKalemDestegi;
-    private JCheckBox chkHariciEkranKarti;
 
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı (Manuel Giriş)", true);
@@ -301,7 +298,7 @@ public class CihazKayitDialog extends JDialog {
                     yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 case "Tablet":
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip);
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 case "Laptop":
                     yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
