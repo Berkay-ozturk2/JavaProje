@@ -1,4 +1,4 @@
-// src/gui/CihazKayitDialog.java (GÜNCELLENDİ: Model ComboBox ve Otomatik Seri No)
+// src/gui/CihazKayitDialog.java
 package gui;
 
 import Cihazlar.*;
@@ -6,11 +6,10 @@ import Musteri.Musteri;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.HashMap; // YENİ IMPORT
-import java.util.Map; // YENİ IMPORT
-import java.util.Random; // YENİ IMPORT
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
-// Ana pencereye Cihaz nesnesi döndürmek için arayüz
 interface CihazEkleListener {
     void cihazEklendi(Cihaz cihaz);
 }
@@ -19,32 +18,29 @@ public class CihazKayitDialog extends JDialog {
 
     private final CihazEkleListener listener;
 
-    // Ortak Alanlar (Text Fields ve ComboBoxes)
     private JComboBox<String> cmbTur;
-    private JTextField txtSeriNo; // Seri No otomatik üretileceği için JTextField'da tutulacak ve setEditable(false) olacak
+    private JTextField txtSeriNo;
     private JComboBox<String> cmbMarka;
-    private JComboBox<String> cmbModel; // DÜZELTME: Model artık ComboBox
+    private JComboBox<String> cmbModel;
     private JTextField txtFiyat;
 
-    // YENİ ALANLAR: MÜŞTERİ BİLGİLERİ
     private JTextField txtMusteriAd;
     private JTextField txtMusteriSoyad;
     private JTextField txtMusteriTelefon;
 
-    // Cihaz Türlerine ve Markalara Göre Model Listeleri (YENİ YAPILANDIRMA)
     private final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
+    // YENİ: Modellerin ortalama fiyatlarını tutan harita
+    private final Map<String, Double> MODEL_FIYATLARI = new HashMap<>();
 
-    // Cihaz Türlerine Göre Marka Listeleri (Öncekiyle aynı, ancak artık model verisi de var)
     private final String[] TELEFON_MARKALARI = {"Samsung", "Apple", "Xiaomi", "Huawei"};
     private final String[] TABLET_MARKALARI = {"Apple", "Samsung", "Lenovo","Huawei"};
     private final String[] LAPTOP_MARKALARI = {"Dell", "HP", "Lenovo", "Apple", "Asus","Msi"};
 
-    // Cihaza Özgü Alanlar (CardLayout)
     private JPanel specificPanel;
     private CardLayout cardLayout;
-    private JCheckBox chkCiftSim;       // Telefon için
-    private JCheckBox chkKalemDestegi; // Tablet için
-    private JCheckBox chkHariciEkranKarti; // Laptop için
+    private JCheckBox chkCiftSim;
+    private JCheckBox chkKalemDestegi;
+    private JCheckBox chkHariciEkranKarti;
 
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı (Manuel Giriş)", true);
@@ -52,81 +48,115 @@ public class CihazKayitDialog extends JDialog {
         setSize(500, 600);
         setLocationRelativeTo(parent);
 
-        initModelData(); // Model verilerini yükle
+        initModelData();
         initUI();
     }
 
-    /**
-     * Cihaz türü ve markaya göre model verilerini doldurur.
-     */
     private void initModelData() {
-        // TELEFON MODELLERİ
+        // --- MODELLER VE FİYATLARINI TANIMLAYALIM ---
+
+        // TELEFON
         Map<String, String[]> telefonModelleri = new HashMap<>();
         telefonModelleri.put("Samsung", new String[]{"Galaxy S24 Ultra", "Galaxy A55", "Galaxy Flip 5", "Galaxy S23 FE"});
+        // Fiyatlar
+        MODEL_FIYATLARI.put("Galaxy S24 Ultra", 70000.0);
+        MODEL_FIYATLARI.put("Galaxy A55", 20000.0);
+        MODEL_FIYATLARI.put("Galaxy Flip 5", 40000.0);
+        MODEL_FIYATLARI.put("Galaxy S23 FE", 25000.0);
+
         telefonModelleri.put("Apple", new String[]{"iPhone 15 Pro Max", "iPhone SE", "iPhone 14", "iPhone 13"});
+        MODEL_FIYATLARI.put("iPhone 15 Pro Max", 85000.0);
+        MODEL_FIYATLARI.put("iPhone SE", 28000.0);
+        MODEL_FIYATLARI.put("iPhone 14", 45000.0);
+        MODEL_FIYATLARI.put("iPhone 13", 38000.0);
+
         telefonModelleri.put("Xiaomi", new String[]{"Redmi Note 13 Pro", "Xiaomi 14 Ultra", "Poco X6"});
+        MODEL_FIYATLARI.put("Redmi Note 13 Pro", 18000.0);
+        MODEL_FIYATLARI.put("Xiaomi 14 Ultra", 55000.0);
+        MODEL_FIYATLARI.put("Poco X6", 15000.0);
+
         telefonModelleri.put("Huawei", new String[]{"Pura 70 Ultra", "Mate 60 RS"});
+        MODEL_FIYATLARI.put("Pura 70 Ultra", 60000.0);
+        MODEL_FIYATLARI.put("Mate 60 RS", 75000.0);
+
         TUM_MODELLER.put("Telefon", telefonModelleri);
 
-        // TABLET MODELLERİ
+        // TABLET
         Map<String, String[]> tabletModelleri = new HashMap<>();
         tabletModelleri.put("Apple", new String[]{"iPad Pro (M4)", "iPad Air", "iPad Mini"});
+        MODEL_FIYATLARI.put("iPad Pro (M4)", 45000.0);
+        MODEL_FIYATLARI.put("iPad Air", 25000.0);
+        MODEL_FIYATLARI.put("iPad Mini", 20000.0);
+
         tabletModelleri.put("Samsung", new String[]{"Galaxy Tab S9 FE", "Galaxy Tab A9+"});
+        MODEL_FIYATLARI.put("Galaxy Tab S9 FE", 12000.0);
+        MODEL_FIYATLARI.put("Galaxy Tab A9+", 7000.0);
+
         tabletModelleri.put("Lenovo", new String[]{"Tab P12", "Yoga Tab 11", "Tab K10"});
+        MODEL_FIYATLARI.put("Tab P12", 11000.0);
+        MODEL_FIYATLARI.put("Yoga Tab 11", 9000.0);
+        MODEL_FIYATLARI.put("Tab K10", 6000.0);
+
         tabletModelleri.put("Huawei", new String[]{"MatePad Pro 13.2", "MatePad Air"});
+        MODEL_FIYATLARI.put("MatePad Pro 13.2", 30000.0);
+        MODEL_FIYATLARI.put("MatePad Air", 18000.0);
+
         TUM_MODELLER.put("Tablet", tabletModelleri);
 
-        // LAPTOP MODELLERİ
+        // LAPTOP
         Map<String, String[]> laptopModelleri = new HashMap<>();
         laptopModelleri.put("Dell", new String[]{"XPS 15", "Latitude 5000", "G15 Gaming"});
+        MODEL_FIYATLARI.put("XPS 15", 90000.0);
+        MODEL_FIYATLARI.put("Latitude 5000", 40000.0);
+        MODEL_FIYATLARI.put("G15 Gaming", 35000.0);
+
         laptopModelleri.put("HP", new String[]{"Spectre x360", "Pavilion 15", "Victus 16"});
+        MODEL_FIYATLARI.put("Spectre x360", 60000.0);
+        MODEL_FIYATLARI.put("Pavilion 15", 25000.0);
+        MODEL_FIYATLARI.put("Victus 16", 32000.0);
+
         laptopModelleri.put("Lenovo", new String[]{"ThinkPad X1 Carbon", "IdeaPad 5 Pro", "Legion Pro 7i"});
+        MODEL_FIYATLARI.put("ThinkPad X1 Carbon", 80000.0);
+        MODEL_FIYATLARI.put("IdeaPad 5 Pro", 30000.0);
+        MODEL_FIYATLARI.put("Legion Pro 7i", 95000.0);
+
         laptopModelleri.put("Apple", new String[]{"MacBook Air M3", "MacBook Pro 16"});
+        MODEL_FIYATLARI.put("MacBook Air M3", 45000.0);
+        MODEL_FIYATLARI.put("MacBook Pro 16", 90000.0);
+
         laptopModelleri.put("Asus", new String[]{"ROG Zephyrus", "Zenbook 14 OLED", "TUF Gaming F15"});
+        MODEL_FIYATLARI.put("ROG Zephyrus", 70000.0);
+        MODEL_FIYATLARI.put("Zenbook 14 OLED", 40000.0);
+        MODEL_FIYATLARI.put("TUF Gaming F15", 30000.0);
+
         laptopModelleri.put("Msi", new String[]{"Stealth 16", "Titan GT77", "Katana 17"});
+        MODEL_FIYATLARI.put("Stealth 16", 85000.0);
+        MODEL_FIYATLARI.put("Titan GT77", 150000.0);
+        MODEL_FIYATLARI.put("Katana 17", 55000.0);
+
         TUM_MODELLER.put("Laptop", laptopModelleri);
     }
 
-    /**
-     * Cihaz türüne özgü rastgele bir seri numarası üretir.
-     * Örn: TEL-A1B2C3D4E5
-     */
     private static String generateRandomSeriNo(String tur) {
-        String prefix;
-        switch (tur) {
-            case "Telefon":
-                prefix = "TEL";
-                break;
-            case "Tablet":
-                prefix = "TAB";
-                break;
-            case "Laptop":
-                prefix = "LAP";
-                break;
-            default:
-                prefix = "DEV";
-                break;
-        }
-
-        // Rastgele 10 haneli alfanümerik kısım
+        String prefix = switch (tur) {
+            case "Telefon" -> "TEL";
+            case "Tablet" -> "TAB";
+            case "Laptop" -> "LAP";
+            default -> "DEV";
+        };
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         for (int i = 0; i < 10; i++) {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
-
         return prefix + "-" + sb.toString();
     }
-
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
         JPanel generalPanel = new JPanel(new GridLayout(10, 2, 5, 5));
 
-        // =====================================
-        // --- Müşteri Bilgileri ---
-        // =====================================
         txtMusteriAd = new JTextField();
         generalPanel.add(new JLabel("Müşteri Adı:"));
         generalPanel.add(txtMusteriAd);
@@ -139,92 +169,73 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Telefon:"));
         generalPanel.add(txtMusteriTelefon);
 
-        //
-        // =====================================
-        // --- Cihaz Ortak Alanları ---
-        // =====================================
-        // --- 1. Cihaz Türü Seçimi ---
         generalPanel.add(new JLabel("Cihaz Türü:"));
         String[] turler = {"Telefon", "Tablet", "Laptop"};
         cmbTur = new JComboBox<>(turler);
         generalPanel.add(cmbTur);
 
-        // --- 2. Ortak Alanlar Girişi ---
-
-        // DÜZELTME: Seri No Otomatik Üretim
         txtSeriNo = new JTextField(generateRandomSeriNo((String) cmbTur.getSelectedItem()));
-        txtSeriNo.setEditable(false); // Kullanıcının değiştirmesini engelle
+        txtSeriNo.setEditable(false);
         generalPanel.add(new JLabel("Seri No: (Otomatik)"));
         generalPanel.add(txtSeriNo);
 
-        // --- MARKA SEÇİMİ ---
         cmbMarka = new JComboBox<>();
         generalPanel.add(new JLabel("Marka:"));
         generalPanel.add(cmbMarka);
 
-        // --- MODEL SEÇİMİ (YENİ) ---
         cmbModel = new JComboBox<>();
         generalPanel.add(new JLabel("Model:"));
         generalPanel.add(cmbModel);
 
-
-        // Cihaz türü değiştikçe marka listesini ve seri no'yu güncelle
         cmbTur.addActionListener(e -> {
             String secilenTur = (String) cmbTur.getSelectedItem();
             guncelMarkaListesiniDoldur(secilenTur);
             cardLayout.show(specificPanel, secilenTur);
-
-            // Seri No'yu yeni türe göre güncelle
             txtSeriNo.setText(generateRandomSeriNo(secilenTur));
         });
 
-        // Marka değiştikçe Model listesini güncelle (YENİ)
         cmbMarka.addActionListener(e -> {
             String secilenTur = (String) cmbTur.getSelectedItem();
             String secilenMarka = (String) cmbMarka.getSelectedItem();
             guncelModelListesiniDoldur(secilenTur, secilenMarka);
         });
-//yorum satırı
 
-        // Fiyat Girişi
+        // YENİ: Model seçildiğinde fiyatı otomatik getir
+        cmbModel.addActionListener(e -> {
+            String secilenModel = (String) cmbModel.getSelectedItem();
+            if (secilenModel != null && MODEL_FIYATLARI.containsKey(secilenModel)) {
+                txtFiyat.setText(String.valueOf(MODEL_FIYATLARI.get(secilenModel)));
+            }
+        });
+
         txtFiyat = new JTextField();
         generalPanel.add(new JLabel("Fiyat (TL):"));
         generalPanel.add(txtFiyat);
 
-
-        // --- 3. Cihaza Özgü Alanlar (CardLayout ile Yönetilir) ---
         cardLayout = new CardLayout();
         specificPanel = new JPanel(cardLayout);
 
-        // Telefon Alanı
         JPanel telPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chkCiftSim = new JCheckBox("Çift SIM Desteği Var mı?");
         telPanel.add(chkCiftSim);
         specificPanel.add(telPanel, "Telefon");
 
-        // Tablet Alanı
         JPanel tabletPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chkKalemDestegi = new JCheckBox("Kalem Desteği Var mı?");
         tabletPanel.add(chkKalemDestegi);
         specificPanel.add(tabletPanel, "Tablet");
 
-        // Laptop Alanı
         JPanel laptopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chkHariciEkranKarti = new JCheckBox("Harici Ekran Kartı Var mı?");
         laptopPanel.add(chkHariciEkranKarti);
         specificPanel.add(laptopPanel, "Laptop");
 
-
-        // --- Başlangıç Ayarları ---
-        // Başlangıçta ilk seçili türün markasını ve modelini yükle
         guncelMarkaListesiniDoldur((String) cmbTur.getSelectedItem());
         cardLayout.show(specificPanel, (String) cmbTur.getSelectedItem());
 
-        // --- 4. Kaydet Butonu ---
         JButton btnKaydet = new JButton("Cihazı Kaydet");
         btnKaydet.addActionListener(e -> kaydet());
 
-        // Layout Birleştirme
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPanel.add(generalPanel, BorderLayout.NORTH);
@@ -234,44 +245,26 @@ public class CihazKayitDialog extends JDialog {
         add(btnKaydet, BorderLayout.SOUTH);
     }
 
-    /**
-     * Seçilen cihaza göre marka ComboBox'ını doldurur.
-     */
     private void guncelMarkaListesiniDoldur(String tur) {
-        cmbMarka.removeAllItems(); // Önceki öğeleri temizle
-
+        cmbMarka.removeAllItems();
         String[] markalar;
         switch (tur) {
-            case "Telefon":
-                markalar = TELEFON_MARKALARI;
-                break;
-            case "Tablet":
-                markalar = TABLET_MARKALARI;
-                break;
-            case "Laptop":
-                markalar = LAPTOP_MARKALARI;
-                break;
-            default:
-                markalar = new String[]{};
-                break;
+            case "Telefon": markalar = TELEFON_MARKALARI; break;
+            case "Tablet": markalar = TABLET_MARKALARI; break;
+            case "Laptop": markalar = LAPTOP_MARKALARI; break;
+            default: markalar = new String[]{}; break;
         }
-
         for (String marka : markalar) {
             cmbMarka.addItem(marka);
         }
-
-        // YENİ: Marka listesi yüklendikten sonra ilk markanın model listesini de yükle
         if (cmbMarka.getItemCount() > 0) {
-            cmbMarka.setSelectedIndex(0); // İlk öğeyi otomatik seç
+            cmbMarka.setSelectedIndex(0);
             guncelModelListesiniDoldur(tur, (String) cmbMarka.getSelectedItem());
         } else {
-            guncelModelListesiniDoldur(tur, null); // Model listesini temizle
+            guncelModelListesiniDoldur(tur, null);
         }
     }
 
-    /**
-     * Seçilen marka ve türe göre model ComboBox'ını doldurur. (YENİ)
-     */
     private void guncelModelListesiniDoldur(String tur, String marka) {
         cmbModel.removeAllItems();
         if (tur != null && marka != null && TUM_MODELLER.containsKey(tur) && TUM_MODELLER.get(tur).containsKey(marka)) {
@@ -282,65 +275,52 @@ public class CihazKayitDialog extends JDialog {
         }
     }
 
-
     private void kaydet() {
         try {
-            // Müşteri Bilgileri
             String mAd = txtMusteriAd.getText().trim();
             String mSoyad = txtMusteriSoyad.getText().trim();
             String mTelefon = txtMusteriTelefon.getText().trim();
 
             if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
-                throw new IllegalArgumentException("Müşteri Adı, Soyadı ve Telefon bilgileri zorunludur.");
+                throw new IllegalArgumentException("Müşteri bilgileri zorunludur.");
             }
 
-            // Müşteri nesnesi oluştur
-            Musteri sahip = new Musteri(mAd, mSoyad, mTelefon );
-
-            // Cihaz Bilgileri
-            String seriNo = txtSeriNo.getText().trim(); // Otomatik üretilen seri no
+            Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
+            String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
-            String model = (String) cmbModel.getSelectedItem(); // ComboBox'tan al
+            String model = (String) cmbModel.getSelectedItem();
 
-            if (marka == null || model == null || marka.isEmpty() || model.isEmpty()) {
+            if (marka == null || model == null) {
                 throw new IllegalArgumentException("Marka ve Model seçimi zorunludur.");
             }
 
-            // Fiyat değerini al ve kontrol et
             double fiyat = Double.parseDouble(txtFiyat.getText().trim());
-            if (fiyat <= 0) {
-                throw new IllegalArgumentException("Cihaz fiyatı pozitif bir değer olmalıdır.");
-            }
+            if (fiyat <= 0) throw new IllegalArgumentException("Cihaz fiyatı pozitif olmalıdır.");
 
             String tur = (String) cmbTur.getSelectedItem();
             LocalDate garantiBaslangic = LocalDate.now();
-
-
             Cihaz yeniCihaz;
 
             switch (tur) {
                 case "Telefon":
-                    // chkCiftSim'in durumu Telefon constructor'ında kullanılmadığı için dikkate alınmaz
                     yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 case "Tablet":
-                    boolean kalemDestegi = chkKalemDestegi.isSelected();
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, kalemDestegi, sahip);
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip);
                     break;
                 case "Laptop":
-                    // chkHariciEkranKarti'nın durumu Laptop constructor'ında kullanılmadığı için dikkate alınmaz
                     yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 default:
-                    throw new IllegalArgumentException("Geçersiz cihaz türü seçimi.");
+                    throw new IllegalArgumentException("Geçersiz tür.");
             }
 
             listener.cihazEklendi(yeniCihaz);
             JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "Başarılı", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // Pencereyi kapat
+            dispose();
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Fiyat alanı geçerli bir sayı olmalıdır.", "Hata", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Fiyat geçerli bir sayı olmalıdır.", "Hata", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
         }

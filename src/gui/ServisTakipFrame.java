@@ -1,3 +1,4 @@
+// src/gui/ServisTakipFrame.java
 package gui;
 
 import Servis.ServisDurumu;
@@ -18,7 +19,7 @@ public class ServisTakipFrame extends JFrame {
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         setTitle("Servis Kayıtları ve Takibi");
-        setSize(900, 450);
+        setSize(1000, 450); // Genişliği artırdık sütunlar sığsın diye
         setLocationRelativeTo(null);
 
         initUI();
@@ -26,9 +27,9 @@ public class ServisTakipFrame extends JFrame {
     }
 
     private void initUI() {
-        // --- Table Model ---
+        // YENİ: Tablo sütunlarına "Teknisyen" ve "Ücret" eklendi
         servisTableModel = new DefaultTableModel(
-                new Object[]{"Seri No", "Cihaz Adı", "Sorun Açıklaması", "Giriş Tarihi", "Durum"}, 0
+                new Object[]{"Seri No", "Cihaz", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -39,29 +40,25 @@ public class ServisTakipFrame extends JFrame {
         servisTable = new JTable(servisTableModel);
         JScrollPane scrollPane = new JScrollPane(servisTable);
 
-        // --- Buttons ---
         JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
 
         btnDurumGuncelle.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
-                // Kayıt listesinden ilgili nesneyi bul
                 ServisKaydı kayit = servisYonetimi.getKayitlar().get(selectedRow);
-
-                if (!kayit.getDurum().equals("Tamamlandı")) {
-                    kayit.setDurum(ServisDurumu.valueOf("Tamamlandı"));
-                    servisYonetimi.kayitGuncelle(); // Kaydet
-                    kayitlariTabloyaDoldur(); // Tabloyu yenile
-                    JOptionPane.showMessageDialog(this, kayit.getCihaz().getSeriNo() + " cihazının durumu 'Tamamlandı' olarak güncellendi.");
+                if (kayit.getDurum() != ServisDurumu.TAMAMLANDI) {
+                    kayit.setDurum(ServisDurumu.TAMAMLANDI);
+                    servisYonetimi.kayitGuncelle();
+                    kayitlariTabloyaDoldur();
+                    JOptionPane.showMessageDialog(this, "Durum güncellendi: Tamamlandı.");
                 } else {
-                    JOptionPane.showMessageDialog(this, "Bu kayıt zaten tamamlanmış.");
+                    JOptionPane.showMessageDialog(this, "Zaten tamamlanmış.");
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Lütfen güncellenecek bir servis kaydı seçin.");
+                JOptionPane.showMessageDialog(this, "Lütfen bir kayıt seçin.");
             }
         });
 
-        // --- Layout ---
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(btnDurumGuncelle);
 
@@ -70,16 +67,20 @@ public class ServisTakipFrame extends JFrame {
     }
 
     private void kayitlariTabloyaDoldur() {
-        servisTableModel.setRowCount(0); // Tabloyu temizle
+        servisTableModel.setRowCount(0);
         List<ServisKaydı> kayitlar = servisYonetimi.getKayitlar();
 
         for (ServisKaydı sk : kayitlar) {
+            String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
+
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
-                    sk.getDurum()
+                    sk.getDurum(),
+                    teknisyenAdi,          // Yeni Sütun Verisi
+                    sk.getOdenecekTamirUcreti() // Yeni Sütun Verisi
             });
         }
     }
