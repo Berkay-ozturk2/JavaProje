@@ -184,7 +184,7 @@ public class CihazKayitDialog extends JDialog {
             String secilenMarka = (String) cmbMarka.getSelectedItem();
             guncelModelListesiniDoldur(secilenTur, secilenMarka);
         });
-
+//yorum satırı
 
         // Fiyat Girişi
         txtFiyat = new JTextField();
