@@ -1,12 +1,14 @@
 package Cihazlar;
 
 
+import java.time.LocalDate;
+
 public class Tablet extends Cihaz {
     private boolean kalemDestegi;
 
 
     public Tablet(String seriNo, String marka, String model, double fiyat,
-                  double garantiBaslangic, boolean kalemDestegi) {
+                  LocalDate garantiBaslangic, boolean kalemDestegi) {
         super(seriNo, marka, model, fiyat, garantiBaslangic);
         this.kalemDestegi = kalemDestegi;
     }

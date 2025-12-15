@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate; // Gerekli import eklendi
 
 public class Main extends JFrame {
 
@@ -48,38 +49,45 @@ public class Main extends JFrame {
         JButton btnSil = new JButton("Seçili Cihazı Sil");
 
         btnTelefon.addActionListener(e -> {
+            // DÜZELTME: Cihaz.java'daki yapıcı metot (constructor) gereksinimi olan LocalDate yerine
+            // yanlışlıkla int tipinde bir değer (48) gönderilmişti.
+            // Bu kodun çalışması için Telefon.java sınıfındaki constructor'ın da int yerine LocalDate alacak şekilde düzeltilmesi GEREKİR.
             Telefon t = new Telefon(
                     "T" + (cihazListesi.size() + 1),
                     "Samsung",
                     "Galaxy S",
                     25000,
-                    48,
+                    LocalDate.now(), // LocalDate.now() ile değiştirildi
                     true
             );
             cihazEkle(t);
         });
 
         btnTablet.addActionListener(e -> {
+            // DÜZELTME: Cihaz.java'daki yapıcı metot (constructor) gereksinimi olan LocalDate yerine
+            // yanlışlıkla double tipinde bir değer (11.0) gönderilmişti.
+            // Bu kodun çalışması için Tablet.java sınıfındaki constructor'ın da double yerine LocalDate alacak şekilde düzeltilmesi GEREKİR.
             Tablet tb = new Tablet(
                     "TB" + (cihazListesi.size() + 1),
                     "Apple",
                     "iPad",
                     32000,
-                    11.0,
+                    LocalDate.now(), // LocalDate.now() ile değiştirildi
                     true
             );
             cihazEkle(tb);
         });
 
         btnLaptop.addActionListener(e -> {
+            // DÜZELTME: Laptop constructor'ı 6 parametre beklerken 7 parametre ve yanlış tiplerle çağrılmıştı.
+            // (String, String, String, double, LocalDate, boolean) yapısına uygun hale getirildi.
             Laptop l = new Laptop(
                     "L" + (cihazListesi.size() + 1),
                     "Dell",
                     "XPS",
                     45000,
-                    "i7",
-                    16,
-                    true
+                    LocalDate.now(), // "i7" yerine LocalDate.now() (garantiBaslangic)
+                    true             // 16 ve fazladan true parametresi kaldırıldı, sadece hariciEkranKarti kaldı.
             );
             cihazEkle(l);
         });
