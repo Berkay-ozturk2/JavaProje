@@ -1,21 +1,18 @@
-// src/Cihazlar/Laptop.java (GÜNCELLENDİ)
+// src/Cihazlar/Laptop.java (GÜNCELLENDİ: Fiyat Parametresi Eklendi)
 package Cihazlar;
 
 import java.time.LocalDate;
-import Musteri.Musteri; // YENİ IMPORT
+import Musteri.Musteri;
 
 
 public class Laptop extends Cihaz {
 
 
-
-    public Laptop(String seriNo, String marka, String model,
-                  LocalDate garantiBaslangic, boolean hariciEkranKarti, Musteri sahip) { // CONSTRUCTOR GÜNCELLENDİ
-        super(seriNo, marka, model, garantiBaslangic, sahip);
+    public Laptop(String seriNo, String marka, String model, double fiyat, // Fiyat eklendi
+                  LocalDate garantiBaslangic, Musteri sahip) {
+        super(seriNo, marka, model, fiyat, garantiBaslangic, sahip); // Fiyat super'a gönderildi
 
     }
-
-
 
 
     @Override

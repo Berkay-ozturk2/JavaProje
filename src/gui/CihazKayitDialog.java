@@ -199,15 +199,15 @@ public class CihazKayitDialog extends JDialog {
             switch (tur) {
                 case "Telefon":
                     boolean ciftSim = chkCiftSim.isSelected();
-                    yeniCihaz = new Telefon(seriNo, marka, model, garantiBaslangic, sahip); // Müşteri eklendi
+                    yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, ciftSim, sahip); // Müşteri eklendi
                     break;
                 case "Tablet":
                     boolean kalemDestegi = chkKalemDestegi.isSelected();
-                    yeniCihaz = new Tablet(seriNo, marka, model,  garantiBaslangic, kalemDestegi, sahip); // Müşteri eklendi
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, kalemDestegi, sahip); // Müşteri eklendi
                     break;
                 case "Laptop":
                     boolean hariciEkranKarti = chkHariciEkranKarti.isSelected();
-                    yeniCihaz = new Laptop(seriNo, marka, model,  garantiBaslangic, hariciEkranKarti, sahip); // Müşteri eklendi
+                    yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, hariciEkranKarti, sahip); // Müşteri eklendi
                     break;
                 default:
                     throw new IllegalArgumentException("Geçersiz cihaz türü seçimi.");

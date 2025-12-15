@@ -1,26 +1,28 @@
-// src/Cihazlar/Cihaz.java (GÜNCELLENDİ)
+// src/Cihazlar/Cihaz.java (HATA DÜZELTME: Fiyat Alanı Eklendi)
 package Cihazlar;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Random;
 
-import Musteri.Musteri; // YENİ IMPORT
+import Musteri.Musteri;
 
 public abstract class Cihaz implements Serializable {
     private String seriNo;
     private String marka;
     private String model;
+    private double fiyat; // YENİ ALAN: Cihaz fiyatı
 
     private LocalDate garantiBaslangic;
     private static final Random RND = new Random();
-    private Musteri sahip; // YENİ ALAN: Cihazın sahibi
+    private Musteri sahip;
 
     // CONSTRUCTOR GÜNCELLENDİ
-    public Cihaz(String seriNo, String marka, String model, LocalDate garantiBaslangic, Musteri sahip) {
+    public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
         this.seriNo = seriNo;
         this.marka = marka;
         this.model = model;
-        this.sahip = sahip; // Sahip bilgisi atandı
+        this.fiyat = fiyat; // Fiyat atandı
+        this.sahip = sahip;
 
         // Garanti başlangıç tarihi parametresini dikkate almadan,
         // cihazın garantisinin bitmiş olma ihtimalini simüle etmek için rastgele oluştur.
@@ -46,9 +48,10 @@ public abstract class Cihaz implements Serializable {
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
+    public double getFiyat() { return fiyat; } // YENİ GETTER
 
     public LocalDate getGarantiBaslangic() { return garantiBaslangic; }
-    public Musteri getSahip() { return sahip; } // YENİ GETTER
+    public Musteri getSahip() { return sahip; }
 
 
     // Abstract methods (polymorphism)
@@ -74,6 +77,6 @@ public abstract class Cihaz implements Serializable {
     public String toString() {
         // Garanti durumunu da ekle
         String garantiDurumu = isGarantiAktif() ? "Aktif" : "Sona Ermiş";
-        return String.format("%s [%s - %s] (%s) - Sahibi: %s - Garanti: %s", getCihazTuru(), marka, model, seriNo, sahip.toString(), garantiDurumu);
+        return String.format("%s [%s - %s] (Seri No: %s, Fiyat: %.2f TL) - Sahibi: %s - Garanti: %s", getCihazTuru(), marka, model, seriNo, fiyat, sahip.toString(), garantiDurumu);
     }
 }

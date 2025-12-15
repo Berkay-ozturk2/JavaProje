@@ -17,18 +17,15 @@ public abstract class Garanti {
     // CONSTRUCTOR 2 (Overloading)
     public Garanti(int sureYil) {
         // Standart garanti başlangıç tarihi için varsayılan olarak bugün kullanılır.
-        // Cihaz objesi, garanti başlangıç tarihini rastgele oluşturduğu için buradaki date değeri
-        // Cihaz objesi içindeki tarih ile çakışmaz.
         this(LocalDate.now(), sureYil);
     }
 
-    // YENİ ABSTRACT METHOD: Servis/Onarım Ücreti Hesapla
-    // Garanti kapsamındaki bir servisin ücretini hesaplar.
-    // Garanti aktifse 0, değilse bir ücret döndürür.
-    public abstract double servisUcretiHesapla( boolean garantiAktifMi);
+    // HATA DÜZELTME: servisUcretiHesapla metot imzası, alt sınıflarla uyumlu olacak şekilde cihazFiyati parametresini içerecek şekilde güncellendi.
+    public abstract double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi);
 
-    // ESKİ ABSTRACT METHODUN YENİ İSMİ: Garanti Ücreti Hesapla
-    // Uzatılmış garanti gibi ek ücret gerektiren durumlarda kullanılır.
+
+    // Garanti Ücreti Hesapla
+    public abstract double garantiUcretiHesapla(double cihazFiyati);
 
 
     public abstract String garantiTuru();

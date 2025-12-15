@@ -1,14 +1,11 @@
-// src/gui/Main.java (GÜNCELLENDİ)
+// src/gui/Main.java (HATA DÜZELTME: Cihaz Fiyatı Tabloya Eklendi ve Combobox Sorun Seçimi Entegre Edildi)
 package gui;
-//0000000
 
 import Cihazlar.Cihaz;
-import Garantiler.Garanti;
-import Garantiler.StandartGaranti;
 import Servis.ServisKaydı;
 import Servis.ServisYonetimi;
-import Servis.Teknisyen; // YENİ IMPORT
-import java.util.Random; // YENİ IMPORT
+import Servis.Teknisyen;
+import java.util.Random;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,9 +15,27 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 // CihazEkleListener arayüzünü uygulayarak eklenen cihazı yakalar
 public class Main extends JFrame implements CihazEkleListener {
+
+    // YENİ: Garanti dışı tahmini fiyatları içeren sorun listesi
+    private static final String[] SERVIS_SORUNLARI = new String[] {
+            "Ekran kırık, çatlak veya görüntü yok (500-1500 TL)",
+            "Dokunmatik çalışmıyor veya hatalı çalışıyor (400-1200 TL)",
+            "Pil/Batarya şarj tutmuyor veya şişme var (300-700 TL)",
+            "Şarj soketi temassızlık yapıyor veya bozuk (250-550 TL)",
+            "Kasa/Kapak kırık/deforme (200-600 TL)",
+            "Hoparlörden ses gelmiyor veya cızırtılı (150-400 TL)",
+            "Mikrofon arızası (150-400 TL)",
+            "Ön/Arka kamera çalışmıyor (450-900 TL)",
+            "Cihaz açılmıyor, sürekli yeniden başlıyor (800-2500 TL)",
+            "Cihaz sıvı teması aldı (300-3000 TL)",
+            "Diğer/Spesifik bir arıza (100-1000 TL)"
+    };
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -100,6 +115,25 @@ public class Main extends JFrame implements CihazEkleListener {
         return teknisyenler.get(index);
     }
 
+    // Combobox seçeneğinden maksimum fiyatı çeker
+    // Örneğin: "Ekran kırık... (500-1500 TL)" -> 1500.0
+    private static double getMaxFiyatFromSorun(String sorunAciklamasi) {
+        // Parantez içindeki sayı aralığını bulmak için regex: (\d+) ilk sayı, (\d+) ikinci sayı
+        Pattern pattern = Pattern.compile("\\((\\d+)-(\\d+)\\s+TL\\)");
+        Matcher matcher = pattern.matcher(sorunAciklamasi);
+
+        if (matcher.find()) {
+            try {
+                // İkinci yakalanan grup (maksimum fiyat)
+                return Double.parseDouble(matcher.group(2));
+            } catch (NumberFormatException e) {
+                // Sayısal dönüşüm hatası olursa 0.0 döndür
+                return 0.0;
+            }
+        }
+        return 0.0; // Fiyat aralığı bulunamazsa 0.0 döndür
+    }
+
     // ===================================
     // GUI Oluşturma Metodu
     // ===================================
@@ -107,6 +141,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
         // ---------------- TABLE MODEL ----------------
         tableModel = new DefaultTableModel(
+                // Tablo sütun başlıkları
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Fiyat", "Garanti Bitiş"}, 0
         ) {
             @Override
@@ -132,36 +167,59 @@ public class Main extends JFrame implements CihazEkleListener {
             dialog.setVisible(true);
         });
 
-        // 2. Servis Kaydı Oluşturma (GÜNCELLENDİ: Random Teknisyen Atama Eklendi)
+        // 2. Servis Kaydı Oluşturma (GÜNCELLENDİ: Combobox Kullanımı ve Fiyat Ayarlama)
         btnServisKaydi.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 Cihaz selectedCihaz = cihazListesi.get(selectedRow);
 
-                // Garanti Durumuna göre servis ücretini hesapla (tahmini tamir ücreti için kullanılır)
-                Garanti standartGaranti = new StandartGaranti(selectedCihaz.getGarantiSuresiYil());
-                double servisUcreti = standartGaranti.servisUcretiHesapla(selectedCihaz.isGarantiAktif());
+                // Garanti Durumunu Kontrol Et
+                boolean garantiAktifMi = selectedCihaz.isGarantiAktif();
+                String garantiDurumu = garantiAktifMi ? "Aktif (Servis Ücretsiz)" : "Sona Ermiş (Tahmini Ücretli)";
 
-                String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "Sona Ermiş";
+                // Sorun Seçimi için Combobox Oluştur
+                JComboBox<String> sorunComboBox = new JComboBox<>(SERVIS_SORUNLARI);
+                sorunComboBox.setSelectedIndex(-1); // Varsayılan boş seçim
 
-                String sorun = JOptionPane.showInputDialog(this,
-                        String.format("%s için sorun açıklamasını girin:\nGaranti Durumu: %s\nTahmini Servis Ücreti: %.2f TL",
-                                selectedCihaz.toString(), garantiDurumu, servisUcreti),
-                        "Servis Kaydı Oluştur", JOptionPane.PLAIN_MESSAGE);
+                // Görüntülenecek mesajı hazırla
+                String mesaj = String.format("%s için sorun seçin:\nGaranti Durumu: %s",
+                        selectedCihaz.toString(), garantiDurumu);
+
+                // JOptionPane'ı Combobox ile göster
+                int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                String secilenSorun = null;
+                double tahminiUcret = 0.0;
+
+                if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
+                    secilenSorun = (String) sorunComboBox.getSelectedItem();
+
+                    if (garantiAktifMi) {
+                        // Garanti aktifse ücret 0.0 TL
+                        tahminiUcret = 0.0;
+                    } else {
+                        // Garanti aktif değilse Combobox'tan maksimum fiyatı çek
+                        tahminiUcret = getMaxFiyatFromSorun(secilenSorun);
+
+                        // Combobox metnini sadece sorun açıklaması olacak şekilde temizle (Örn: "Ekran kırık, çatlak veya görüntü yok")
+                        secilenSorun = secilenSorun.replaceAll("\\s*\\([^)]+\\)", "").trim();
+                    }
 
 
-                if (sorun != null && !sorun.trim().isEmpty()) {
-                    ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, sorun.trim());
+                    ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, secilenSorun); // Seçilen sorunu kullan
 
-                    // Hesaplanan tahmini ücreti kayda ata
-                    yeniKayit.setTahminiTamirUcreti(servisUcreti);
+                    // Yeni hesaplanan tahmini ücreti kayda ata
+                    yeniKayit.setTahminiTamirUcreti(tahminiUcret);
 
                     // YENİ: Rastgele teknisyen ata
                     Teknisyen atananTeknisyen = rastgeleTeknisyenSec();
                     yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
                     servisYonetimi.servisKaydiEkle(yeniKayit);
-                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla oluşturuldu. Atanan Teknisyen: " + atananTeknisyen.getAd());
+                    JOptionPane.showMessageDialog(this, String.format("Servis kaydı başarıyla oluşturuldu.\nAtanan Teknisyen: %s\nÖdenecek Tahmini Ücret: %.2f TL", atananTeknisyen.getAd(), yeniKayit.getOdenecekTamirUcreti()));
+                } else if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() == null) {
+                    // Kullanıcı Combobox'tan hiçbir şey seçmeden OK'e basarsa
+                    JOptionPane.showMessageDialog(this, "Lütfen bir sorun seçimi yapın.", "Hata", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Lütfen servis kaydı oluşturulacak cihazı seçin");
@@ -209,7 +267,7 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    c.getFiyat(),
+                    c.getFiyat(), // HATA DÜZELTME: getFiyat() artık mevcut ve kullanılıyor.
                     c.getGarantiBitisTarihi()
             });
         }
