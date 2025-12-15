@@ -2,21 +2,18 @@ package Cihazlar;
 
 
 public class Telefon extends Cihaz {
+    private boolean ciftSim;
 
 
-    private int kameraMP;
-    private boolean ciftHat;
-
-
-    public Telefon(String seriNo, String marka, String model) {
-        super(seriNo, marka, model);
+    public Telefon(String seriNo, String marka, String model, double fiyat,
+                   int garantiBaslangic, boolean ciftSim) {
+        super(seriNo, marka, model, fiyat, garantiBaslangic);
+        this.ciftSim = ciftSim;
     }
 
 
-    public Telefon(String seriNo, String marka, String model, double fiyat, int kameraMP, boolean ciftHat) {
-        super(seriNo, marka, model, fiyat, java.time.LocalDate.now());
-        this.kameraMP = kameraMP;
-        this.ciftHat = ciftHat;
+    public boolean isCiftSim() {
+        return ciftSim;
     }
 
 
@@ -30,12 +27,4 @@ public class Telefon extends Cihaz {
     public String getCihazTuru() {
         return "Telefon";
     }
-
-
-    public int getKameraMP() { return kameraMP; }
-    public void setKameraMP(int kameraMP) { this.kameraMP = kameraMP; }
-
-
-    public boolean isCiftHat() { return ciftHat; }
-    public void setCiftHat(boolean ciftHat) { this.ciftHat = ciftHat; }
 }
