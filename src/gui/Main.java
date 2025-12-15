@@ -1,51 +1,67 @@
-// ===== B KRİTERLERİNE UYGUN, SWING GUI MAIN SINIFI =====
-
 package gui;
 
-import Cihazlar.*;
+import Cihazlar.Cihaz;
 import Servis.ServisKaydı;
 import Servis.ServisYonetimi;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.*; // Dosya işlemleri için
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main extends JFrame {
+// CihazEkleListener arayüzünü uygulayarak eklenen cihazı yakalar
+public class Main extends JFrame implements CihazEkleListener {
 
     private JTable table;
     private DefaultTableModel tableModel;
 
-    // Cihaz listesi ve yönetimi için gerekli değişkenler
+    // Alanlar: Cihaz listesi, dosya adı ve servis yöneticisi
     private List<Cihaz> cihazListesi = new ArrayList<>();
     private static final String CİHAZ_DOSYA_ADI = "cihaz_listesi.ser";
 
-    // Servis yönetimi nesnesi
     private ServisYonetimi servisYonetimi;
 
+    // CONSTRUCTOR
     public Main() {
-        setTitle("Dijital Cihaz Garanti & Servis Sistemi");
-        setSize(1000, 500); // Pencere boyutunu büyütelim
+        setTitle("Dijital Cihaz Garanti & Servis Sistemi (Ana Ekran)");
+        setSize(850, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // 1. Başlangıçta cihaz ve servis kayıtlarını yükle
+        // 1. Verileri yükle
         cihazListesi = cihazYukle();
-        servisYonetimi = new ServisYonetimi(); // Bu constructor içinde otomatik yükleme yapılır
+        servisYonetimi = new ServisYonetimi();
 
+        // 2. Arayüzü başlat ve tabloyu doldur
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
     }
 
-    // Cihaz listesini dosyadan yükleme metodu
+    // ===================================
+    // CihazEkleListener Metodu (Callback)
+    // ===================================
+    @Override
+    public void cihazEklendi(Cihaz cihaz) {
+        cihazListesi.add(cihaz);
+        cihazListesiniTabloyaDoldur(cihazListesi);
+        cihazKaydet(cihazListesi); // Ekleme sonrası dosyaya kaydet
+    }
+
+    // ===================================
+    // Dosya İşlemleri Metotları
+    // ===================================
+
     private List<Cihaz> cihazYukle() {
         File dosya = new File(CİHAZ_DOSYA_ADI);
         if (dosya.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dosya))) {
-                return (List<Cihaz>) ois.readObject();
+                // List<Cihaz> tipine güvenli dönüşüm
+                @SuppressWarnings("unchecked")
+                List<Cihaz> yuklenenListe = (List<Cihaz>) ois.readObject();
+                return yuklenenListe;
             } catch (IOException | ClassNotFoundException e) {
                 JOptionPane.showMessageDialog(this, "Cihaz listesi yüklenirken hata oluştu: " + e.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
             }
@@ -53,7 +69,6 @@ public class Main extends JFrame {
         return new ArrayList<>();
     }
 
-    // Cihaz listesini dosyaya kaydetme metodu
     private void cihazKaydet(List<Cihaz> liste) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CİHAZ_DOSYA_ADI))) {
             oos.writeObject(liste);
@@ -62,6 +77,9 @@ public class Main extends JFrame {
         }
     }
 
+    // ===================================
+    // GUI Oluşturma Metodu
+    // ===================================
     private void initUI() {
 
         // ---------------- TABLE MODEL ----------------
@@ -78,79 +96,60 @@ public class Main extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
 
         // ---------------- BUTTONS ----------------
-        JButton btnTelefon = new JButton("Telefon Ekle");
-        JButton btnTablet = new JButton("Tablet Ekle");
-        JButton btnLaptop = new JButton("Laptop Ekle");
-        JButton btnServisKaydi = new JButton("Servis Kaydı Oluştur"); // YENİ: Servis Kaydı butonu
-        JButton btnServisListele = new JButton("Servis Kayıtlarını Göster"); // YENİ: Servis Listeleme butonu
+        JButton btnCihazEkle = new JButton("Yeni Cihaz Ekle (Manuel Giriş)...");
+        JButton btnServisKaydi = new JButton("Servis Kaydı Oluştur");
+        JButton btnServisListele = new JButton("Servis Takip Ekranı");
         JButton btnSil = new JButton("Seçili Cihazı Sil");
 
-        // Cihaz Ekleme Butonları (Kaydetme çağrısı eklendi)
-        btnTelefon.addActionListener(e -> {
-            Telefon t = new Telefon(
-                    "T" + (cihazListesi.size() + 1), "Samsung", "Galaxy S", 25000, LocalDate.now(), true
-            );
-            cihazEkle(t);
+        // --- Buton Aksiyonları ---
+
+        // 1. Yeni Cihaz Kayıt Dialogunu Aç
+        btnCihazEkle.addActionListener(e -> {
+            CihazKayitDialog dialog = new CihazKayitDialog(this, this);
+            dialog.setVisible(true);
         });
 
-        btnTablet.addActionListener(e -> {
-            Tablet tb = new Tablet(
-                    "TB" + (cihazListesi.size() + 1), "Apple", "iPad", 32000, LocalDate.now(), true
-            );
-            cihazEkle(tb);
-        });
-
-        btnLaptop.addActionListener(e -> {
-            Laptop l = new Laptop(
-                    "L" + (cihazListesi.size() + 1), "Dell", "XPS", 45000, LocalDate.now(), true
-            );
-            cihazEkle(l);
-        });
-
-        // Seçili Cihazı Silme (Kaydetme çağrısı eklendi)
-        btnSil.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0) {
-                cihazListesi.remove(selectedRow);
-                tableModel.removeRow(selectedRow);
-                cihazKaydet(cihazListesi); // Silme sonrası kaydet
-            } else {
-                JOptionPane.showMessageDialog(this, "Lütfen silinecek cihazı seçin");
-            }
-        });
-
-        // YENİ: Servis Kaydı Oluşturma İşlemi
+        // 2. Servis Kaydı Oluşturma
         btnServisKaydi.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 Cihaz selectedCihaz = cihazListesi.get(selectedRow);
 
-                // Kullanıcıdan sorun açıklamasını al
                 String sorun = JOptionPane.showInputDialog(this,
                         selectedCihaz.toString() + " için sorun açıklamasını girin:",
                         "Servis Kaydı Oluştur", JOptionPane.PLAIN_MESSAGE);
 
                 if (sorun != null && !sorun.trim().isEmpty()) {
                     ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, sorun.trim());
-                    servisYonetimi.servisKaydiEkle(yeniKayit); // Ekle ve Kaydet
-                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla oluşturuldu ve dosyaya kaydedildi.");
+                    servisYonetimi.servisKaydiEkle(yeniKayit);
+                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla oluşturuldu.");
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Lütfen servis kaydı oluşturulacak cihazı seçin");
             }
         });
 
-        // YENİ: Servis Kayıtlarını Listeleme İşlemi
+        // 3. Servis Takip Ekranını Aç
         btnServisListele.addActionListener(e -> {
-            // Servis kayıtlarını yeni bir pencerede listele
-            ServisKayitlariniGoster(servisYonetimi.getKayitlar());
+            ServisTakipFrame servisFrame = new ServisTakipFrame(servisYonetimi);
+            servisFrame.setVisible(true);
+        });
+
+        // 4. Cihaz Silme
+        btnSil.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow >= 0) {
+                cihazListesi.remove(selectedRow);
+                tableModel.removeRow(selectedRow);
+                cihazKaydet(cihazListesi);
+            } else {
+                JOptionPane.showMessageDialog(this, "Lütfen silinecek cihazı seçin");
+            }
         });
 
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.add(btnTelefon);
-        buttonPanel.add(btnTablet);
-        buttonPanel.add(btnLaptop);
+        buttonPanel.add(btnCihazEkle);
         buttonPanel.add(btnServisKaydi);
         buttonPanel.add(btnServisListele);
         buttonPanel.add(btnSil);
@@ -160,13 +159,9 @@ public class Main extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void cihazEkle(Cihaz c) {
-        cihazListesi.add(c);
-        cihazListesiniTabloyaDoldur(cihazListesi); // Tabloyu yeniden doldur
-        cihazKaydet(cihazListesi); // Ekleme sonrası kaydet
-    }
-
-    // Cihaz listesini tabloya doldurma metodu
+    // ===================================
+    // Tablo Doldurma Metodu
+    // ===================================
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
         tableModel.setRowCount(0); // Tabloyu temizle
         for (Cihaz c : liste) {
@@ -176,41 +171,14 @@ public class Main extends JFrame {
                     c.getModel(),
                     c.getSeriNo(),
                     c.getFiyat(),
-                    c.getGarantiBitisTarihi() // Garanti bitiş tarihini de göster
+                    c.getGarantiBitisTarihi()
             });
         }
     }
 
-    // Servis kayıtlarını ayrı bir pencerede gösteren basit bir metot
-    private void ServisKayitlariniGoster(List<ServisKaydı> kayitlar) {
-        JFrame servisFrame = new JFrame("Tüm Servis Kayıtları");
-        servisFrame.setSize(800, 300);
-
-        if (kayitlar.isEmpty()) {
-            servisFrame.add(new JLabel("Henüz oluşturulmuş bir servis kaydı bulunmamaktadır."), BorderLayout.CENTER);
-        } else {
-            DefaultTableModel servisTableModel = new DefaultTableModel(
-                    new Object[]{"Seri No", "Cihaz", "Sorun", "Giriş Tarihi", "Durum"}, 0
-            );
-            JTable servisTable = new JTable(servisTableModel);
-
-            for (ServisKaydı sk : kayitlar) {
-                servisTableModel.addRow(new Object[]{
-                        sk.getCihaz().getSeriNo(),
-                        sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
-                        sk.getSorunAciklamasi(),
-                        sk.getGirisTarihi(),
-                        sk.getDurum()
-                });
-            }
-            servisFrame.add(new JScrollPane(servisTable), BorderLayout.CENTER);
-        }
-
-        servisFrame.setLocationRelativeTo(this);
-        servisFrame.setVisible(true);
-    }
-
-    // ---------------- MAIN ----------------
+    // ===================================
+    // MAIN Metodu
+    // ===================================
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
