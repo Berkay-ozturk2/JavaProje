@@ -146,8 +146,8 @@ public class CihazKayitDialog extends JDialog {
         };
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        for (int i = 0; i < 10; i++) {
+        String chars = "0123456789";
+        for (int i = 0; i < 4; i++) {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
         return prefix + "-" + sb.toString();
