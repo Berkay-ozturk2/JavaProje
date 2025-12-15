@@ -1,4 +1,3 @@
-// src/gui/CihazKayitDialog.java
 package gui;
 
 import Cihazlar.*;
@@ -144,6 +143,8 @@ public class CihazKayitDialog extends JDialog {
             case "Laptop" -> "LAP";
             default -> "DEV";
         };
+
+        // SeriNo daha gerçekçi olsun diye rastgele 4 sayı üreten döngü
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
         String chars = "0123456789";
@@ -215,20 +216,6 @@ public class CihazKayitDialog extends JDialog {
         cardLayout = new CardLayout();
         specificPanel = new JPanel(cardLayout);
 
-        JPanel telPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        chkCiftSim = new JCheckBox("Çift SIM Desteği Var mı?");
-        telPanel.add(chkCiftSim);
-        specificPanel.add(telPanel, "Telefon");
-
-        JPanel tabletPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        chkKalemDestegi = new JCheckBox("Kalem Desteği Var mı?");
-        tabletPanel.add(chkKalemDestegi);
-        specificPanel.add(tabletPanel, "Tablet");
-
-        JPanel laptopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        chkHariciEkranKarti = new JCheckBox("Harici Ekran Kartı Var mı?");
-        laptopPanel.add(chkHariciEkranKarti);
-        specificPanel.add(laptopPanel, "Laptop");
 
         guncelMarkaListesiniDoldur((String) cmbTur.getSelectedItem());
         cardLayout.show(specificPanel, (String) cmbTur.getSelectedItem());
@@ -249,10 +236,18 @@ public class CihazKayitDialog extends JDialog {
         cmbMarka.removeAllItems();
         String[] markalar;
         switch (tur) {
-            case "Telefon": markalar = TELEFON_MARKALARI; break;
-            case "Tablet": markalar = TABLET_MARKALARI; break;
-            case "Laptop": markalar = LAPTOP_MARKALARI; break;
-            default: markalar = new String[]{}; break;
+            case "Telefon":
+                markalar = TELEFON_MARKALARI;
+                break;
+            case "Tablet":
+                markalar = TABLET_MARKALARI;
+                break;
+            case "Laptop":
+                markalar = LAPTOP_MARKALARI;
+                break;
+            default:
+                markalar = new String[]{};
+                break;
         }
         for (String marka : markalar) {
             cmbMarka.addItem(marka);

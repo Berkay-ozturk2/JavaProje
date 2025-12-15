@@ -12,12 +12,12 @@ public abstract class Cihaz implements Serializable {
     private String seriNo;
     private String marka;
     private String model;
-    private double fiyat; // Cihazın piyasa değeri
+    private double fiyat;
     private LocalDate garantiBaslangic;
-    private static final Random RND = new Random();
+    private static final Random rand = new Random();
     private Musteri sahip;
 
-    // YENİ: Sonradan satın alınan ek garanti süresi (Ay cinsinden)
+    // Sonradan satın alınan ek garanti süresi (Ay cinsinden)
     private int ekstraGarantiSuresiAy = 0;
 
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
@@ -27,23 +27,35 @@ public abstract class Cihaz implements Serializable {
         this.fiyat = fiyat;
         this.sahip = sahip;
 
-        // Rastgele bir geçmiş tarih oluşturarak garanti durumunu simüle ediyoruz
-        this.garantiBaslangic = generateRandomGarantiBaslangic(getGarantiSuresiYil());
+        // Rastgele bir geçmiş tarih oluşturma
+        this.garantiBaslangic = randomGarantiBaslangic(getGarantiSuresiYil());
     }
 
-    private LocalDate generateRandomGarantiBaslangic(int sureYil) {
+    private LocalDate randomGarantiBaslangic(int sureYil) {
         int maxRandomDays = (sureYil + 1) * 365;
-        int randomDaysInPast = RND.nextInt(maxRandomDays + 1);
+        int randomDaysInPast = rand.nextInt(maxRandomDays + 1);
         return LocalDate.now().minusDays(randomDaysInPast);
     }
 
     // Getter Metotları
-    public String getSeriNo() { return seriNo; }
-    public String getMarka() { return marka; }
-    public String getModel() { return model; }
-    public double getFiyat() { return fiyat; }
-    public LocalDate getGarantiBaslangic() { return garantiBaslangic; }
-    public Musteri getSahip() { return sahip; }
+    public String getSeriNo() {
+        return seriNo;
+    }
+    public String getMarka() {
+        return marka;
+    }
+    public String getModel() {
+        return model;
+    }
+    public double getFiyat() {
+        return fiyat;
+    }
+    public LocalDate getGarantiBaslangic() {
+        return garantiBaslangic;
+    }
+    public Musteri getSahip() {
+        return sahip;
+    }
 
     public abstract int getGarantiSuresiYil();
     public abstract String getCihazTuru();

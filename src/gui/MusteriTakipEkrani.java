@@ -1,7 +1,7 @@
 package gui;
 
 import Cihazlar.Cihaz;
-import Servis.ServisKaydı;
+import Servis.ServisKaydi;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,10 +83,10 @@ public class MusteriTakipEkrani extends JFrame {
         }
 
         // 2. ADIM: Servis Kayıtlarında Ara (Tamir Durumu İçin)
-        List<ServisKaydı> servisKayitlari = veriYukle("servis_kayitlari.ser");
-        ServisKaydı bulunanKayit = null;
+        List<ServisKaydi> servisKayitlari = veriYukle("servis_kayitlari.ser");
+        ServisKaydi bulunanKayit = null;
 
-        for (ServisKaydı k : servisKayitlari) {
+        for (ServisKaydi k : servisKayitlari) {
             // Kayıt içindeki cihazın seri numarasına bakıyoruz
             if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
                 bulunanKayit = k;

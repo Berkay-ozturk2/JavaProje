@@ -3,6 +3,7 @@ package Garantiler;
 public class UzatilmisGaranti extends Garanti {
 
     // Fiyatlandırma Oranları (Cihaz Fiyatının Yüzdesi)
+    // final değişkenler değerleri değişmez
     private static final double ORAN_6_AY = 0.05;  // %5
     private static final double ORAN_12_AY = 0.07; // %7
     private static final double ORAN_24_AY = 0.10; // %10
@@ -37,7 +38,7 @@ public class UzatilmisGaranti extends Garanti {
     @Override
     public double garantiUcretiHesapla(double cihazFiyati) {
         // Bu metot abstract olduğu için override edilmek zorundadır.
-        // Ancak biz hesaplamayı yukarıdaki statik metotla yapıyoruz.
+        // Ama biz hesaplamayı yukarıdaki statik metotla yapıyoruz.
         // O yüzden burası varsayılan bir değer dönebilir.
         return 0.0;
     }

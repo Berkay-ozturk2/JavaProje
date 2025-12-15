@@ -2,7 +2,7 @@ package gui;
 
 import Cihazlar.Cihaz;
 import Garantiler.UzatilmisGaranti;
-import Servis.ServisKaydı;
+import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 import Servis.Teknisyen;
 
@@ -39,12 +39,11 @@ public class Main extends JFrame implements CihazEkleListener {
     private final List<Teknisyen> teknisyenler = Arrays.asList(
             new Teknisyen("Osman Can Küçdemir", "Genel Onarım"),
             new Teknisyen("Çağatay Oğuz", "Telefon/Tablet"),
-            new Teknisyen("İsmail Onur Koru", "Laptop")
-    );
+            new Teknisyen("İsmail Onur Koru", "Laptop"));
     private final Random random = new Random();
 
     public Main() {
-        setTitle("Dijital Cihaz Garanti & Servis Sistemi");
+        setTitle("Teknolojik Cihaz Garanti & Servis Takip Sistemi");
         setSize(950, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -94,27 +93,26 @@ public class Main extends JFrame implements CihazEkleListener {
     private void initUI() {
         // Tablo Modeli
         tableModel = new DefaultTableModel(
-                new Object[]{"Tür", "Marka", "Model", "Seri No", "Fiyat (TL)", "Garanti Bitiş"}, 0
-        ) {
+                new Object[]{"Tür", "Marka", "Model", "Seri No", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
+
+            //Tablonun satır ve sütunlardaki değerlerinin değişmemesini sağlar
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
 
         // Butonlar
-        JButton btnCihazEkle = new JButton("Yeni Cihaz Ekle...");
+        JButton btnCihazEkle = new JButton("Yeni Cihaz Ekle");
         JButton btnServisKaydi = new JButton("Servis Kaydı Oluştur");
         JButton btnServisListele = new JButton("Servis Takip Ekranı");
-
-        // YENİ BUTON: Garanti Uzat
         JButton btnGarantiUzat = new JButton("Garanti Paketleri (Uzat)");
         btnGarantiUzat.setBackground(new Color(220, 255, 220)); // Hafif yeşil renk
-
         JButton btnSil = new JButton("Seçili Cihazı Sil");
 
-        // --- AKSİYONLAR ---
 
         // 1. Cihaz Ekle
         btnCihazEkle.addActionListener(e -> {
@@ -131,8 +129,7 @@ public class Main extends JFrame implements CihazEkleListener {
                 String garantiDurumu = garantiAktifMi ? "Aktif (Ücretsiz)" : "BİTMİŞ (Ücretli)";
 
                 JComboBox<String> sorunComboBox = new JComboBox<>(SORUN_MALIYET_ORANLARI.keySet().toArray(new String[0]));
-                String mesaj = String.format("Cihaz: %s\nFiyat: %.2f TL\nGaranti: %s\n\nSorunu Seçin:",
-                        selectedCihaz.getModel(), selectedCihaz.getFiyat(), garantiDurumu);
+                String mesaj = String.format("Cihaz: " + selectedCihaz.getModel() + "\nFiyat: " + selectedCihaz.getFiyat() + " TL" + "\nGaranti: " + garantiDurumu + "\n\nSorunu Seçin: ");
 
                 int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION);
 
@@ -153,7 +150,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
                     String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
-                    ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, temizSorunAdi);
+                    ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
                     yeniKayit.setTahminiTamirUcreti(hesaplananUcret);
 
                     Teknisyen atananTeknisyen = rastgeleTeknisyenSec();
@@ -162,21 +159,20 @@ public class Main extends JFrame implements CihazEkleListener {
                     servisYonetimi.servisKaydiEkle(yeniKayit);
 
                     JOptionPane.showMessageDialog(this,
-                            String.format("Kayıt Başarılı!\nCihaz Değeri: %.2f TL\nSorun: %s\nHesaplanan Tamir Ücreti: %.2f TL\nTeknisyen: %s",
-                                    selectedCihaz.getFiyat(), temizSorunAdi, hesaplananUcret, atananTeknisyen.getAd()));
+                            String.format("Kayıt Başarılı!\nCihaz Değeri: " + selectedCihaz.getFiyat() + " TL\nSorun: " + temizSorunAdi + "\nHesaplanan Tamir Ücreti: " + hesaplananUcret + " TL\nTeknisyen: " + atananTeknisyen.getAd()));
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Lütfen cihaz seçin.");
             }
         });
 
-        // 3. Garanti Uzatma (YENİ ÖZELLİK)
+        // 3. Garanti Uzatma
         btnGarantiUzat.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 Cihaz seciliCihaz = cihazListesi.get(selectedRow);
 
-                // Sadece garantisi bitmiş veya bitmeye yakınsa öner (İsteğe bağlı, burada her zaman gösteriyoruz)
+                // Sadece garantisi bitmiş veya bitmeye yakınsa öner
                 if (!seciliCihaz.isGarantiAktif()) {
 
                     double cihazFiyati = seciliCihaz.getFiyat();
@@ -187,9 +183,9 @@ public class Main extends JFrame implements CihazEkleListener {
                     double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
 
                     Object[] options = {
-                            String.format("6 Ay (%.2f TL)", fiyat6Ay),
-                            String.format("12 Ay (%.2f TL)", fiyat12Ay),
-                            String.format("24 Ay (%.2f TL)", fiyat24Ay),
+                            String.format("6 Ay ("+ fiyat6Ay +" TL)"),
+                            String.format("12 Ay ("+ fiyat12Ay +" TL)"),
+                            String.format("24 Ay ("+ fiyat24Ay +" TL)"),
                             "İptal"
                     };
 
@@ -249,10 +245,11 @@ public class Main extends JFrame implements CihazEkleListener {
             }
         });
 
+        //Paneldeki gerekli butonları ekleme
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(btnCihazEkle);
         buttonPanel.add(btnServisKaydi);
-        buttonPanel.add(btnGarantiUzat); // Yeni buton panele eklendi
+        buttonPanel.add(btnGarantiUzat);
         buttonPanel.add(btnServisListele);
         buttonPanel.add(btnSil);
 

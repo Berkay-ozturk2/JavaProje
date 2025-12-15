@@ -29,7 +29,7 @@ public abstract class Garanti {
         return baslangicTarihi.plusYears(sureYil);
     }
 
-    // YENİ METOT: Bugünden itibaren kalan gün sayısını hesaplar
+    // Bugünden itibaren kalan gün sayısını hesaplar
     public long getKalanGunSayisi() {
         LocalDate bugun = LocalDate.now();
         LocalDate bitis = bitisTarihiHesapla();

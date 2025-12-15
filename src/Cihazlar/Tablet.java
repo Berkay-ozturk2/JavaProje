@@ -1,4 +1,3 @@
-// src/Cihazlar/Tablet.java (GÜNCELLENDİ: Fiyat Parametresi Eklendi)
 package Cihazlar;
 
 
@@ -9,9 +8,9 @@ public class Tablet extends Cihaz {
     private boolean kalemDestegi;
 
 
-    public Tablet(String seriNo, String marka, String model, double fiyat, // Fiyat eklendi
+    public Tablet(String seriNo, String marka, String model, double fiyat,
                   LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) {
-        super(seriNo, marka, model, fiyat, garantiBaslangic, sahip); // Fiyat super'a gönderildi
+        super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
         this.kalemDestegi = kalemDestegi;
     }
 

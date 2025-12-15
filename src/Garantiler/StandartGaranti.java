@@ -34,7 +34,7 @@ public class StandartGaranti extends Garanti {
         return "Standart Garanti";
     }
 
-    // YENİ: Kalan günü gösterecek şekilde metin çıktısı (toString) düzenlendi
+    // Kalan günü gösterecek şekilde metin çıktısı (toString) düzenlendi
     @Override
     public String toString() {
         long kalanGun = getKalanGunSayisi();
@@ -49,6 +49,6 @@ public class StandartGaranti extends Garanti {
             durumMesaji = "Süre Doldu (" + Math.abs(kalanGun) + " gün geçti)";
         }
 
-        return String.format("%s - %s", garantiTuru(), durumMesaji);
+        return garantiTuru() + " " + durumMesaji;
     }
 }

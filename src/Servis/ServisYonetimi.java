@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServisYonetimi {
-    private List<ServisKaydı> kayitlar;
+    private List<ServisKaydi> kayitlar;
     private static final String DOSYA_ADI = "servis_kayitlari.ser"; // Kayıtların tutulacağı dosya adı
 
     @SuppressWarnings("unchecked")
@@ -14,12 +14,12 @@ public class ServisYonetimi {
         yukle(); // Yöneticinin oluşturulmasıyla birlikte kayıtları yüklemeyi dene
     }
 
-    public void servisKaydiEkle(ServisKaydı kayit) {
+    public void servisKaydiEkle(ServisKaydi kayit) {
         kayitlar.add(kayit);
         kaydet(); // Her eklemeden sonra dosyaya kaydet
     }
 
-    public List<ServisKaydı> getKayitlar() {
+    public List<ServisKaydi> getKayitlar() {
         return kayitlar;
     }
 
@@ -48,7 +48,7 @@ public class ServisYonetimi {
         if (dosya.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dosya))) {
                 // List<ServisKaydı> tipine güvenli dönüşüm
-                this.kayitlar = (List<ServisKaydı>) ois.readObject();
+                this.kayitlar = (List<ServisKaydi>) ois.readObject();
                 System.out.println("Servis kayıtları başarıyla yüklendi. Toplam kayıt: " + kayitlar.size());
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("Servis kayıtları yüklenirken hata oluştu. Yeni liste oluşturuluyor.");

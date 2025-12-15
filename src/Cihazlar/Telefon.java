@@ -1,4 +1,3 @@
-// src/Cihazlar/Telefon.java (GÜNCELLENDİ: Fiyat Parametresi Eklendi)
 package Cihazlar;
 
 import java.time.LocalDate;
@@ -6,9 +5,11 @@ import Musteri.Musteri;
 
 public class Telefon extends Cihaz {
 
-    public Telefon(String seriNo, String marka, String model, double fiyat, // Fiyat eklendi
+    //Telefon Constructor
+    public Telefon(String seriNo, String marka, String model, double fiyat,
                    LocalDate garantiBaslangic, Musteri sahip) {
-        super(seriNo, marka, model, fiyat, garantiBaslangic, sahip); // Fiyat super'a gönderildi
+        //Değerler Cihaz Sinifina gönderildi
+        super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
 
     @Override

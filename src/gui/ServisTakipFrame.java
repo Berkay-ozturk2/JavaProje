@@ -2,7 +2,7 @@
 package gui;
 
 import Servis.ServisDurumu;
-import Servis.ServisKaydı;
+import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 
 import javax.swing.*;
@@ -45,7 +45,7 @@ public class ServisTakipFrame extends JFrame {
         btnDurumGuncelle.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
-                ServisKaydı kayit = servisYonetimi.getKayitlar().get(selectedRow);
+                ServisKaydi kayit = servisYonetimi.getKayitlar().get(selectedRow);
                 if (kayit.getDurum() != ServisDurumu.TAMAMLANDI) {
                     kayit.setDurum(ServisDurumu.TAMAMLANDI);
                     servisYonetimi.kayitGuncelle();
@@ -68,9 +68,9 @@ public class ServisTakipFrame extends JFrame {
 
     private void kayitlariTabloyaDoldur() {
         servisTableModel.setRowCount(0);
-        List<ServisKaydı> kayitlar = servisYonetimi.getKayitlar();
+        List<ServisKaydi> kayitlar = servisYonetimi.getKayitlar();
 
-        for (ServisKaydı sk : kayitlar) {
+        for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
 
             servisTableModel.addRow(new Object[]{
