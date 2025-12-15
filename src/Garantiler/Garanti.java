@@ -1,6 +1,7 @@
 package Garantiler;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit; // Gün farkını hesaplamak için gerekli
 
 public abstract class Garanti {
 
@@ -8,31 +9,33 @@ public abstract class Garanti {
     private LocalDate baslangicTarihi;
     private int sureYil; // garanti süresi (yıl)
 
-    // CONSTRUCTOR 1
+    // CONSTRUCTOR 1: Belirli bir başlangıç tarihi ile
     public Garanti(LocalDate baslangicTarihi, int sureYil) {
         this.baslangicTarihi = baslangicTarihi;
         this.sureYil = sureYil;
     }
 
-    // CONSTRUCTOR 2 (Overloading)
+    // CONSTRUCTOR 2: Başlangıç tarihi verilmezse "Bugün" kabul edilir
     public Garanti(int sureYil) {
-        // Standart garanti başlangıç tarihi için varsayılan olarak bugün kullanılır.
         this(LocalDate.now(), sureYil);
     }
 
-    // HATA DÜZELTME: servisUcretiHesapla metot imzası, alt sınıflarla uyumlu olacak şekilde cihazFiyati parametresini içerecek şekilde güncellendi.
     public abstract double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi);
-
-
-    // Garanti Ücreti Hesapla
     public abstract double garantiUcretiHesapla(double cihazFiyati);
-
-
     public abstract String garantiTuru();
 
-    // CONCRETE METHODLAR
+    // CONCRETE METHOD: Bitiş tarihini hesaplar
     public LocalDate bitisTarihiHesapla() {
         return baslangicTarihi.plusYears(sureYil);
+    }
+
+    // YENİ METOT: Bugünden itibaren kalan gün sayısını hesaplar
+    public long getKalanGunSayisi() {
+        LocalDate bugun = LocalDate.now();
+        LocalDate bitis = bitisTarihiHesapla();
+
+        // Bugün ile bitiş tarihi arasındaki gün farkını al
+        return ChronoUnit.DAYS.between(bugun, bitis);
     }
 
     // GETTER - SETTER

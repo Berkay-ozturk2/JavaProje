@@ -1,83 +1,79 @@
-// src/Cihazlar/Cihaz.java (HATA DÜZELTME: Fiyat Alanı Eklendi)
 package Cihazlar;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Random;
-
 import Musteri.Musteri;
 
-// Cihaz Sınıfı Serializable'ı implement ediyor, çünkü Serializable, Dosyaya yazma ve dosyadan okuma işlemlerini yapıyor
 public abstract class Cihaz implements Serializable {
+    // Sınıf yapısı değiştiği için versiyon ID'si ekliyoruz
+    private static final long serialVersionUID = 20240520L;
+
     private String seriNo;
     private String marka;
     private String model;
-    private double fiyat; // YENİ ALAN: Cihaz fiyatı
-
+    private double fiyat; // Cihazın piyasa değeri
     private LocalDate garantiBaslangic;
     private static final Random RND = new Random();
     private Musteri sahip;
 
-    // CONSTRUCTOR GÜNCELLENDİ
+    // YENİ: Sonradan satın alınan ek garanti süresi (Ay cinsinden)
+    private int ekstraGarantiSuresiAy = 0;
+
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
         this.seriNo = seriNo;
         this.marka = marka;
         this.model = model;
-        this.fiyat = fiyat; // Fiyat atandı
+        this.fiyat = fiyat;
         this.sahip = sahip;
 
-        // Garanti başlangıç tarihi parametresini dikkate almadan,
-        // cihazın garantisinin bitmiş olma ihtimalini simüle etmek için rastgele oluştur.
+        // Rastgele bir geçmiş tarih oluşturarak garanti durumunu simüle ediyoruz
         this.garantiBaslangic = generateRandomGarantiBaslangic(getGarantiSuresiYil());
     }
 
-    /**
-     * Cihazın garanti süresinin bitmiş olma ihtimalini simüle etmek için
-     * rastgele bir başlangıç tarihi üretir.
-     */
     private LocalDate generateRandomGarantiBaslangic(int sureYil) {
-        // Garanti süresinden 1 yıl fazlasına kadar geçmiş bir tarih belirleyerek
-        // garantinin bitmiş olma veya bitmeye yakın olma ihtimalini simüle eder.
         int maxRandomDays = (sureYil + 1) * 365;
-
-        // Şu andan itibaren 0 gün ile maxRandomDays gün arası rastgele bir gün seç
         int randomDaysInPast = RND.nextInt(maxRandomDays + 1);
-
         return LocalDate.now().minusDays(randomDaysInPast);
     }
 
-    // Encapsulation
+    // Getter Metotları
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
-    public double getFiyat() { return fiyat; } // YENİ GETTER
-
+    public double getFiyat() { return fiyat; }
     public LocalDate getGarantiBaslangic() { return garantiBaslangic; }
     public Musteri getSahip() { return sahip; }
 
-
-    // Abstract methods (polymorphism)
     public abstract int getGarantiSuresiYil();
     public abstract String getCihazTuru();
 
-
-    // Concrete method
+    /**
+     * Garanti bitiş tarihini hesaplarken standart süreye eklenen süreyi de dahil eder.
+     */
     public LocalDate getGarantiBitisTarihi() {
-        return garantiBaslangic.plusYears(getGarantiSuresiYil());
+        return garantiBaslangic
+                .plusYears(getGarantiSuresiYil())
+                .plusMonths(ekstraGarantiSuresiAy);
     }
 
-    /**
-     * Garanti süresinin aktif olup olmadığını kontrol eder.
-     * @return boolean
-     */
     public boolean isGarantiAktif() {
         return LocalDate.now().isBefore(getGarantiBitisTarihi());
     }
 
+    /**
+     * Garantiyi belirtilen ay kadar uzatır.
+     */
+    public void garantiUzat(int ay) {
+        this.ekstraGarantiSuresiAy += ay;
+    }
 
     @Override
     public String toString() {
-        // Garanti durumunu da ekle
         String garantiDurumu = isGarantiAktif() ? "Aktif" : "Sona Ermiş";
-        return String.format("%s [%s - %s] (Seri No: %s, Fiyat: %.2f TL) - Sahibi: %s - Garanti: %s", getCihazTuru(), marka, model, seriNo, fiyat, sahip.toString(), garantiDurumu);
+        String ekstraBilgi = ekstraGarantiSuresiAy > 0 ? " (+" + ekstraGarantiSuresiAy + " Ay Uzatıldı)" : "";
+
+        return String.format("%s [%s - %s] (Seri No: %s, Fiyat: %.2f TL) - Garanti: %s%s",
+                getCihazTuru(), marka, model, seriNo, fiyat, garantiDurumu, ekstraBilgi);
     }
 }
