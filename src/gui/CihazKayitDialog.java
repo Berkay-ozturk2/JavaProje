@@ -68,7 +68,7 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Telefon:"));
         generalPanel.add(txtMusteriTelefon);
 
-
+//
         // =====================================
         // --- Cihaz Ortak Alanları ---
         // =====================================
