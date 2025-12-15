@@ -18,7 +18,7 @@ public class StandartGaranti extends Garanti {
      * Servis ücreti hesaplar. Garanti aktifse 0, değilse cihaz fiyatının %15'i onarım ücreti alınır.
      */
     @Override
-    public double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi) {
+    public double servisUcretiHesapla( boolean garantiAktifMi) {
         if (garantiAktifMi) {
             return 0.0; // Garanti aktifse servis ücretsiz
         } else {

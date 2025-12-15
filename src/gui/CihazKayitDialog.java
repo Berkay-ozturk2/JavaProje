@@ -1,6 +1,8 @@
+// src/gui/CihazKayitDialog.java (GÜNCELLENDİ)
 package gui;
 
 import Cihazlar.*;
+import Musteri.Musteri; // YENİ IMPORT
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
@@ -17,10 +19,14 @@ public class CihazKayitDialog extends JDialog {
     // Ortak Alanlar (Text Fields ve ComboBoxes)
     private JComboBox<String> cmbTur;
     private JTextField txtSeriNo;
-    // MARKALAR ARTIK COMBOBOX
     private JComboBox<String> cmbMarka;
     private JTextField txtModel;
-    private JTextField txtFiyat;
+
+
+    // YENİ ALANLAR: MÜŞTERİ BİLGİLERİ
+    private JTextField txtMusteriAd;
+    private JTextField txtMusteriSoyad;
+    private JTextField txtMusteriTelefon;
 
     // Cihaz Türlerine Göre Marka Listeleri
     private final String[] TELEFON_MARKALARI = {"Samsung", "Apple", "Xiaomi", "Huawei"};
@@ -37,7 +43,7 @@ public class CihazKayitDialog extends JDialog {
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı (Manuel Giriş)", true);
         this.listener = listener;
-        setSize(450, 450);
+        setSize(500, 600); // Boyut büyütüldü
         setLocationRelativeTo(parent);
 
         initUI();
@@ -45,8 +51,27 @@ public class CihazKayitDialog extends JDialog {
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
-        JPanel generalPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel generalPanel = new JPanel(new GridLayout(10, 2, 5, 5)); // Satır sayısı artırıldı
 
+        // =====================================
+        // --- Müşteri Bilgileri ---
+        // =====================================
+        txtMusteriAd = new JTextField();
+        generalPanel.add(new JLabel("Müşteri Adı:"));
+        generalPanel.add(txtMusteriAd);
+
+        txtMusteriSoyad = new JTextField();
+        generalPanel.add(new JLabel("Müşteri Soyadı:"));
+        generalPanel.add(txtMusteriSoyad);
+
+        txtMusteriTelefon = new JTextField();
+        generalPanel.add(new JLabel("Telefon:"));
+        generalPanel.add(txtMusteriTelefon);
+
+
+        // =====================================
+        // --- Cihaz Ortak Alanları ---
+        // =====================================
         // --- 1. Cihaz Türü Seçimi ---
         generalPanel.add(new JLabel("Cihaz Türü:"));
         String[] turler = {"Telefon", "Tablet", "Laptop"};
@@ -74,9 +99,6 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Model:"));
         generalPanel.add(txtModel);
 
-        txtFiyat = new JTextField();
-        generalPanel.add(new JLabel("Fiyat (TL):"));
-        generalPanel.add(txtFiyat);
 
         // --- 3. Cihaza Özgü Alanlar (CardLayout ile Yönetilir) ---
         cardLayout = new CardLayout();
@@ -150,35 +172,42 @@ public class CihazKayitDialog extends JDialog {
 
     private void kaydet() {
         try {
+            // Müşteri Bilgileri
+            String mAd = txtMusteriAd.getText().trim();
+            String mSoyad = txtMusteriSoyad.getText().trim();
+            String mTelefon = txtMusteriTelefon.getText().trim();
+
+            if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
+                throw new IllegalArgumentException("Müşteri Adı, Soyadı ve Telefon bilgileri zorunludur.");
+            }
+
+            // Müşteri nesnesi oluştur
+            Musteri sahip = new Musteri(mAd, mSoyad, mTelefon );
+
+            // Cihaz Bilgileri
             String seriNo = txtSeriNo.getText().trim();
-            // Marka artık ComboBox'tan alınıyor
             String marka = (String) cmbMarka.getSelectedItem();
             String model = txtModel.getText().trim();
-
-            // Fiyat kontrolü
-            double fiyat = Double.parseDouble(txtFiyat.getText().trim());
 
             String tur = (String) cmbTur.getSelectedItem();
             LocalDate garantiBaslangic = LocalDate.now();
 
-            if (seriNo.isEmpty() || marka == null || marka.isEmpty() || model.isEmpty() || fiyat <= 0) {
-                throw new IllegalArgumentException("Tüm temel alanları doldurun ve fiyat pozitif olmalıdır.");
-            }
+
 
             Cihaz yeniCihaz;
 
             switch (tur) {
                 case "Telefon":
                     boolean ciftSim = chkCiftSim.isSelected();
-                    yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, ciftSim);
+                    yeniCihaz = new Telefon(seriNo, marka, model, garantiBaslangic, sahip); // Müşteri eklendi
                     break;
                 case "Tablet":
                     boolean kalemDestegi = chkKalemDestegi.isSelected();
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, kalemDestegi);
+                    yeniCihaz = new Tablet(seriNo, marka, model,  garantiBaslangic, kalemDestegi, sahip); // Müşteri eklendi
                     break;
                 case "Laptop":
                     boolean hariciEkranKarti = chkHariciEkranKarti.isSelected();
-                    yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, hariciEkranKarti);
+                    yeniCihaz = new Laptop(seriNo, marka, model,  garantiBaslangic, hariciEkranKarti, sahip); // Müşteri eklendi
                     break;
                 default:
                     throw new IllegalArgumentException("Geçersiz cihaz türü seçimi.");

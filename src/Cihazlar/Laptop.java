@@ -1,22 +1,21 @@
+// src/Cihazlar/Laptop.java (GÜNCELLENDİ)
 package Cihazlar;
 
 import java.time.LocalDate;
+import Musteri.Musteri; // YENİ IMPORT
 
 
 public class Laptop extends Cihaz {
-    private boolean hariciEkranKarti;
 
 
-    public Laptop(String seriNo, String marka, String model, double fiyat,
-                  LocalDate garantiBaslangic, boolean hariciEkranKarti) {
-        super(seriNo, marka, model, fiyat, garantiBaslangic);
-        this.hariciEkranKarti = hariciEkranKarti;
+
+    public Laptop(String seriNo, String marka, String model,
+                  LocalDate garantiBaslangic, boolean hariciEkranKarti, Musteri sahip) { // CONSTRUCTOR GÜNCELLENDİ
+        super(seriNo, marka, model, garantiBaslangic, sahip);
+
     }
 
 
-    public boolean isHariciEkranKarti() {
-        return hariciEkranKarti;
-    }
 
 
     @Override

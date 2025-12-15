@@ -1,22 +1,20 @@
+// src/Cihazlar/Telefon.java (GÜNCELLENDİ)
 package Cihazlar;
 
-
 import java.time.LocalDate;
+import Musteri.Musteri; // YENİ IMPORT
 
 public class Telefon extends Cihaz {
-    private boolean ciftSim;
 
 
-    public Telefon(String seriNo, String marka, String model, double fiyat,
-                   LocalDate garantiBaslangic, boolean ciftSim) {
-        super(seriNo, marka, model, fiyat, garantiBaslangic);
-        this.ciftSim = ciftSim;
+
+    public Telefon(String seriNo, String marka, String model,
+                   LocalDate garantiBaslangic, Musteri sahip) { // CONSTRUCTOR GÜNCELLENDİ
+        super(seriNo, marka, model,  garantiBaslangic, sahip);
+
     }
 
 
-    public boolean isCiftSim() {
-        return ciftSim;
-    }
 
 
     @Override

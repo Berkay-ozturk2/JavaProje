@@ -25,11 +25,11 @@ public abstract class Garanti {
     // YENİ ABSTRACT METHOD: Servis/Onarım Ücreti Hesapla
     // Garanti kapsamındaki bir servisin ücretini hesaplar.
     // Garanti aktifse 0, değilse bir ücret döndürür.
-    public abstract double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi);
+    public abstract double servisUcretiHesapla( boolean garantiAktifMi);
 
     // ESKİ ABSTRACT METHODUN YENİ İSMİ: Garanti Ücreti Hesapla
     // Uzatılmış garanti gibi ek ücret gerektiren durumlarda kullanılır.
-    public abstract double garantiUcretiHesapla(double cihazFiyati);
+
 
     public abstract String garantiTuru();
 

@@ -1,15 +1,17 @@
+// src/Cihazlar/Tablet.java (GÜNCELLENDİ)
 package Cihazlar;
 
 
 import java.time.LocalDate;
+import Musteri.Musteri; // YENİ IMPORT
 
 public class Tablet extends Cihaz {
     private boolean kalemDestegi;
 
 
-    public Tablet(String seriNo, String marka, String model, double fiyat,
-                  LocalDate garantiBaslangic, boolean kalemDestegi) {
-        super(seriNo, marka, model, fiyat, garantiBaslangic);
+    public Tablet(String seriNo, String marka, String model,
+                  LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) { // CONSTRUCTOR GÜNCELLENDİ
+        super(seriNo, marka, model,  garantiBaslangic, sahip);
         this.kalemDestegi = kalemDestegi;
     }
 

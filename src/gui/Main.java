@@ -1,3 +1,4 @@
+// src/gui/Main.java (GÜNCELLENDİ)
 package gui;
 //0000000
 
@@ -6,6 +7,8 @@ import Garantiler.Garanti;
 import Garantiler.StandartGaranti;
 import Servis.ServisKaydı;
 import Servis.ServisYonetimi;
+import Servis.Teknisyen; // YENİ IMPORT
+import java.util.Random; // YENİ IMPORT
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -13,6 +16,7 @@ import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // CihazEkleListener arayüzünü uygulayarak eklenen cihazı yakalar
@@ -26,6 +30,14 @@ public class Main extends JFrame implements CihazEkleListener {
     private static final String CİHAZ_DOSYA_ADI = "cihaz_listesi.ser";
 
     private ServisYonetimi servisYonetimi;
+
+    // YENİ: Teknisyen listesi ve Random nesnesi
+    private final List<Teknisyen> teknisyenler = Arrays.asList(
+            new Teknisyen("Osman Can Küçdemir", "Genel Onarım"),
+            new Teknisyen("Çağatay Oğuz", "Telefon/Tablet"),
+            new Teknisyen("İsmail Onur Koru", "Laptop")
+    );
+    private final Random random = new Random();
 
     // CONSTRUCTOR
     public Main() {
@@ -80,6 +92,14 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
+    /**
+     * Rastgele bir teknisyen seçer.
+     */
+    private Teknisyen rastgeleTeknisyenSec() {
+        int index = random.nextInt(teknisyenler.size());
+        return teknisyenler.get(index);
+    }
+
     // ===================================
     // GUI Oluşturma Metodu
     // ===================================
@@ -112,17 +132,15 @@ public class Main extends JFrame implements CihazEkleListener {
             dialog.setVisible(true);
         });
 
-        // 2. Servis Kaydı Oluşturma
+        // 2. Servis Kaydı Oluşturma (GÜNCELLENDİ: Random Teknisyen Atama Eklendi)
         btnServisKaydi.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 Cihaz selectedCihaz = cihazListesi.get(selectedRow);
 
-                // YENİ: Garanti Durumuna göre servis ücretini hesapla
-                // Bu örnekte, sadece Standart Garanti kullanıldığını varsayıyoruz.
-                // Gerçek bir uygulamada, cihaza tanımlı olan garanti tipi (Standart/Uzatılmış) kullanılmalıdır.
+                // Garanti Durumuna göre servis ücretini hesapla (tahmini tamir ücreti için kullanılır)
                 Garanti standartGaranti = new StandartGaranti(selectedCihaz.getGarantiSuresiYil());
-                double servisUcreti = standartGaranti.servisUcretiHesapla(selectedCihaz.getFiyat(), selectedCihaz.isGarantiAktif());
+                double servisUcreti = standartGaranti.servisUcretiHesapla(selectedCihaz.isGarantiAktif());
 
                 String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "Sona Ermiş";
 
@@ -134,8 +152,16 @@ public class Main extends JFrame implements CihazEkleListener {
 
                 if (sorun != null && !sorun.trim().isEmpty()) {
                     ServisKaydı yeniKayit = new ServisKaydı(selectedCihaz, sorun.trim());
+
+                    // Hesaplanan tahmini ücreti kayda ata
+                    yeniKayit.setTahminiTamirUcreti(servisUcreti);
+
+                    // YENİ: Rastgele teknisyen ata
+                    Teknisyen atananTeknisyen = rastgeleTeknisyenSec();
+                    yeniKayit.setAtananTeknisyen(atananTeknisyen);
+
                     servisYonetimi.servisKaydiEkle(yeniKayit);
-                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla oluşturuldu.");
+                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla oluşturuldu. Atanan Teknisyen: " + atananTeknisyen.getAd());
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Lütfen servis kaydı oluşturulacak cihazı seçin");
