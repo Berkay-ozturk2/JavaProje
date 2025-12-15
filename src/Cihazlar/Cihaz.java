@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
         private static final long serialVersionUID = 1L;
 
-//CİHAZ deneme 1234567890
+
         private String seriNo;
         private String marka;
         private String model;
@@ -22,7 +22,7 @@ import java.time.LocalDate;
         private LocalDate garantiBaslangic;
 
 
-        // Constructor 199999
+        // Constructor 1
         public Cihaz(String seriNo, String marka, String model) {
             this.seriNo = seriNo;
             this.marka = marka;
@@ -36,12 +36,12 @@ import java.time.LocalDate;
             this.fiyat = fiyat;
             this.garantiBaslangic = garantiBaslangic;
 }
-        // Abstract methods (B kriteri)
+        // Abstract method
         public abstract int getGarantiSuresiYil();
         public abstract String getCihazTuru();
 
 
-        // Concrete methods
+        // Concrete method
         public LocalDate getGarantiBitisTarihi() {
             if (garantiBaslangic == null) return null;
             return garantiBaslangic.plusYears(getGarantiSuresiYil());
