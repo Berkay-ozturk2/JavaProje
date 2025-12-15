@@ -72,7 +72,7 @@ public abstract class Cihaz implements Serializable {
         return LocalDate.now().isBefore(getGarantiBitisTarihi());
     }
 
-
+    //
     @Override
     public String toString() {
         // Garanti durumunu da ekle
