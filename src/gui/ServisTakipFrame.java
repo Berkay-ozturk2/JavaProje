@@ -1,9 +1,8 @@
-// src/gui/ServisTakipFrame.java (GÜNCELLENDİ)
 package gui;
 
+import Servis.ServisDurumu;
 import Servis.ServisKaydı;
 import Servis.ServisYonetimi;
-import Servis.ServisDurumu; // YENİ IMPORT
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +18,7 @@ public class ServisTakipFrame extends JFrame {
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         setTitle("Servis Kayıtları ve Takibi");
-        setSize(1100, 450); // Genişlik artırıldı
+        setSize(900, 450);
         setLocationRelativeTo(null);
 
         initUI();
@@ -28,9 +27,8 @@ public class ServisTakipFrame extends JFrame {
 
     private void initUI() {
         // --- Table Model ---
-        // Atanan Teknisyen sütunu eklendi
         servisTableModel = new DefaultTableModel(
-                new Object[]{"Seri No", "Cihaz Adı", "Sorun Açıklaması", "Giriş Tarihi", "Atanan Teknisyen", "Durum", "Ücret (TL)"}, 0
+                new Object[]{"Seri No", "Cihaz Adı", "Sorun Açıklaması", "Giriş Tarihi", "Durum"}, 0
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -42,31 +40,22 @@ public class ServisTakipFrame extends JFrame {
         JScrollPane scrollPane = new JScrollPane(servisTable);
 
         // --- Buttons ---
-        JButton btnDurumGuncelle = new JButton("Durumu Seç & Güncelle"); // İsim güncellendi
+        JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
 
-        // Durum Seç & Güncelle Aksiyonu (GÜNCELLENDİ: Enum Kullanımı)
         btnDurumGuncelle.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
+                // Kayıt listesinden ilgili nesneyi bul
                 ServisKaydı kayit = servisYonetimi.getKayitlar().get(selectedRow);
 
-                ServisDurumu[] durumlar = ServisDurumu.values();
-                ServisDurumu yeniDurum = (ServisDurumu) JOptionPane.showInputDialog(this,
-                        kayit.getCihaz().getSeriNo() + " cihazının yeni durumunu seçin:",
-                        "Durum Güncelleme",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        durumlar,
-                        kayit.getDurum() // Varsayılan olarak mevcut durumu göster
-                );
-
-                if (yeniDurum != null) {
-                    kayit.setDurum(yeniDurum); // Enum ile durum güncelle
+                if (!kayit.getDurum().equals("Tamamlandı")) {
+                    kayit.setDurum(ServisDurumu.valueOf("Tamamlandı"));
                     servisYonetimi.kayitGuncelle(); // Kaydet
                     kayitlariTabloyaDoldur(); // Tabloyu yenile
-                    JOptionPane.showMessageDialog(this, kayit.getCihaz().getSeriNo() + " cihazının durumu '" + yeniDurum.toString() + "' olarak güncellendi.");
+                    JOptionPane.showMessageDialog(this, kayit.getCihaz().getSeriNo() + " cihazının durumu 'Tamamlandı' olarak güncellendi.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Bu kayıt zaten tamamlanmış.");
                 }
-
             } else {
                 JOptionPane.showMessageDialog(this, "Lütfen güncellenecek bir servis kaydı seçin.");
             }
@@ -85,16 +74,12 @@ public class ServisTakipFrame extends JFrame {
         List<ServisKaydı> kayitlar = servisYonetimi.getKayitlar();
 
         for (ServisKaydı sk : kayitlar) {
-            String teknisyenAd = sk.getAtananTeknisyen() != null ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
-
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
-                    teknisyenAd,
-                    sk.getDurum().toString(), // Enum'un toString() metodu kullanılır
-                    sk.getOdenecekTamirUcreti()
+                    sk.getDurum()
             });
         }
     }

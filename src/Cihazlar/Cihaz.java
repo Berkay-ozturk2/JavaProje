@@ -6,6 +6,7 @@ import java.util.Random;
 
 import Musteri.Musteri;
 
+// Cihaz Sınıfı Serializable'ı implement ediyor, çünkü Serializable, Dosyaya yazma ve dosyadan okuma işlemlerini yapıyor
 public abstract class Cihaz implements Serializable {
     private String seriNo;
     private String marka;
@@ -72,7 +73,7 @@ public abstract class Cihaz implements Serializable {
         return LocalDate.now().isBefore(getGarantiBitisTarihi());
     }
 
-    //
+
     @Override
     public String toString() {
         // Garanti durumunu da ekle
