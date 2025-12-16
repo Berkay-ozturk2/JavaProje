@@ -1,4 +1,5 @@
-Telefon;;TEL-1234;;Samsung;;Galaxy S24;;70000.00;;2023-01-01;;0;;Ahmet;;Yılmaz;;05551112233
-Laptop;;LAP-5678;;Lenovo;;ThinkPad;;50000.00;;2023-05-20;;12;;Ayşe;;Demir;;05324445566
-Tablet;;TAB-9988;;Apple;;iPad Pro;;45000.00;;2024-02-15;;0;;Mehmet;;Can;;05051234567;;true
-Telefon;;TEL-0040;;Apple;;iPhone 15 Pro Max;;85000.00;;2025-12-16;;0;;Burak;;Yılmaz;;5555555555
+Telefon;;TEL-1234;;Samsung;;Galaxy S24;;70000,00;;2023-01-01;;0;;Ahmet;;Yılmaz;;05551112233
+Laptop;;LAP-5678;;Lenovo;;ThinkPad;;50000,00;;2023-05-20;;12;;Ayşe;;Demir;;05324445566
+Tablet;;TAB-9988;;Apple;;iPad Pro;;45000,00;;2024-02-15;;0;;Mehmet;;Can;;05051234567;;true
+Telefon;;TEL-0040;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-16;;0;;Burak;;Yılmaz;;5555555555
+Telefon;;TEL-7088;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-16;;0;;ali;;ali;;50724891278
