@@ -242,12 +242,25 @@ public class Main extends JFrame implements CihazEkleListener {
             }
         });
 
+        JButton btnGeriDon = new JButton("Geri Dön");
+        btnGeriDon.setBackground(new Color(150, 40, 100)); // Dikkat çekmesi için kırmızı tonu
+        btnGeriDon.setForeground(Color.WHITE); // Yazı rengi beyaz
+
+        btnGeriDon.addActionListener(e -> {
+            // 1. Giriş ekranını yeniden oluştur ve göster
+            new GirisEkrani().setVisible(true);
+
+            // 2. Mevcut Ana Menü penceresini kapat (Program tamamen kapanmaz, sadece bu pencere gider)
+            this.dispose();
+        });
+
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(btnCihazEkle);
         buttonPanel.add(btnServisKaydi);
         buttonPanel.add(btnGarantiUzat);
         buttonPanel.add(btnServisListele);
         buttonPanel.add(btnSil);
+        buttonPanel.add(btnGeriDon);
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
