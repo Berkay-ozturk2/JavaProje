@@ -243,7 +243,7 @@ public class Main extends JFrame implements CihazEkleListener {
         });
 
         JButton btnGeriDon = new JButton("Geri Dön");
-        btnGeriDon.setBackground(new Color(150, 40, 100)); // Dikkat çekmesi için kırmızı tonu
+        btnGeriDon.setBackground(new Color(150, 40, 25)); // Dikkat çekmesi için kırmızı tonu
         btnGeriDon.setForeground(Color.WHITE); // Yazı rengi beyaz
 
         btnGeriDon.addActionListener(e -> {
