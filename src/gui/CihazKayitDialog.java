@@ -37,6 +37,9 @@ public class CihazKayitDialog extends JDialog {
 
     private JPanel specificPanel;
     private CardLayout cardLayout;
+    private JCheckBox chkCiftSim;
+    private JCheckBox chkKalemDestegi;
+    private JCheckBox chkSsd;
 
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı (Manuel Giriş)", true);
@@ -213,6 +216,21 @@ public class CihazKayitDialog extends JDialog {
         cardLayout = new CardLayout();
         specificPanel = new JPanel(cardLayout);
 
+        JPanel telefonPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
+        chkCiftSim = new JCheckBox("Çift Sim Mi?");
+        telefonPanel.add(chkCiftSim);
+        specificPanel.add(telefonPanel, "Telefon");
+
+        JPanel tabletPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
+        chkKalemDestegi = new JCheckBox("Kalem Desteği Var Mı?");
+        tabletPanel.add(chkKalemDestegi);
+        specificPanel.add(tabletPanel, "Tablet");
+
+        JPanel laptopPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
+        chkSsd = new JCheckBox("Harici Ekran Kartı Var Mı?");
+        laptopPanel.add(chkSsd);
+        specificPanel.add(laptopPanel, "Laptop");
+
 
         guncelMarkaListesiniDoldur((String) cmbTur.getSelectedItem());
         cardLayout.show(specificPanel, (String) cmbTur.getSelectedItem());
@@ -298,7 +316,7 @@ public class CihazKayitDialog extends JDialog {
                     yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 case "Tablet":
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(),sahip);
                     break;
                 case "Laptop":
                     yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);

@@ -5,15 +5,18 @@ import java.time.LocalDate;
 import Musteri.Musteri;
 
 public class Tablet extends Cihaz {
+    private boolean kalemDestegi;
 
     public Tablet(String seriNo, String marka, String model, double fiyat,
-                  LocalDate garantiBaslangic, Musteri sahip) {
+                  LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
-
+        this.kalemDestegi = kalemDestegi;
     }
 
 
-
+    private boolean getKalemDestegi() {
+        return kalemDestegi;
+    }
 
 
     @Override
