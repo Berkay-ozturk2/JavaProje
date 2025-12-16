@@ -32,7 +32,7 @@ public class GirisEkrani extends JFrame {
             String sifre = JOptionPane.showInputDialog(this, "Personel Şifresi Giriniz:", "Güvenlik", JOptionPane.QUESTION_MESSAGE);
 
             // Şifre: "admin" (Gerçek projede veritabanından kontrol edilir)
-            if ("admin".equals(sifre)) {
+            if ("a".equals(sifre)) {
                 new Main().setVisible(true); // Mevcut Main ekranını aç
                 this.dispose(); // Giriş ekranını kapat
             } else if (sifre != null) {

@@ -26,8 +26,10 @@ public class ServisTakipFrame extends JFrame {
         kayitlariTabloyaDoldur();
     }
 
+    // src/gui/ServisTakipFrame.java -> initUI metodu içi
+
     private void initUI() {
-        // YENİ: Tablo sütunlarına "Teknisyen" ve "Ücret" eklendi
+        // ... (Tablo tanımlamaları aynı kalacak) ...
         servisTableModel = new DefaultTableModel(
                 new Object[]{"Seri No", "Cihaz", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
         ) {
@@ -40,8 +42,8 @@ public class ServisTakipFrame extends JFrame {
         servisTable = new JTable(servisTableModel);
         JScrollPane scrollPane = new JScrollPane(servisTable);
 
+        // --- MEVCUT BUTON ---
         JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
-
         btnDurumGuncelle.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
@@ -59,8 +61,44 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
+        // --- YENİ EKLENECEK SİLME BUTONU ---
+        JButton btnSil = new JButton("Seçili Servis Kaydını Sil");
+        btnSil.setBackground(new Color(255, 200, 200)); // Hafif kırmızı renk
+
+        btnSil.addActionListener(e -> {
+            int selectedRow = servisTable.getSelectedRow();
+            if (selectedRow >= 0) {
+                ServisKaydi silinecekKayit = servisYonetimi.getKayitlar().get(selectedRow);
+
+                // Güvenlik Sorusu
+                int secim = JOptionPane.showConfirmDialog(
+                        this,
+                        "Seçilen servis kaydını silmek üzeresiniz:\n" +
+                                "Cihaz: " + silinecekKayit.getCihaz().getModel() + "\n" +
+                                "Sorun: " + silinecekKayit.getSorunAciklamasi() + "\n\n" +
+                                "Bu işlem geri alınamaz. Emin misiniz?",
+                        "Servis Kaydı Silme Onayı",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (secim == JOptionPane.YES_OPTION) {
+                    // Listeden sil
+                    servisYonetimi.getKayitlar().remove(selectedRow);
+                    // Dosyaya kaydet (servisler.txt güncellenir)
+                    servisYonetimi.kayitGuncelle(); // Bu metod zaten kaydet() çağırıyor
+                    // Tabloyu yenile
+                    kayitlariTabloyaDoldur();
+                    JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla silindi.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Lütfen silinecek kaydı tablodan seçin.");
+            }
+        });
+
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(btnDurumGuncelle);
+        buttonPanel.add(btnSil); // Yeni butonu panele ekledik
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
