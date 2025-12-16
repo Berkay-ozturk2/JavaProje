@@ -18,7 +18,6 @@ public class MusteriTakipEkrani extends JFrame {
         setTitle("Cihaz Durum Sorgulama");
         setSize(500, 400);
         setLocationRelativeTo(null);
-        // Kapatınca program bitmesin, sadece bu pencere kapansın
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         initUI();
@@ -27,7 +26,6 @@ public class MusteriTakipEkrani extends JFrame {
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
 
-        // --- Üst Panel (Arama) ---
         JPanel panelArama = new JPanel(new FlowLayout());
         panelArama.add(new JLabel("Cihaz Seri No:"));
         txtSeriNo = new JTextField(15);
@@ -36,7 +34,6 @@ public class MusteriTakipEkrani extends JFrame {
         panelArama.add(txtSeriNo);
         panelArama.add(btnSorgula);
 
-        // --- Orta Panel (Bilgi Gösterimi) ---
         txtBilgiEkrani = new JTextArea();
         txtBilgiEkrani.setEditable(false);
         txtBilgiEkrani.setFont(new Font("Monospaced", Font.PLAIN, 13));
@@ -46,6 +43,41 @@ public class MusteriTakipEkrani extends JFrame {
 
         add(panelArama, BorderLayout.NORTH);
         add(new JScrollPane(txtBilgiEkrani), BorderLayout.CENTER);
+    }
+
+    // --- TXT VERİ OKUMA METOTLARI ---
+    private List<Cihaz> cihazlariYukleTxt() {
+        List<Cihaz> liste = new ArrayList<>();
+        File dosya = new File("cihazlar.txt");
+        if(dosya.exists()){
+            try(BufferedReader br = new BufferedReader(new FileReader(dosya))){
+                String line;
+                while((line = br.readLine()) != null){
+                    if(!line.trim().isEmpty()) {
+                        Cihaz c = Cihaz.fromTxtFormat(line);
+                        if(c != null) liste.add(c);
+                    }
+                }
+            } catch(Exception e){}
+        }
+        return liste;
+    }
+
+    private List<ServisKaydi> servisleriYukleTxt() {
+        List<ServisKaydi> liste = new ArrayList<>();
+        File dosya = new File("servisler.txt");
+        if(dosya.exists()){
+            try(BufferedReader br = new BufferedReader(new FileReader(dosya))){
+                String line;
+                while((line = br.readLine()) != null){
+                    if(!line.trim().isEmpty()) {
+                        ServisKaydi k = ServisKaydi.fromTxtFormat(line);
+                        if(k != null) liste.add(k);
+                    }
+                }
+            } catch(Exception e){}
+        }
+        return liste;
     }
 
     private void sorgula() {
@@ -59,8 +91,8 @@ public class MusteriTakipEkrani extends JFrame {
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 
-        // 1. ADIM: Cihaz Listesinde Ara (Garanti Durumu İçin)
-        List<Cihaz> cihazlar = veriYukle("cihaz_listesi.ser");
+        // 1. ADIM: TXT'den Cihazları Yükle ve Ara
+        List<Cihaz> cihazlar = cihazlariYukleTxt();
         Cihaz bulunanCihaz = null;
 
         for (Cihaz c : cihazlar) {
@@ -75,22 +107,19 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("=== CİHAZ BİLGİLERİ ===\n");
             rapor.append("Marka/Model: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
             rapor.append("Tür: ").append(bulunanCihaz.getCihazTuru()).append("\n");
-
-            // Garanti Bilgisi (StandartGaranti veya UzatilmisGaranti detayları cihazın içinde hesaplanıyor)
             boolean garantiVarMi = bulunanCihaz.isGarantiAktif();
             rapor.append("Garanti Durumu: ").append(garantiVarMi ? "DEVAM EDİYOR" : "BİTMİŞ").append("\n");
             rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
         }
 
-        // 2. ADIM: Servis Kayıtlarında Ara (Tamir Durumu İçin)
-        List<ServisKaydi> servisKayitlari = veriYukle("servis_kayitlari.ser");
+        // 2. ADIM: TXT'den Servis Kayıtlarını Yükle ve Ara
+        List<ServisKaydi> servisKayitlari = servisleriYukleTxt();
         ServisKaydi bulunanKayit = null;
 
         for (ServisKaydi k : servisKayitlari) {
-            // Kayıt içindeki cihazın seri numarasına bakıyoruz
             if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
                 bulunanKayit = k;
-                break; // Son kaydı bulmak yeterli (veya en günceli)
+                break;
             }
         }
 
@@ -118,19 +147,5 @@ public class MusteriTakipEkrani extends JFrame {
         } else {
             txtBilgiEkrani.setText(rapor.toString());
         }
-    }
-
-    // Dosyadan veri okuma metodu (Generic)
-    @SuppressWarnings("unchecked")
-    private <T> List<T> veriYukle(String dosyaAdi) {
-        File dosya = new File(dosyaAdi);
-        if (dosya.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dosya))) {
-                return (List<T>) ois.readObject();
-            } catch (Exception e) {
-                return new ArrayList<>();
-            }
-        }
-        return new ArrayList<>();
     }
 }

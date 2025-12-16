@@ -6,56 +6,55 @@ import java.util.List;
 
 public class ServisYonetimi {
     private List<ServisKaydi> kayitlar;
-    private static final String DOSYA_ADI = "servis_kayitlari.ser"; // Kayıtların tutulacağı dosya adı
+    private static final String DOSYA_ADI = "servisler.txt"; // TXT olarak güncellendi
 
-    @SuppressWarnings("unchecked")
     public ServisYonetimi() {
         this.kayitlar = new ArrayList<>();
-        yukle(); // Yöneticinin oluşturulmasıyla birlikte kayıtları yüklemeyi dene
+        yukle();
     }
 
     public void servisKaydiEkle(ServisKaydi kayit) {
         kayitlar.add(kayit);
-        kaydet(); // Her eklemeden sonra dosyaya kaydet
+        kaydet();
     }
 
     public List<ServisKaydi> getKayitlar() {
         return kayitlar;
     }
 
-    // Gerekirse bir kaydın durumunu güncelledikten sonra kaydetmek için
     public void kayitGuncelle() {
         kaydet();
     }
 
-    /**
-     * Servis kayıtlarını dosyaya kaydeder (Serialization).
-     */
     public void kaydet() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(DOSYA_ADI))) {
-            oos.writeObject(kayitlar);
-            System.out.println("Servis kayıtları başarıyla kaydedildi.");
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(DOSYA_ADI))) {
+            for (ServisKaydi k : kayitlar) {
+                bw.write(k.toTxtFormat());
+                bw.newLine();
+            }
+            // System.out.println("Servis kayıtları txt olarak kaydedildi.");
         } catch (IOException e) {
             System.err.println("Servis kayıtları kaydedilirken hata oluştu: " + e.getMessage());
         }
     }
 
-    /**
-     * Servis kayıtlarını dosyadan yükler (Deserialization).
-     */
     public void yukle() {
         File dosya = new File(DOSYA_ADI);
+        this.kayitlar = new ArrayList<>();
+
         if (dosya.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dosya))) {
-                // List<ServisKaydı> tipine güvenli dönüşüm
-                this.kayitlar = (List<ServisKaydi>) ois.readObject();
-                System.out.println("Servis kayıtları başarıyla yüklendi. Toplam kayıt: " + kayitlar.size());
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Servis kayıtları yüklenirken hata oluştu. Yeni liste oluşturuluyor.");
-                this.kayitlar = new ArrayList<>();
+            try (BufferedReader br = new BufferedReader(new FileReader(dosya))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (!line.trim().isEmpty()) {
+                        ServisKaydi k = ServisKaydi.fromTxtFormat(line);
+                        if(k != null) kayitlar.add(k);
+                    }
+                }
+                System.out.println("Servis kayıtları yüklendi: " + kayitlar.size());
+            } catch (IOException e) {
+                System.err.println("Servis kayıtları yüklenirken hata oluştu.");
             }
-        } else {
-            System.out.println("Servis kayıt dosyası bulunamadı. Yeni bir servis listesi oluşturuluyor.");
         }
     }
 }

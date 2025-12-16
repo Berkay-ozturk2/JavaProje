@@ -1,6 +1,5 @@
 package Cihazlar;
 
-
 import java.time.LocalDate;
 import Musteri.Musteri;
 
@@ -13,17 +12,24 @@ public class Tablet extends Cihaz {
         this.kalemDestegi = kalemDestegi;
     }
 
-
-    private boolean getKalemDestegi() {
+    // Private getter yerine sınıf içi erişim de mümkün ama dışarıdan erişim için:
+    public boolean getKalemDestegi() {
         return kalemDestegi;
     }
 
+    @Override
+    public String toTxtFormat() {
+        return String.format("Tablet;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
+                getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
+                getEkstraGarantiSuresiAy(),
+                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
+                kalemDestegi);
+    }
 
     @Override
     public int getGarantiSuresiYil() {
         return 2;
     }
-
 
     @Override
     public String getCihazTuru() {

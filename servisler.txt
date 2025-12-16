@@ -1,0 +1,2 @@
+TEL-1234;;Telefon;;Samsung;;Galaxy S24;;Ekran Kırık;;2024-05-20;;TAMAMLANDI;;Osman Can Küçdemir;;Genel Onarım;;10500.0
+LAP-5678;;Laptop;;Lenovo;;ThinkPad;;Yazılım Hatası;;2024-06-10;;ONARIMDA;;İsmail Onur Koru;;Laptop;;250.0
