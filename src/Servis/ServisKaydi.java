@@ -61,9 +61,15 @@ public class ServisKaydi implements Serializable {
             Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
             Cihaz tempCihaz = null;
 
-            if(tur.equalsIgnoreCase("Telefon")) tempCihaz = new Telefon(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
-            else if(tur.equalsIgnoreCase("Laptop")) tempCihaz = new Laptop(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
-            else tempCihaz = new Tablet(seriNo, marka, model, 0, LocalDate.now(), false, dummyMusteri);
+            // Cihazı geçmiş tarihli oluşturuyoruz ki garanti bitmiş varsayılsın ve kayıtlı ücret geçerli olsun.
+            LocalDate gecmisTarih = LocalDate.now().minusYears(10);
+
+            if(tur.equalsIgnoreCase("Telefon"))
+                tempCihaz = new Telefon(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
+            else if(tur.equalsIgnoreCase("Laptop"))
+                tempCihaz = new Laptop(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
+            else
+                tempCihaz = new Tablet(seriNo, marka, model, 0, gecmisTarih, false, dummyMusteri);
 
             ServisKaydi kayit = new ServisKaydi(tempCihaz, sorun);
             kayit.setGirisTarihi(giris);
