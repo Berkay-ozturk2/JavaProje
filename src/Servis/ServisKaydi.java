@@ -127,6 +127,13 @@ public class ServisKaydi implements Serializable {
             this.tamamlamaTarihi = null;
         }
     }
+    // ... Diğer setter metodlarının yanına ekleyin ...
+
+    // YENİ EKLENECEK METOT:
+    // Txt okumalarında geçici cihaz verisini gerçek verilerle değiştirmek için gerekli.
+    public void setCihaz(Cihaz cihaz) {
+        this.cihaz = cihaz;
+    }
 
     @Override
     public String toString() {

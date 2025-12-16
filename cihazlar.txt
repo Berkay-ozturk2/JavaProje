@@ -4,4 +4,3 @@ Tablet;;TAB-9988;;Apple;;iPad Pro;;45000,00;;2024-02-15;;0;;Mehmet;;Can;;0505123
 Telefon;;TEL-0040;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-16;;0;;Burak;;Yılmaz;;5555555555
 Telefon;;TEL-7088;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-16;;0;;ali;;ali;;50724891278
 Telefon;;TEL-7180;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-09-06;;0;;aaaaa;;aaaaa;;515189118
-Laptop;;LAP-3772;;Dell;;XPS 15;;90000,00;;2025-02-27;;0;;bb;;bb;;4715718

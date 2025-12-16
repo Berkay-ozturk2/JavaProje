@@ -128,6 +128,16 @@ public class MusteriTakipEkrani extends JFrame {
         for (ServisKaydi k : servisKayitlari) {
             if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
                 bulunanKayit = k;
+
+                // --- DÜZELTME BAŞLANGICI ---
+                // ServisKaydi dosyasından gelen cihaz bilgisi eksiktir (tarihler yanlıştır).
+                // Eğer 1. adımda gerçek cihazı bulduysak, servis kaydındaki cihazla değiştirelim.
+                // Böylece garanti kontrolü doğru tarihle yapılır.
+                if (bulunanCihaz != null) {
+                    bulunanKayit.setCihaz(bulunanCihaz);
+                }
+                // --- DÜZELTME BİTİŞİ ---
+
                 break;
             }
         }
@@ -141,8 +151,9 @@ public class MusteriTakipEkrani extends JFrame {
             String teknisyen = (bulunanKayit.getAtananTeknisyen() != null) ? bulunanKayit.getAtananTeknisyen().getAd() : "Henüz Atanmadı";
             rapor.append("İlgilenen Uzman: ").append(teknisyen).append("\n");
 
+            // Cihazı set ettiğimiz için artık getOdenecekTamirUcreti() doğru tarihi kontrol edecek
             if (bulunanKayit.getOdenecekTamirUcreti() > 0) {
-                rapor.append("Tahmini Ücret: ").append(bulunanKayit.getOdenecekTamirUcreti()).append(" TL\n");
+                rapor.append("Tahmini Ücret: ").append(String.format("%.2f", bulunanKayit.getOdenecekTamirUcreti())).append(" TL\n");
             } else {
                 rapor.append("Ücret: Garanti Kapsamında / Ücretsiz\n");
             }
