@@ -27,8 +27,10 @@ public class CihazKayitDialog extends JDialog {
     private JTextField txtMusteriSoyad;
     private JTextField txtMusteriTelefon;
 
+    // YENİ EKLENEN KUTUCUK
+    private JCheckBox chkEskiTarih;
+
     private final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
-    // YENİ: Modellerin ortalama fiyatlarını tutan harita
     private final Map<String, Double> MODEL_FIYATLARI = new HashMap<>();
 
     private final String[] TELEFON_MARKALARI = {"Samsung", "Apple", "Xiaomi", "Huawei"};
@@ -42,22 +44,22 @@ public class CihazKayitDialog extends JDialog {
     private JCheckBox chkSsd;
 
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
-        super(parent, "Yeni Cihaz Kaydı (Manuel Giriş)", true);
+        super(parent, "Yeni Cihaz Kaydı", true); // Başlık sadeleştirildi
         this.listener = listener;
-        setSize(500, 600);
+        setSize(500, 650); // Yükseklik biraz artırıldı
         setLocationRelativeTo(parent);
 
         initModelData();
         initUI();
     }
 
-    private void initModelData() {
-        // --- MODELLER VE FİYATLARINI TANIMLAYALIM ---
+    // ... (initModelData ve generateRandomSeriNo metodları aynen kalacak, buraya tekrar yazmıyorum) ...
+    // Sadece initModelData() ve generateRandomSeriNo() kısmını değiştirmeyin, orası orijinal kodunuzla aynı kalsın.
 
+    private void initModelData() {
         // TELEFON
         Map<String, String[]> telefonModelleri = new HashMap<>();
         telefonModelleri.put("Samsung", new String[]{"Galaxy S24 Ultra", "Galaxy A55", "Galaxy Flip 5", "Galaxy S23 FE"});
-        // Fiyatlar
         MODEL_FIYATLARI.put("Galaxy S24 Ultra", 70000.0);
         MODEL_FIYATLARI.put("Galaxy A55", 20000.0);
         MODEL_FIYATLARI.put("Galaxy Flip 5", 40000.0);
@@ -143,8 +145,6 @@ public class CihazKayitDialog extends JDialog {
             case "Laptop" -> "LAP";
             default -> "DEV";
         };
-
-        // SeriNo daha gerçekçi olsun diye rastgele 4 sayı üreten döngü
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
         String chars = "0123456789";
@@ -156,7 +156,7 @@ public class CihazKayitDialog extends JDialog {
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
-        JPanel generalPanel = new JPanel(new GridLayout(10, 2, 5, 5));
+        JPanel generalPanel = new JPanel(new GridLayout(11, 2, 5, 5)); // Satır sayısı artırıldı (11)
 
         txtMusteriAd = new JTextField();
         generalPanel.add(new JLabel("Müşteri Adı:"));
@@ -167,7 +167,7 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(txtMusteriSoyad);
 
         txtMusteriTelefon = new JTextField();
-        generalPanel.add(new JLabel("Telefon:"));
+        generalPanel.add(new JLabel("Telefon (Sadece Rakam):"));
         generalPanel.add(txtMusteriTelefon);
 
         generalPanel.add(new JLabel("Cihaz Türü:"));
@@ -188,6 +188,7 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Model:"));
         generalPanel.add(cmbModel);
 
+        // ... Listenerlar aynı ...
         cmbTur.addActionListener(e -> {
             String secilenTur = (String) cmbTur.getSelectedItem();
             guncelMarkaListesiniDoldur(secilenTur);
@@ -201,7 +202,6 @@ public class CihazKayitDialog extends JDialog {
             guncelModelListesiniDoldur(secilenTur, secilenMarka);
         });
 
-        // YENİ: Model seçildiğinde fiyatı otomatik getir
         cmbModel.addActionListener(e -> {
             String secilenModel = (String) cmbModel.getSelectedItem();
             if (secilenModel != null && MODEL_FIYATLARI.containsKey(secilenModel)) {
@@ -213,9 +213,19 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Fiyat (TL):"));
         generalPanel.add(txtFiyat);
 
+        // --- SİZİN İÇİN EKLENEN ÖZEL KISIM ---
+        // Bu kutucuk seçilirse null gönderip sizin rastgele tarih kodunuzu çalıştıracağız.
+        chkEskiTarih = new JCheckBox("Geçmiş Tarihli Kayıt (Test Amaçlı)");
+        // Varsayılan olarak boş gelsin, böylece normal kayıt "bugün" olur.
+        // Test verisi girmek istediğinizde bunu işaretlersiniz.
+        generalPanel.add(new JLabel("Garanti Durumu:"));
+        generalPanel.add(chkEskiTarih);
+        // -------------------------------------
+
         cardLayout = new CardLayout();
         specificPanel = new JPanel(cardLayout);
 
+        // Paneller aynı
         JPanel telefonPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
         chkCiftSim = new JCheckBox("Çift Sim Mi?");
         telefonPanel.add(chkCiftSim);
@@ -247,22 +257,15 @@ public class CihazKayitDialog extends JDialog {
         add(btnKaydet, BorderLayout.SOUTH);
     }
 
+    // Marka ve Model doldurma metodları aynı kalabilir...
     private void guncelMarkaListesiniDoldur(String tur) {
         cmbMarka.removeAllItems();
         String[] markalar;
         switch (tur) {
-            case "Telefon":
-                markalar = TELEFON_MARKALARI;
-                break;
-            case "Tablet":
-                markalar = TABLET_MARKALARI;
-                break;
-            case "Laptop":
-                markalar = LAPTOP_MARKALARI;
-                break;
-            default:
-                markalar = new String[]{};
-                break;
+            case "Telefon": markalar = TELEFON_MARKALARI; break;
+            case "Tablet": markalar = TABLET_MARKALARI; break;
+            case "Laptop": markalar = LAPTOP_MARKALARI; break;
+            default: markalar = new String[]{}; break;
         }
         for (String marka : markalar) {
             cmbMarka.addItem(marka);
@@ -285,6 +288,7 @@ public class CihazKayitDialog extends JDialog {
         }
     }
 
+    // --- KRİTİK DEĞİŞİKLİKLER BURADA ---
     private void kaydet() {
         try {
             String mAd = txtMusteriAd.getText().trim();
@@ -293,6 +297,11 @@ public class CihazKayitDialog extends JDialog {
 
             if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
                 throw new IllegalArgumentException("Müşteri bilgileri zorunludur.");
+            }
+
+            // Telefon formatı kontrolü (Sadece rakam olsun)
+            if (!mTelefon.matches("\\d+")) {
+                throw new IllegalArgumentException("Telefon numarası sadece rakamlardan oluşmalıdır.");
             }
 
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
@@ -307,13 +316,14 @@ public class CihazKayitDialog extends JDialog {
             double fiyat = Double.parseDouble(txtFiyat.getText().trim());
             if (fiyat <= 0) throw new IllegalArgumentException("Cihaz fiyatı pozitif olmalıdır.");
 
-            // ...
             String tur = (String) cmbTur.getSelectedItem();
-            LocalDate garantiBaslangic = null; // DÜZELTME: null gönderince Cihaz sınıfı rastgele tarih atayacak.
+
+            // --- SİZİN İSTEDİĞİNİZ MANTIK ---
+            // Eğer kutucuk seçiliyse NULL gönderiyoruz (Cihaz sınıfı rastgele tarih atıyor).
+            // Seçili değilse BUGÜN tarihini gönderiyoruz (Sıfır cihaz).
+            LocalDate garantiBaslangic = chkEskiTarih.isSelected() ? null : LocalDate.now();
+
             Cihaz yeniCihaz;
-
-
-// ...
 
             switch (tur) {
                 case "Telefon":
