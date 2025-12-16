@@ -37,10 +37,11 @@ public class Main extends JFrame implements CihazEkleListener {
 
     private ServisYonetimi servisYonetimi;
 
+    // İsimleri ve uzmanlık alanlarını isteğinize göre sabitledik
     private final List<Teknisyen> teknisyenler = Arrays.asList(
-            new Teknisyen("Osman Can Küçdemir", "Genel Onarım"),
-            new Teknisyen("Çağatay Oğuz", "Telefon/Tablet"),
-            new Teknisyen("İsmail Onur Koru", "Laptop"));
+            new Teknisyen("Osman Can Küçdemir", "Laptop Onarım"), // 0. İndeks: Laptop
+            new Teknisyen("Çağatay Oğuz", "Telefon Onarım"),      // 1. İndeks: Telefon
+            new Teknisyen("İsmail Onur Koru", "Tablet Onarım"));  // 2. İndeks: Tablet
     private final Random random = new Random();
 
     public Main() {
@@ -98,8 +99,17 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    private Teknisyen rastgeleTeknisyenSec() {
-        return teknisyenler.get(random.nextInt(teknisyenler.size()));
+    // Cihaz türüne göre ilgili teknisyeni döndüren metot
+    private Teknisyen teknisyenSec(String cihazTuru) {
+        if (cihazTuru.equalsIgnoreCase("Laptop")) {
+            return teknisyenler.get(0); // Osman Can Küçdemir
+        } else if (cihazTuru.equalsIgnoreCase("Telefon")) {
+            return teknisyenler.get(1); // Çağatay Oğuz
+        } else if (cihazTuru.equalsIgnoreCase("Tablet")) {
+            return teknisyenler.get(2); // İsmail Onur Koru
+        } else {
+            return teknisyenler.get(0); // Varsayılan olarak ilk kişi
+        }
     }
 
     private void initUI() {
@@ -155,7 +165,8 @@ public class Main extends JFrame implements CihazEkleListener {
                     ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
                     yeniKayit.setTahminiTamirUcreti(hesaplananUcret);
 
-                    Teknisyen atananTeknisyen = rastgeleTeknisyenSec();
+                    // Seçilen cihazın türünü metoda gönderiyoruz
+                    Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
                     yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
                     servisYonetimi.servisKaydiEkle(yeniKayit);
