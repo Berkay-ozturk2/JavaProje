@@ -307,9 +307,13 @@ public class CihazKayitDialog extends JDialog {
             double fiyat = Double.parseDouble(txtFiyat.getText().trim());
             if (fiyat <= 0) throw new IllegalArgumentException("Cihaz fiyatı pozitif olmalıdır.");
 
+            // ...
             String tur = (String) cmbTur.getSelectedItem();
-            LocalDate garantiBaslangic = LocalDate.now();
+            LocalDate garantiBaslangic = null; // DÜZELTME: null gönderince Cihaz sınıfı rastgele tarih atayacak.
             Cihaz yeniCihaz;
+
+
+// ...
 
             switch (tur) {
                 case "Telefon":

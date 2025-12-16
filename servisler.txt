@@ -1,3 +1,4 @@
 TEL-1234;;Telefon;;Samsung;;Galaxy S24;;Ekran Kırık;;2024-05-20;;Tamamlandı;;Osman Can Küçdemir;;Genel Onarım;;10500,00
 LAP-5678;;Laptop;;Lenovo;;ThinkPad;;Yazılım Hatası;;2024-06-10;;Onarımda;;İsmail Onur Koru;;Laptop;;250,00
 TEL-7088;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-16;;Kabul Edildi;;Çağatay Oğuz;;Telefon/Tablet;;0,00
+LAP-3772;;Laptop;;Dell;;XPS 15;;Anakarta Sıvı Teması;;2025-12-16;;Kabul Edildi;;Osman Can Küçdemir;;Genel Onarım;;0,00
