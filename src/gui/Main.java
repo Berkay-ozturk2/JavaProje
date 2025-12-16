@@ -64,12 +64,14 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     // --- TXT YÜKLEME METODU ---
+    // --- TXT YÜKLEME METODU ---
     private List<Cihaz> cihazYukle() {
         List<Cihaz> liste = new ArrayList<>();
         File dosya = new File(CİHAZ_DOSYA_ADI);
         if (!dosya.exists()) return liste;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(dosya))) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(dosya), "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
@@ -85,7 +87,8 @@ public class Main extends JFrame implements CihazEkleListener {
 
     // --- TXT KAYDETME METODU ---
     private void cihazKaydet(List<Cihaz> liste) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(CİHAZ_DOSYA_ADI))) {
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(CİHAZ_DOSYA_ADI), "UTF-8"))) {
             for (Cihaz c : liste) {
                 bw.write(c.toTxtFormat());
                 bw.newLine();

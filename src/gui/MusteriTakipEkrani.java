@@ -46,11 +46,14 @@ public class MusteriTakipEkrani extends JFrame {
     }
 
     // --- TXT VERİ OKUMA METOTLARI ---
+// --- GÜNCELLENMİŞ TXT VERİ OKUMA METOTLARI ---
     private List<Cihaz> cihazlariYukleTxt() {
         List<Cihaz> liste = new ArrayList<>();
         File dosya = new File("cihazlar.txt");
         if(dosya.exists()){
-            try(BufferedReader br = new BufferedReader(new FileReader(dosya))){
+            // UTF-8 Karakter desteği ile okuma
+            try(BufferedReader br = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(dosya), "UTF-8"))){
                 String line;
                 while((line = br.readLine()) != null){
                     if(!line.trim().isEmpty()) {
@@ -58,7 +61,9 @@ public class MusteriTakipEkrani extends JFrame {
                         if(c != null) liste.add(c);
                     }
                 }
-            } catch(Exception e){}
+            } catch(Exception e){
+                e.printStackTrace(); // Hatayı konsola yazdır
+            }
         }
         return liste;
     }
@@ -67,7 +72,9 @@ public class MusteriTakipEkrani extends JFrame {
         List<ServisKaydi> liste = new ArrayList<>();
         File dosya = new File("servisler.txt");
         if(dosya.exists()){
-            try(BufferedReader br = new BufferedReader(new FileReader(dosya))){
+            // UTF-8 Karakter desteği ile okuma
+            try(BufferedReader br = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(dosya), "UTF-8"))){
                 String line;
                 while((line = br.readLine()) != null){
                     if(!line.trim().isEmpty()) {
@@ -75,7 +82,9 @@ public class MusteriTakipEkrani extends JFrame {
                         if(k != null) liste.add(k);
                     }
                 }
-            } catch(Exception e){}
+            } catch(Exception e){
+                e.printStackTrace(); // Hatayı konsola yazdır
+            }
         }
         return liste;
     }

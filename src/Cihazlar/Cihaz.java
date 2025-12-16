@@ -45,26 +45,39 @@ public abstract class Cihaz implements Serializable {
 
     public static Cihaz fromTxtFormat(String line) {
         try {
+            // Veri parçalarını ayır
             String[] parcalar = line.split(";;");
-            // Beklenen: TUR;;SERINO;;MARKA;;MODEL;;FIYAT;;TARIH;;EKSTRA_SURE;;MUSTERI_AD;;MUSTERI_SOYAD;;MUSTERI_TEL;;[OZEL]
 
-            String tur = parcalar[0];
-            String seriNo = parcalar[1];
-            String marka = parcalar[2];
-            String model = parcalar[3];
-            double fiyat = Double.parseDouble(parcalar[4]);
-            LocalDate tarih = LocalDate.parse(parcalar[5]);
-            int ekstraSure = Integer.parseInt(parcalar[6]);
+            // Beklenen format kontrolü (En az 10 veri olmalı)
+            if (parcalar.length < 10) {
+                return null;
+            }
 
-            Musteri musteri = new Musteri(parcalar[7], parcalar[8], parcalar[9]);
+            // Boşlukları temizle (.trim())
+            String tur = parcalar[0].trim();
+            String seriNo = parcalar[1].trim();
+            String marka = parcalar[2].trim();
+            String model = parcalar[3].trim();
+
+            // FİYAT HATASI DÜZELTMESİ: Virgülü noktaya çevir ve boşlukları sil
+            double fiyat = Double.parseDouble(parcalar[4].trim().replace(",", "."));
+
+            LocalDate tarih = LocalDate.parse(parcalar[5].trim());
+            int ekstraSure = Integer.parseInt(parcalar[6].trim());
+
+            Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
 
             Cihaz cihaz = null;
-            if (tur.equals("Telefon")) {
+            if (tur.equalsIgnoreCase("Telefon")) {
                 cihaz = new Telefon(seriNo, marka, model, fiyat, tarih, musteri);
-            } else if (tur.equals("Laptop")) {
+            } else if (tur.equalsIgnoreCase("Laptop")) {
                 cihaz = new Laptop(seriNo, marka, model, fiyat, tarih, musteri);
-            } else if (tur.equals("Tablet")) {
-                boolean kalem = Boolean.parseBoolean(parcalar[10]);
+            } else if (tur.equalsIgnoreCase("Tablet")) {
+                // Tablet için ekstra boolean kontrolü
+                boolean kalem = false;
+                if (parcalar.length > 10) {
+                    kalem = Boolean.parseBoolean(parcalar[10].trim());
+                }
                 cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
             }
 
@@ -73,7 +86,8 @@ public abstract class Cihaz implements Serializable {
             }
             return cihaz;
         } catch (Exception e) {
-            System.err.println("Cihaz ayrıştırma hatası: " + line);
+            // Hata olursa konsola yazdıralım ki görebilelim
+            System.err.println("Cihaz okuma hatası (Satır: " + line + ") -> " + e.getMessage());
             return null;
         }
     }

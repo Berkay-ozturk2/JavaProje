@@ -42,30 +42,34 @@ public class ServisKaydi implements Serializable {
     public static ServisKaydi fromTxtFormat(String line) {
         try {
             String[] p = line.split(";;");
-            String seriNo = p[0];
-            String tur = p[1];
-            String marka = p[2];
-            String model = p[3];
-            String sorun = p[4];
-            LocalDate giris = LocalDate.parse(p[5]);
-            String durumStr = p[6];
-            String tekAd = p[7];
-            String tekUzmanlik = p[8];
-            double ucret = Double.parseDouble(p[9].replace(",", "."));
+            // Güvenlik kontrolleri
+            if(p.length < 10) return null;
 
-            // Geçici nesneler oluşturuyoruz (Sadece bilgiyi tutmak için)
+            String seriNo = p[0].trim();
+            String tur = p[1].trim();
+            String marka = p[2].trim();
+            String model = p[3].trim();
+            String sorun = p[4].trim();
+            LocalDate giris = LocalDate.parse(p[5].trim());
+            String durumStr = p[6].trim();
+            String tekAd = p[7].trim();
+            String tekUzmanlik = p[8].trim();
+
+            // FİYAT DÜZELTME
+            double ucret = Double.parseDouble(p[9].replace(",", ".").trim());
+
             Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
             Cihaz tempCihaz = null;
-            if(tur.equals("Telefon")) tempCihaz = new Telefon(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
-            else if(tur.equals("Laptop")) tempCihaz = new Laptop(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
+
+            if(tur.equalsIgnoreCase("Telefon")) tempCihaz = new Telefon(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
+            else if(tur.equalsIgnoreCase("Laptop")) tempCihaz = new Laptop(seriNo, marka, model, 0, LocalDate.now(), dummyMusteri);
             else tempCihaz = new Tablet(seriNo, marka, model, 0, LocalDate.now(), false, dummyMusteri);
 
             ServisKaydi kayit = new ServisKaydi(tempCihaz, sorun);
-            kayit.setGirisTarihi(giris); // Tarihi dosyadaki ile değiştir
+            kayit.setGirisTarihi(giris);
 
-            // Durum atama
             for(ServisDurumu d : ServisDurumu.values()) {
-                if(d.toString().equals(durumStr)) {
+                if(d.toString().equalsIgnoreCase(durumStr)) { // equalsIgnoreCase yaptık
                     kayit.setDurum(d);
                     break;
                 }
