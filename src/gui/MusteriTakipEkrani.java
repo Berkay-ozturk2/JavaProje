@@ -96,7 +96,7 @@ public class MusteriTakipEkrani extends JFrame {
             return;
         }
 
-        txtBilgiEkrani.setText("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz\n");
+        txtBilgiEkrani.setText("Sorgulanıyor...");
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 
@@ -124,6 +124,7 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("Marka/Model: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
             rapor.append("Tür: ").append(bulunanCihaz.getCihazTuru()).append("\n");
             boolean garantiVarMi = bulunanCihaz.isGarantiAktif();
+        }
             // ... kodun geri kalanı aynı
 
         // 2. ADIM: TXT'den Servis Kayıtlarını Yükle ve Ara
@@ -173,4 +174,4 @@ public class MusteriTakipEkrani extends JFrame {
             txtBilgiEkrani.setText(rapor.toString());
         }
     }
-}}
+}
