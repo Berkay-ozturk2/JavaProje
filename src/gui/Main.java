@@ -298,3 +298,4 @@ public class Main extends JFrame implements CihazEkleListener {
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
+//301 yorum satırı ekledim
