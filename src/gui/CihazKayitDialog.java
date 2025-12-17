@@ -44,17 +44,14 @@ public class CihazKayitDialog extends JDialog {
     private JCheckBox chkSsd;
 
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
-        super(parent, "Yeni Cihaz Kaydı", true); // Başlık sadeleştirildi
+        super(parent, "Yeni Cihaz Kaydı", true);
         this.listener = listener;
-        setSize(500, 650); // Yükseklik biraz artırıldı
+        setSize(500, 650);
         setLocationRelativeTo(parent);
 
         initModelData();
         initUI();
     }
-
-    // ... (initModelData ve generateRandomSeriNo metodları aynen kalacak, buraya tekrar yazmıyorum) ...
-    // Sadece initModelData() ve generateRandomSeriNo() kısmını değiştirmeyin, orası orijinal kodunuzla aynı kalsın.
 
     private void initModelData() {
         // TELEFON
@@ -156,7 +153,7 @@ public class CihazKayitDialog extends JDialog {
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
-        JPanel generalPanel = new JPanel(new GridLayout(11, 2, 5, 5)); // Satır sayısı artırıldı (11)
+        JPanel generalPanel = new JPanel(new GridLayout(11, 2, 5, 5));
 
         txtMusteriAd = new JTextField();
         generalPanel.add(new JLabel("Müşteri Adı:"));
@@ -166,9 +163,11 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Müşteri Soyadı:"));
         generalPanel.add(txtMusteriSoyad);
 
-        txtMusteriTelefon = new JTextField();
-        generalPanel.add(new JLabel("Telefon (Sadece Rakam):"));
+        // --- GÜNCELLEME 1: KUTUCUK +90 İLE BAŞLIYOR ---
+        txtMusteriTelefon = new JTextField("+90");
+        generalPanel.add(new JLabel("Telefon (+905...):"));
         generalPanel.add(txtMusteriTelefon);
+        // ----------------------------------------------
 
         generalPanel.add(new JLabel("Cihaz Türü:"));
         String[] turler = {"Telefon", "Tablet", "Laptop"};
@@ -188,7 +187,6 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Model:"));
         generalPanel.add(cmbModel);
 
-        // ... Listenerlar aynı ...
         cmbTur.addActionListener(e -> {
             String secilenTur = (String) cmbTur.getSelectedItem();
             guncelMarkaListesiniDoldur(secilenTur);
@@ -213,19 +211,13 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Fiyat (TL):"));
         generalPanel.add(txtFiyat);
 
-        // --- SİZİN İÇİN EKLENEN ÖZEL KISIM ---
-        // Bu kutucuk seçilirse null gönderip sizin rastgele tarih kodunuzu çalıştıracağız.
         chkEskiTarih = new JCheckBox("Geçmiş Tarihli Kayıt (Test Amaçlı)");
-        // Varsayılan olarak boş gelsin, böylece normal kayıt "bugün" olur.
-        // Test verisi girmek istediğinizde bunu işaretlersiniz.
         generalPanel.add(new JLabel("Garanti Durumu:"));
         generalPanel.add(chkEskiTarih);
-        // -------------------------------------
 
         cardLayout = new CardLayout();
         specificPanel = new JPanel(cardLayout);
 
-        // Paneller aynı
         JPanel telefonPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
         chkCiftSim = new JCheckBox("Çift Sim Mi?");
         telefonPanel.add(chkCiftSim);
@@ -240,7 +232,6 @@ public class CihazKayitDialog extends JDialog {
         chkSsd = new JCheckBox("Harici Ekran Kartı Var Mı?");
         laptopPanel.add(chkSsd);
         specificPanel.add(laptopPanel, "Laptop");
-
 
         guncelMarkaListesiniDoldur((String) cmbTur.getSelectedItem());
         cardLayout.show(specificPanel, (String) cmbTur.getSelectedItem());
@@ -257,7 +248,6 @@ public class CihazKayitDialog extends JDialog {
         add(btnKaydet, BorderLayout.SOUTH);
     }
 
-    // Marka ve Model doldurma metodları aynı kalabilir...
     private void guncelMarkaListesiniDoldur(String tur) {
         cmbMarka.removeAllItems();
         String[] markalar;
@@ -288,21 +278,27 @@ public class CihazKayitDialog extends JDialog {
         }
     }
 
-    // --- KRİTİK DEĞİŞİKLİKLER BURADA ---
     private void kaydet() {
         try {
-            String mAd = txtMusteriAd.getText().trim().toUpperCase();
-            String mSoyad = txtMusteriSoyad.getText().trim().toUpperCase();
+            String mAd = txtMusteriAd.getText().trim();
+            String mSoyad = txtMusteriSoyad.getText().trim();
             String mTelefon = txtMusteriTelefon.getText().trim();
 
             if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
                 throw new IllegalArgumentException("Müşteri bilgileri zorunludur.");
             }
 
-            // Telefon formatı kontrolü (Sadece rakam olsun)
-            if (!mTelefon.matches("\\d+")) {
-                throw new IllegalArgumentException("Telefon numarası sadece rakamlardan oluşmalıdır.");
+            // --- GÜNCELLEME 2: TELEFON FORMATI KONTROLÜ (+90 ve 13 hane) ---
+            if (!mTelefon.startsWith("(+90)")) {
+                throw new IllegalArgumentException("Telefon numarası +90 ile başlamalıdır.");
             }
+
+            // +90 5XX XXX XX XX (Toplam 13 karakter)
+            // substring(1) ile "+" işaretini atlayıp geri kalanın rakam olup olmadığına bakıyoruz
+            if (mTelefon.length() != 13 || !mTelefon.substring(1).matches("\\d+")) {
+                throw new IllegalArgumentException("Telefon numarası +905XXXXXXXXX formatında (13 hane) olmalıdır.");
+            }
+            // ----------------------------------------------------------------
 
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
             String seriNo = txtSeriNo.getText().trim();
@@ -318,9 +314,7 @@ public class CihazKayitDialog extends JDialog {
 
             String tur = (String) cmbTur.getSelectedItem();
 
-            // --- SİZİN İSTEDİĞİNİZ MANTIK ---
-            // Eğer kutucuk seçiliyse NULL gönderiyoruz (Cihaz sınıfı rastgele tarih atıyor).
-            // Seçili değilse BUGÜN tarihini gönderiyoruz (Sıfır cihaz).
+            // Checkbox seçiliyse null gider (rastgele tarih), değilse bugün
             LocalDate garantiBaslangic = chkEskiTarih.isSelected() ? null : LocalDate.now();
 
             Cihaz yeniCihaz;
@@ -330,7 +324,7 @@ public class CihazKayitDialog extends JDialog {
                     yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 case "Tablet":
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(),sahip);
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip);
                     break;
                 case "Laptop":
                     yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
