@@ -13,3 +13,4 @@ Laptop;;LAP-3982;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-05-17;;12;;ÖMER;;A
 Telefon;;TEL-6865;;Apple;;iPhone 15 Pro Max;;85000,00;;2024-05-14;;0;;OSMA;;SUS;;415623
 Telefon;;TEL-1560;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-12-05;;0;;ASUJWS;;SASAW;;4125
 Telefon;;TEL-5774;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-17;;0;;BVUIEBD;;VBJSBVHE;;+905411411441
+Telefon;;TEL-9665;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-07-27;;0;;YUNUS;;YUNUS;;(+90)5789874512

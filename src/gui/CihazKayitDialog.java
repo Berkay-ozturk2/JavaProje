@@ -289,14 +289,15 @@ public class CihazKayitDialog extends JDialog {
             }
 
             // --- GÜNCELLEME 2: TELEFON FORMATI KONTROLÜ (+90 ve 13 hane) ---
+            // --- GÜNCELLEME 2: TELEFON FORMATI KONTROLÜ (+90 ve 13 hane) ---
             if (!mTelefon.startsWith("(+90)")) {
-                throw new IllegalArgumentException("Telefon numarası +90 ile başlamalıdır.");
+                throw new IllegalArgumentException("Telefon numarası (+90) ile başlamalıdır.");
             }
 
-            // +90 5XX XXX XX XX (Toplam 13 karakter)
-            // substring(1) ile "+" işaretini atlayıp geri kalanın rakam olup olmadığına bakıyoruz
-            if (mTelefon.length() != 15 || !mTelefon.substring(1).matches("\\d+")) {
-                throw new IllegalArgumentException("Telefon numarası +905XXXXXXXXX formatında (13 hane) olmalıdır.");
+// DÜZELTME: (+90) 5 karakterdir. 10 haneli numara ile toplam 15 karakter olmalı.
+// substring(5) diyerek sadece (+90)'dan sonraki kısmı alıp rakam mı diye bakıyoruz.
+            if (mTelefon.length() != 15 || !mTelefon.substring(5).matches("\\d+")) {
+                throw new IllegalArgumentException("Telefon numarası (+90)5XXXXXXXXX formatında olmalıdır.");
             }
             // ----------------------------------------------------------------
 
