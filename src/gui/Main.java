@@ -307,3 +307,4 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 }
 //301 yorum satırı ekledim
+//yeni yorum satırları eklendi
