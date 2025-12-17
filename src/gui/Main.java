@@ -49,8 +49,16 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+        // 1. Cihazları Yükle
         cihazListesi = cihazYukle();
+
+        // 2. Servisleri Yükle
         servisYonetimi = new ServisYonetimi();
+
+        // --- DÜZELTME BAŞLANGICI ---
+        // Servis kayıtlarındaki "Bilinmiyor" müşterileri, gerçek cihaz listesiyle eşleştirerek düzeltiyoruz.
+        servisYonetimi.cihazBilgileriniEslestir(cihazListesi);
+        // --- DÜZELTME BİTİŞİ ---
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
@@ -249,6 +257,8 @@ public class Main extends JFrame implements CihazEkleListener {
         });
 
         btnServisListele.addActionListener(e -> {
+            // Eşleştirme zaten Main constructor'da yapıldı,
+            // bu yüzden frame açıldığında veriler doğru gelecektir.
             ServisTakipFrame servisFrame = new ServisTakipFrame(servisYonetimi);
             servisFrame.setVisible(true);
         });
@@ -316,6 +326,3 @@ public class Main extends JFrame implements CihazEkleListener {
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
-//301 yorum satırı ekledim
-//yeni yorum satırları eklendi
-//BDCYUSAVKCYUVYUDVCYS

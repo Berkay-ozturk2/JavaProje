@@ -164,8 +164,8 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(txtMusteriSoyad);
 
         // --- GÜNCELLEME 1: KUTUCUK +90 İLE BAŞLIYOR ---
-        txtMusteriTelefon = new JTextField("+90");
-        generalPanel.add(new JLabel("Telefon (+905...):"));
+        txtMusteriTelefon = new JTextField("(+90)");
+        generalPanel.add(new JLabel("Telefon ((+90)5..):"));
         generalPanel.add(txtMusteriTelefon);
         // ----------------------------------------------
 
@@ -295,7 +295,7 @@ public class CihazKayitDialog extends JDialog {
 
             // +90 5XX XXX XX XX (Toplam 13 karakter)
             // substring(1) ile "+" işaretini atlayıp geri kalanın rakam olup olmadığına bakıyoruz
-            if (mTelefon.length() != 13 || !mTelefon.substring(1).matches("\\d+")) {
+            if (mTelefon.length() != 15 || !mTelefon.substring(1).matches("\\d+")) {
                 throw new IllegalArgumentException("Telefon numarası +905XXXXXXXXX formatında (13 hane) olmalıdır.");
             }
             // ----------------------------------------------------------------
