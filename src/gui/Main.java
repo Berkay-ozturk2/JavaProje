@@ -49,18 +49,8 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // 1. Önce cihazları yükle (İçinde Müşteri bilgisi var)
         cihazListesi = cihazYukle();
-
-        // 2. Sonra servisleri yükle (İçinde Müşteri bilgisi YOK, "Bilinmiyor" yazar)
         servisYonetimi = new ServisYonetimi();
-
-        // --- YENİ EKLENEN KISIM ---
-        // Servis kayıtlarındaki eksik cihaz bilgilerini, tam cihaz listesiyle tamamla
-        if (servisYonetimi != null && cihazListesi != null) {
-            servisYonetimi.cihazBilgileriniEslestir(cihazListesi);
-        }
-        // --------------------------
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
@@ -133,19 +123,37 @@ public class Main extends JFrame implements CihazEkleListener {
 
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // --- BUTONLAR ---
-        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+        JButton btnCihazEkle = new JButton("Yeni Cihaz Ekle");
+        btnCihazEkle.setBackground(new Color(52, 152, 219));
+        btnCihazEkle.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnCihazEkle.setFont(new  Font("Segoe UI", Font.BOLD, 13));
 
-        Color primaryColor = new Color(52, 152, 219);
+        JButton btnServisKaydi = new JButton("Servis Kaydı Oluştur");
+        btnServisKaydi.setBackground(new Color(52, 152, 219));
+        btnServisKaydi.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnServisKaydi.setFont(new  Font("Segoe UI", Font.BOLD, 13));
 
-        JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", primaryColor, Color.WHITE, btnFont);
-        JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", primaryColor, Color.WHITE, btnFont);
-        JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
-        JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
-        JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
-        JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
+        JButton btnServisListele = new JButton("Servis Takip Ekranı");
+        btnServisListele.setBackground(new  Color(74, 101, 114));
+        btnServisListele.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnServisListele.setFont(new  Font("Segoe UI", Font.BOLD, 13));
 
-        // --- AKSİYONLAR ---
+        JButton btnGarantiUzat = new JButton("Garanti Paketleri (Uzat)");
+        btnGarantiUzat.setBackground(new Color(93, 138, 103));
+        btnGarantiUzat.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnGarantiUzat.setFont(new  Font("Segoe UI", Font.BOLD, 13));
+
+        JButton btnSil = new JButton("Seçili Cihazı Sil");
+        btnSil.setBackground(new Color(169, 50, 38));
+        btnSil.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnSil.setFont(new  Font("Segoe UI", Font.BOLD, 13));
+
+        JButton btnGeriDon = new JButton("Geri Dön");
+        btnGeriDon.setBackground(new Color(146, 43, 33)); // Dikkat çekmesi için kırmızı tonu
+        btnGeriDon.setForeground(Color.WHITE); // Yazı rengi beyaz
+        btnGeriDon.setFont(new  Font("Segoe UI", Font.BOLD, 13));
+
+        // --- AKSİYONLAR (Aynı) ---
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
             dialog.setVisible(true);
@@ -286,12 +294,13 @@ public class Main extends JFrame implements CihazEkleListener {
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
         tableModel.setRowCount(0);
         for (Cihaz c : liste) {
+            // c.getSahip().toString() -> Ad Soyad (Tel) formatında döner
             tableModel.addRow(new Object[]{
                     c.getCihazTuru(),
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    c.getSahip().toString(),
+                    c.getSahip().toString(), // BURASI EKLENDİ
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             });
@@ -307,4 +316,6 @@ public class Main extends JFrame implements CihazEkleListener {
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
+//301 yorum satırı ekledim
+//yeni yorum satırları eklendi
 //BDCYUSAVKCYUVYUDVCYS

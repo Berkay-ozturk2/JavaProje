@@ -106,9 +106,11 @@ public class ServisTakipFrame extends JFrame {
         buttonPanel.add(btnDurumGuncelle);
         buttonPanel.add(btnSil);
 
+
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     }
+
 
     private void kayitlariTabloyaDoldur() {
         servisTableModel.setRowCount(0);
@@ -117,13 +119,11 @@ public class ServisTakipFrame extends JFrame {
         for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
 
-            // Müşteri bilgisini cihaz üzerinden çekiyoruz
-            String musteriBilgi = sk.getCihaz().getSahip().toString();
 
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
-                    musteriBilgi, // EKLENDİ
+                    sk.getCihaz().getSahip().toString(), // EKLENDİ
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
                     sk.getDurum(),

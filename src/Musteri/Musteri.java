@@ -19,8 +19,8 @@ public class Musteri implements Serializable {
     }
 
     // Getter Metotları
-    public String getAd() { return ad; }
-    public String getSoyad() { return soyad; }
+    public String getAd() { return ad.toUpperCase(); }
+    public String getSoyad() { return soyad.toUpperCase(); }
     public String getTelefon() { return telefon; }
 
 

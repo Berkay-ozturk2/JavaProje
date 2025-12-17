@@ -291,8 +291,8 @@ public class CihazKayitDialog extends JDialog {
     // --- KRİTİK DEĞİŞİKLİKLER BURADA ---
     private void kaydet() {
         try {
-            String mAd = txtMusteriAd.getText().trim();
-            String mSoyad = txtMusteriSoyad.getText().trim();
+            String mAd = txtMusteriAd.getText().trim().toUpperCase();
+            String mSoyad = txtMusteriSoyad.getText().trim().toUpperCase();
             String mTelefon = txtMusteriTelefon.getText().trim();
 
             if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
