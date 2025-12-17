@@ -1,4 +1,3 @@
-// src/gui/ServisTakipFrame.java
 package gui;
 
 import Servis.ServisDurumu;
@@ -19,17 +18,14 @@ public class ServisTakipFrame extends JFrame {
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         setTitle("Servis Kayıtları ve Takibi");
-        setSize(1000, 450); // Genişliği artırdık sütunlar sığsın diye
+        setSize(1000, 500);
         setLocationRelativeTo(null);
 
         initUI();
         kayitlariTabloyaDoldur();
     }
 
-    // src/gui/ServisTakipFrame.java -> initUI metodu içi
-
     private void initUI() {
-        // ... (Tablo tanımlamaları aynı kalacak) ...
         servisTableModel = new DefaultTableModel(
                 new Object[]{"Seri No", "Cihaz", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
         ) {
@@ -40,10 +36,23 @@ public class ServisTakipFrame extends JFrame {
         };
 
         servisTable = new JTable(servisTableModel);
+        servisTable.setRowHeight(25);
+        servisTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        servisTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
         JScrollPane scrollPane = new JScrollPane(servisTable);
 
-        // --- MEVCUT BUTON ---
+        // --- BUTONLAR ---
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+
+        // DEĞİŞİKLİK 1: Parlak turkuaz yerine daha sakin bir gri-mavi tonu.
+        // Bu ton, ana ekrandaki mavi butonlarla uyumlu ama onlardan farklıdır.
         JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
+        btnDurumGuncelle.setBackground(new Color(84, 110, 122));
+        btnDurumGuncelle.setForeground(Color.WHITE);
+        btnDurumGuncelle.setFont(btnFont);
+        btnDurumGuncelle.setFocusPainted(false);
+
         btnDurumGuncelle.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
@@ -61,16 +70,18 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
-        // --- YENİ EKLENECEK SİLME BUTONU ---
+        // DEĞİŞİKLİK 2: Parlak kırmızı yerine, ana ekranda kullandığımız tok kiremit kırmızısı.
         JButton btnSil = new JButton("Seçili Servis Kaydını Sil");
-        btnSil.setBackground(new Color(255, 200, 200)); // Hafif kırmızı renk
+        btnSil.setBackground(new Color(169, 50, 38));
+        btnSil.setForeground(Color.WHITE);
+        btnSil.setFont(btnFont);
+        btnSil.setFocusPainted(false);
 
         btnSil.addActionListener(e -> {
             int selectedRow = servisTable.getSelectedRow();
             if (selectedRow >= 0) {
                 ServisKaydi silinecekKayit = servisYonetimi.getKayitlar().get(selectedRow);
 
-                // Güvenlik Sorusu
                 int secim = JOptionPane.showConfirmDialog(
                         this,
                         "Seçilen servis kaydını silmek üzeresiniz:\n" +
@@ -83,11 +94,8 @@ public class ServisTakipFrame extends JFrame {
                 );
 
                 if (secim == JOptionPane.YES_OPTION) {
-                    // Listeden sil
                     servisYonetimi.getKayitlar().remove(selectedRow);
-                    // Dosyaya kaydet (servisler.txt güncellenir)
-                    servisYonetimi.kayitGuncelle(); // Bu metod zaten kaydet() çağırıyor
-                    // Tabloyu yenile
+                    servisYonetimi.kayitGuncelle();
                     kayitlariTabloyaDoldur();
                     JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla silindi.");
                 }
@@ -96,9 +104,9 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         buttonPanel.add(btnDurumGuncelle);
-        buttonPanel.add(btnSil); // Yeni butonu panele ekledik
+        buttonPanel.add(btnSil);
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -117,8 +125,8 @@ public class ServisTakipFrame extends JFrame {
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
                     sk.getDurum(),
-                    teknisyenAdi,          // Yeni Sütun Verisi
-                    sk.getOdenecekTamirUcreti() // Yeni Sütun Verisi
+                    teknisyenAdi,
+                    sk.getOdenecekTamirUcreti()
             });
         }
     }

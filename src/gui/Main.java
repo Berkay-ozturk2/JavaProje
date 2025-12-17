@@ -13,8 +13,6 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
-
-
 public class Main extends JFrame implements CihazEkleListener {
 
     private static final Map<String, Double> SORUN_MALIYET_ORANLARI = new LinkedHashMap<>();
@@ -34,21 +32,20 @@ public class Main extends JFrame implements CihazEkleListener {
     private DefaultTableModel tableModel;
     private List<Cihaz> cihazListesi = new ArrayList<>();
 
-    // DOSYA ADI DEĞİŞTİ
+    // DOSYA ADI
     private static final String CİHAZ_DOSYA_ADI = "cihazlar.txt";
 
     private ServisYonetimi servisYonetimi;
 
-    // İsimleri ve uzmanlık alanlarını isteğinize göre sabitledik
     private final List<Teknisyen> teknisyenler = Arrays.asList(
-            new Teknisyen("Osman Can Küçdemir", "Laptop Onarım"), // 0. İndeks: Laptop
-            new Teknisyen("Çağatay Oğuz", "Telefon Onarım"),      // 1. İndeks: Telefon
-            new Teknisyen("İsmail Onur Koru", "Tablet Onarım"));  // 2. İndeks: Tablet
+            new Teknisyen("Osman Can Küçdemir", "Laptop Onarım"),
+            new Teknisyen("Çağatay Oğuz", "Telefon Onarım"),
+            new Teknisyen("İsmail Onur Koru", "Tablet Onarım"));
     private final Random random = new Random();
 
     public Main() {
         setTitle("Teknolojik Cihaz Garanti & Servis Takip Sistemi");
-        setSize(950, 500);
+        setSize(1000, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -66,8 +63,6 @@ public class Main extends JFrame implements CihazEkleListener {
         cihazKaydet(cihazListesi);
     }
 
-    // --- TXT YÜKLEME METODU ---
-    // --- TXT YÜKLEME METODU ---
     private List<Cihaz> cihazYukle() {
         List<Cihaz> liste = new ArrayList<>();
         File dosya = new File(CİHAZ_DOSYA_ADI);
@@ -88,7 +83,6 @@ public class Main extends JFrame implements CihazEkleListener {
         return liste;
     }
 
-    // --- TXT KAYDETME METODU ---
     private void cihazKaydet(List<Cihaz> liste) {
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(CİHAZ_DOSYA_ADI), "UTF-8"))) {
@@ -101,20 +95,20 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    // Cihaz türüne göre ilgili teknisyeni döndüren metot
     private Teknisyen teknisyenSec(String cihazTuru) {
         if (cihazTuru.equalsIgnoreCase("Laptop")) {
-            return teknisyenler.get(0); // Osman Can Küçdemir
+            return teknisyenler.get(0);
         } else if (cihazTuru.equalsIgnoreCase("Telefon")) {
-            return teknisyenler.get(1); // Çağatay Oğuz
+            return teknisyenler.get(1);
         } else if (cihazTuru.equalsIgnoreCase("Tablet")) {
-            return teknisyenler.get(2); // İsmail Onur Koru
+            return teknisyenler.get(2);
         } else {
-            return teknisyenler.get(0); // Varsayılan olarak ilk kişi
+            return teknisyenler.get(0);
         }
     }
 
     private void initUI() {
+        // Tablo Modeli
         tableModel = new DefaultTableModel(
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
             @Override
@@ -122,15 +116,33 @@ public class Main extends JFrame implements CihazEkleListener {
         };
 
         table = new JTable(tableModel);
+        table.setRowHeight(25);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnCihazEkle = new JButton("Yeni Cihaz Ekle");
-        JButton btnServisKaydi = new JButton("Servis Kaydı Oluştur");
-        JButton btnServisListele = new JButton("Servis Takip Ekranı");
-        JButton btnGarantiUzat = new JButton("Garanti Paketleri (Uzat)");
-        btnGarantiUzat.setBackground(new Color(220, 255, 220));
-        JButton btnSil = new JButton("Seçili Cihazı Sil");
+        // --- BUTONLAR ---
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+        // Standart Mavi (Değişmedi)
+        Color primaryColor = new Color(52, 152, 219);
 
+        JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", primaryColor, Color.WHITE, btnFont);
+        JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", primaryColor, Color.WHITE, btnFont);
+
+        // DEĞİŞİKLİK 1: Mor yerine daha kurumsal, koyu çelik mavisi/gri
+        JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
+
+        // DEĞİŞİKLİK 2: Parlak yeşil yerine daha mat, adaçayı yeşili (Sage Green)
+        JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
+
+        // DEĞİŞİKLİK 3: Turuncu yerine daha tok, göz yormayan kiremit kırmızısı
+        JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
+
+        // Geri Dön: Koyu Kırmızı (Hafifçe tonlandı)
+        JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
+
+        // --- AKSİYONLAR (Aynı) ---
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
             dialog.setVisible(true);
@@ -166,11 +178,8 @@ public class Main extends JFrame implements CihazEkleListener {
                     String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
                     ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
                     yeniKayit.setTahminiTamirUcreti(hesaplananUcret);
-
-                    // Seçilen cihazın türünü metoda gönderiyoruz
                     Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
                     yeniKayit.setAtananTeknisyen(atananTeknisyen);
-
                     servisYonetimi.servisKaydiEkle(yeniKayit);
 
                     JOptionPane.showMessageDialog(this,
@@ -244,19 +253,13 @@ public class Main extends JFrame implements CihazEkleListener {
             }
         });
 
-        JButton btnGeriDon = new JButton("Geri Dön");
-        btnGeriDon.setBackground(new Color(150, 40, 25)); // Dikkat çekmesi için kırmızı tonu
-        btnGeriDon.setForeground(Color.WHITE); // Yazı rengi beyaz
-
         btnGeriDon.addActionListener(e -> {
-            // 1. Giriş ekranını yeniden oluştur ve göster
             new GirisEkrani().setVisible(true);
-
-            // 2. Mevcut Ana Menü penceresini kapat (Program tamamen kapanmaz, sadece bu pencere gider)
             this.dispose();
         });
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         buttonPanel.add(btnCihazEkle);
         buttonPanel.add(btnServisKaydi);
         buttonPanel.add(btnGarantiUzat);
@@ -266,6 +269,15 @@ public class Main extends JFrame implements CihazEkleListener {
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JButton createStyledButton(String text, Color bgColor, Color fgColor, Font font) {
+        JButton btn = new JButton(text);
+        btn.setBackground(bgColor);
+        btn.setForeground(fgColor);
+        btn.setFont(font);
+        btn.setFocusPainted(false);
+        return btn;
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
@@ -279,7 +291,6 @@ public class Main extends JFrame implements CihazEkleListener {
 
     public static void main(String[] args) {
         try {
-            // Modern "FlatLaf Light" temasını uygular
             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
         } catch (Exception ex) {
             System.err.println("FlatLaf başlatılamadı!");
