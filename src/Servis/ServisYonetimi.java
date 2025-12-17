@@ -1,12 +1,13 @@
 package Servis;
 
+import Cihazlar.Cihaz; // --- EKLENDİ: Cihaz sınıfını kullanabilmek için ---
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServisYonetimi {
     private List<ServisKaydi> kayitlar;
-    private static final String DOSYA_ADI = "servisler.txt"; // TXT olarak güncellendi
+    private static final String DOSYA_ADI = "servisler.txt";
 
     public ServisYonetimi() {
         this.kayitlar = new ArrayList<>();
@@ -32,7 +33,6 @@ public class ServisYonetimi {
                 bw.write(k.toTxtFormat());
                 bw.newLine();
             }
-            // System.out.println("Servis kayıtları txt olarak kaydedildi.");
         } catch (IOException e) {
             System.err.println("Servis kayıtları kaydedilirken hata oluştu: " + e.getMessage());
         }
@@ -51,9 +51,27 @@ public class ServisYonetimi {
                         if(k != null) kayitlar.add(k);
                     }
                 }
-                System.out.println("Servis kayıtları yüklendi: " + kayitlar.size());
+                // System.out.println("Servis kayıtları yüklendi: " + kayitlar.size());
             } catch (IOException e) {
                 System.err.println("Servis kayıtları yüklenirken hata oluştu.");
+            }
+        }
+    }
+
+    // --- YENİ EKLENEN METOT ---
+    // Bu metot, servisler.txt'den gelen "Bilinmiyor" müşterili kayıtları,
+    // cihazlar.txt'den gelen "Gerçek" müşterili cihazlarla değiştirir.
+    public void cihazBilgileriniEslestir(List<Cihaz> guncelCihazListesi) {
+        for (ServisKaydi kayit : kayitlar) {
+            String servisSeriNo = kayit.getCihaz().getSeriNo();
+
+            // Cihaz listesinde bu seri numarasına sahip cihazı bul
+            for (Cihaz gercekCihaz : guncelCihazListesi) {
+                if (gercekCihaz.getSeriNo().equalsIgnoreCase(servisSeriNo)) {
+                    // Servis kaydındaki eksik cihazı, müşteri bilgisi olan cihazla değiştir
+                    kayit.setCihaz(gercekCihaz);
+                    break;
+                }
             }
         }
     }
