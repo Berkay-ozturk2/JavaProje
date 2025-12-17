@@ -1,11 +1,5 @@
-Laptop;;LAP-5678;;Lenovo;;ThinkPad;;50000,00;;2023-05-20;;12;;Ayşe;;Demir;;05324445566
-Tablet;;TAB-9988;;Apple;;iPad Pro;;45000,00;;2024-02-15;;0;;Mehmet;;Can;;05051234567;;true
-Telefon;;TEL-0040;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-16;;0;;Burak;;Yılmaz;;5555555555
-Telefon;;TEL-7088;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-16;;0;;ali;;ali;;50724891278
-Telefon;;TEL-7180;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-09-06;;0;;aaaaa;;aaaaa;;515189118
-Telefon;;TEL-7066;;Samsung;;Galaxy Flip 5;;40000,00;;2025-03-20;;0;;sacvug;;cgdsvahgc;;7889549815
-Telefon;;TEL-2665;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-16;;0;;ewcvy;;fdhbh;;184961184
-Telefon;;TEL-3382;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-03-27;;0;;ophbcvh;;vcjs;;9784653
-Laptop;;LAP-1621;;Dell;;XPS 15;;90000,00;;2024-07-23;;0;;fuıı;;fhej;;778826
-Telefon;;TEL-2989;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-11-25;;0;;vbuewbv;;fvjn;;988
-Telefon;;TEL-9395;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-08-21;;0;;gbvyurb;;fvhjdn vj;;289498128
+Telefon;;TEL-0390;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-05-22;;0;;Osmancan;;Küçdemir;;05235551100
+Laptop;;LAP-7955;;HP;;Victus 16;;43000,00;;2025-12-17;;0;;Emre;;Sekizsu;;05777777777
+Laptop;;LAP-2216;;Dell;;XPS 15;;55000,00;;2025-12-17;;0;;Mehmet Can;;Yurtçu;;05666666666
+Tablet;;TAB-2475;;Apple;;iPad Mini;;20000,00;;2023-01-18;;0;;Ayşe;;Ayşe;;05333333333;;false
+Telefon;;TEL-6994;;Samsung;;Galaxy A55;;20000,00;;2025-07-25;;0;;Melis;;Koru;;05222222222
