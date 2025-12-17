@@ -96,7 +96,7 @@ public class MusteriTakipEkrani extends JFrame {
             return;
         }
 
-        txtBilgiEkrani.setText("Sorgulanıyor...\n");
+        txtBilgiEkrani.setText("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz\n");
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 

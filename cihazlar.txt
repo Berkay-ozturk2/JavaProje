@@ -21,3 +21,8 @@ Telefon;;TEL-4371;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-17;;0;;AA;;BC;;+
 Laptop;;LAP-5814;;HP;;Spectre x360;;60000,00;;2025-12-17;;0;;ABC;;İLK;;+905523395545
 Telefon;;TEL-9665;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-07-27;;0;;YUNUS;;YUNUS;;(+90)5789874512
 Tablet;;TAB-4837;;Apple;;iPad Pro (M4);;45000,00;;2025-12-17;;0;;ALİ;;VELİ;;+905523395545;;false
+Telefon;;TEL-4978;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-17;;0;;ALİŞ;;VELİŞ;;+903295524568
+Tablet;;TAB-7469;;Apple;;iPad Pro (M4);;45000,00;;2025-12-17;;0;;KÜÇÜK;;SEEOK;;+905523364596;;false
+Laptop;;LAP-7545;;Dell;;XPS 15;;90000,00;;2024-05-18;;0;;KÜÇÜK;;ÇAĞİŞ;;+905415414151
+Telefon;;TEL-8756;;Apple;;iPhone 15 Pro Max;;85000,00;;2023-01-09;;30;;KÜÇÜK;;OSMİK;;+905514561234
+Telefon;;TEL-9149;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-11-16;;0;;A;;BCFGDF;;+907894561232

@@ -123,7 +123,7 @@ public class ServisTakipFrame extends JFrame {
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
-                    sk.getCihaz().getSahip().toString(),
+                    sk.getCihaz().getSahip().toString().toUpperCase(),
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
                     sk.getDurum(),

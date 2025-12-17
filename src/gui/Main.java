@@ -310,7 +310,7 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    c.getSahip().toString(), // BURASI EKLENDİ
+                    c.getSahip().toString().toUpperCase(), // BURASI EKLENDİ
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             });
