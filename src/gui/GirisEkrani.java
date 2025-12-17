@@ -44,7 +44,12 @@ public class GirisEkrani extends JFrame {
         add(btnPersonel);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {try {
+        // Modern "FlatLaf Light" temasını uygular
+        UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+    } catch (Exception ex) {
+        System.err.println("FlatLaf başlatılamadı!");
+    }
         // Programın yeni başlangıç noktası
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }

@@ -2,6 +2,5 @@ LAP-5678;;Laptop;;Lenovo;;ThinkPad;;Yazılım Hatası;;2024-06-10;;Onarımda;;İ
 TEL-7088;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-16;;Kabul Edildi;;Çağatay Oğuz;;Telefon/Tablet;;0,00
 LAP-3772;;Laptop;;Dell;;XPS 15;;Anakarta Sıvı Teması;;2025-12-16;;Kabul Edildi;;Osman Can Küçdemir;;Genel Onarım;;0,00
 TAB-9988;;Tablet;;Apple;;iPad Pro;;Ekran Kırık;;2025-12-16;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00
-LAP-3772;;Laptop;;Dell;;XPS 15;;Kasa/Kapak Değişimi;;2025-12-16;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00
 TEL-2993;;Telefon;;Huawei;;Pura 70 Ultra;;Ekran Kırık;;2025-12-16;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;9000,00
 TEL-9395;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-16;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;10500,00

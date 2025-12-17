@@ -13,6 +13,8 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+
+
 public class Main extends JFrame implements CihazEkleListener {
 
     private static final Map<String, Double> SORUN_MALIYET_ORANLARI = new LinkedHashMap<>();
@@ -276,6 +278,12 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     public static void main(String[] args) {
+        try {
+            // Modern "FlatLaf Light" temasını uygular
+            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+        } catch (Exception ex) {
+            System.err.println("FlatLaf başlatılamadı!");
+        }
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
