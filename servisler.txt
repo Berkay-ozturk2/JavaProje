@@ -7,4 +7,10 @@ TEL-7088;;Telefon;;Samsung;;Galaxy S24 Ultra;;Kamera Arızası;;2025-12-17;;Kabu
 TEL-0040;;Telefon;;Apple;;iPhone 15 Pro Max;;Yazılım/Sıfırlama;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
 LAP-3982;;Laptop;;Lenovo;;ThinkPad X1 Carbon;;Anakarta Sıvı Teması;;2025-12-17;;Tamamlandı;;Osman Can Küçdemir;;Laptop Onarım;;24000,00
 TEL-6865;;Telefon;;Apple;;iPhone 15 Pro Max;;Dokunmatik Arızası;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
+TAB-9514;;Tablet;;Apple;;iPad Pro (M4);;Dokunmatik Arızası;;2025-12-17;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00
+TEL-4037;;Telefon;;Samsung;;Galaxy S24 Ultra;;Dokunmatik Arızası;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
 TEL-1560;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;10500,00
+TEL-4037;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
+TEL-0545;;Telefon;;Xiaomi;;Redmi Note 13 Pro;;Ekran Kırık;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
+TEL-5048;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-17;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00
+TAB-9514;;Tablet;;Apple;;iPad Pro (M4);;Ekran Kırık;;2025-12-17;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00

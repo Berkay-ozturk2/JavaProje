@@ -11,6 +11,13 @@ Telefon;;TEL-2989;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-11-25;;0;;VBUEWBV;;
 Telefon;;TEL-9395;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-08-21;;0;;GBVYURB;;FVHJDN VJ;;289498128
 Laptop;;LAP-3982;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-05-17;;12;;ÖMER;;ALİ;;1523456
 Telefon;;TEL-6865;;Apple;;iPhone 15 Pro Max;;85000,00;;2024-05-14;;0;;OSMA;;SUS;;415623
+Tablet;;TAB-9514;;Apple;;iPad Pro (M4);;45000,00;;2024-08-27;;0;;ABİ;;SA;;2665134;;false
+Telefon;;TEL-4037;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-12-26;;0;;OLUM;;NAPION;;789445
 Telefon;;TEL-1560;;Samsung;;Galaxy S24 Ultra;;70000,00;;2023-12-05;;0;;ASUJWS;;SASAW;;4125
 Telefon;;TEL-5774;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-17;;0;;BVUIEBD;;VBJSBVHE;;+905411411441
+Telefon;;TEL-0545;;Xiaomi;;Redmi Note 13 Pro;;18000,00;;2025-09-16;;0;;A;;B;;+905523395545
+Telefon;;TEL-5048;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-04-07;;0;;A;;BV;;+905523395545
+Telefon;;TEL-4371;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-12-17;;0;;AA;;BC;;+90552339554555
+Laptop;;LAP-5814;;HP;;Spectre x360;;60000,00;;2025-12-17;;0;;ABC;;İLK;;+905523395545
 Telefon;;TEL-9665;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-07-27;;0;;YUNUS;;YUNUS;;(+90)5789874512
+Tablet;;TAB-4837;;Apple;;iPad Pro (M4);;45000,00;;2025-12-17;;0;;ALİ;;VELİ;;+905523395545;;false
