@@ -114,12 +114,17 @@ public class MusteriTakipEkrani extends JFrame {
 
         if (bulunanCihaz != null) {
             rapor.append("=== CİHAZ BİLGİLERİ ===\n");
+
+            // --- EKLEME BAŞLANGICI ---
+            // Cihaz nesnesinden sahibi (Müşteri) alıp ad ve soyadını yazdırıyoruz
+            rapor.append("Sayın ").append(bulunanCihaz.getSahip().getAd())
+                    .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append(",\n");
+            // --- EKLEME BİTİŞİ ---
+
             rapor.append("Marka/Model: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
             rapor.append("Tür: ").append(bulunanCihaz.getCihazTuru()).append("\n");
             boolean garantiVarMi = bulunanCihaz.isGarantiAktif();
-            rapor.append("Garanti Durumu: ").append(garantiVarMi ? "DEVAM EDİYOR" : "BİTMİŞ").append("\n");
-            rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
-        }
+            // ... kodun geri kalanı aynı
 
         // 2. ADIM: TXT'den Servis Kayıtlarını Yükle ve Ara
         List<ServisKaydi> servisKayitlari = servisleriYukleTxt();
@@ -168,4 +173,4 @@ public class MusteriTakipEkrani extends JFrame {
             txtBilgiEkrani.setText(rapor.toString());
         }
     }
-}
+}}

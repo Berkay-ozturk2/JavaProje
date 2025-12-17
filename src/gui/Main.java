@@ -110,7 +110,8 @@ public class Main extends JFrame implements CihazEkleListener {
     private void initUI() {
         // Tablo Modeli
         tableModel = new DefaultTableModel(
-                new Object[]{"Tür", "Marka", "Model", "Seri No", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
+                // "Müşteri" sütunu eklendi
+                new Object[]{"Tür", "Marka", "Model", "Seri No", "Müşteri", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -283,8 +284,15 @@ public class Main extends JFrame implements CihazEkleListener {
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
         tableModel.setRowCount(0);
         for (Cihaz c : liste) {
+            // c.getSahip().toString() -> Ad Soyad (Tel) formatında döner
             tableModel.addRow(new Object[]{
-                    c.getCihazTuru(), c.getMarka(), c.getModel(), c.getSeriNo(), c.getFiyat(), c.getGarantiBitisTarihi()
+                    c.getCihazTuru(),
+                    c.getMarka(),
+                    c.getModel(),
+                    c.getSeriNo(),
+                    c.getSahip().toString(), // BURASI EKLENDİ
+                    c.getFiyat(),
+                    c.getGarantiBitisTarihi()
             });
         }
     }

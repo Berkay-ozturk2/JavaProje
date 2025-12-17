@@ -27,12 +27,10 @@ public class ServisTakipFrame extends JFrame {
 
     private void initUI() {
         servisTableModel = new DefaultTableModel(
-                new Object[]{"Seri No", "Cihaz", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
+                // "Müşteri İletişim" sütunu eklendi
+                new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
         ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            // ...
         };
 
         servisTable = new JTable(servisTableModel);
@@ -119,9 +117,13 @@ public class ServisTakipFrame extends JFrame {
         for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
 
+            // Müşteri bilgisini cihaz üzerinden çekiyoruz
+            String musteriBilgi = sk.getCihaz().getSahip().toString();
+
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
+                    musteriBilgi, // EKLENDİ
                     sk.getSorunAciklamasi(),
                     sk.getGirisTarihi(),
                     sk.getDurum(),
