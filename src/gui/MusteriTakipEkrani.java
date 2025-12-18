@@ -100,7 +100,7 @@ public class MusteriTakipEkrani extends JFrame {
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 
-        // 1. ADIM: TXT'den Cihazları Yükle ve Ara
+        // 1. ADIM: Cihazları Yükle ve Ara
         List<Cihaz> cihazlar = cihazlariYukleTxt();
         Cihaz bulunanCihaz = null;
 
@@ -114,36 +114,26 @@ public class MusteriTakipEkrani extends JFrame {
 
         if (bulunanCihaz != null) {
             rapor.append("=== CİHAZ BİLGİLERİ ===\n");
-
-            // --- EKLEME BAŞLANGICI ---
-            // Cihaz nesnesinden sahibi (Müşteri) alıp ad ve soyadını yazdırıyoruz
             rapor.append("Sayın ").append(bulunanCihaz.getSahip().getAd())
                     .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append(",\n");
-            // --- EKLEME BİTİŞİ ---
-
             rapor.append("Marka/Model: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
             rapor.append("Tür: ").append(bulunanCihaz.getCihazTuru()).append("\n");
-            boolean garantiVarMi = bulunanCihaz.isGarantiAktif();
-        }
-            // ... kodun geri kalanı aynı
 
-        // 2. ADIM: TXT'den Servis Kayıtlarını Yükle ve Ara
+            String garantiDurumu = bulunanCihaz.isGarantiAktif() ? "AKTİF" : "BİTMİŞ";
+            rapor.append("Garanti Durumu: ").append(garantiDurumu).append("\n");
+            rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
+        }
+
+        // 2. ADIM: Servis Kayıtlarını Yükle ve Ara
         List<ServisKaydi> servisKayitlari = servisleriYukleTxt();
         ServisKaydi bulunanKayit = null;
 
         for (ServisKaydi k : servisKayitlari) {
             if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
                 bulunanKayit = k;
-
-                // --- DÜZELTME BAŞLANGICI ---
-                // ServisKaydi dosyasından gelen cihaz bilgisi eksiktir (tarihler yanlıştır).
-                // Eğer 1. adımda gerçek cihazı bulduysak, servis kaydındaki cihazla değiştirelim.
-                // Böylece garanti kontrolü doğru tarihle yapılır.
                 if (bulunanCihaz != null) {
                     bulunanKayit.setCihaz(bulunanCihaz);
                 }
-                // --- DÜZELTME BİTİŞİ ---
-
                 break;
             }
         }
@@ -157,7 +147,6 @@ public class MusteriTakipEkrani extends JFrame {
             String teknisyen = (bulunanKayit.getAtananTeknisyen() != null) ? bulunanKayit.getAtananTeknisyen().getAd() : "Henüz Atanmadı";
             rapor.append("İlgilenen Uzman: ").append(teknisyen).append("\n");
 
-            // Cihazı set ettiğimiz için artık getOdenecekTamirUcreti() doğru tarihi kontrol edecek
             if (bulunanKayit.getOdenecekTamirUcreti() > 0) {
                 rapor.append("Tahmini Ücret: ").append(String.format("%.2f", bulunanKayit.getOdenecekTamirUcreti())).append(" TL\n");
             } else {
@@ -168,6 +157,7 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
         }
 
+        // SONUÇ: Ekrana Yazdır
         if (!cihazBulundu) {
             txtBilgiEkrani.setText("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz.");
         } else {
