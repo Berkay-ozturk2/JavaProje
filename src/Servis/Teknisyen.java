@@ -1,15 +1,14 @@
-// src/Servis/Teknisyen.java (GÜNCELLENDİ)
 package Servis;
 
-import java.io.Serializable;
+// 'import java.io.Serializable;' kaldırıldı
 
-public class Teknisyen implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Teknisyen {
+    // 'serialVersionUID' kaldırıldı
 
     private String ad;
-    private String uzmanlikAlani; // Örneğin: Telefon, Laptop
+    private String uzmanlikAlani;
     private int teknisyenId;
-    private static int nextId = 1; // Basit bir ID ataması için
+    private static int nextId = 1;
 
     public Teknisyen(String ad, String uzmanlikAlani) {
         this.teknisyenId = nextId++;
@@ -17,7 +16,6 @@ public class Teknisyen implements Serializable {
         this.uzmanlikAlani = uzmanlikAlani;
     }
 
-    // Getter Metotları
     public int getTeknisyenId() { return teknisyenId; }
     public String getAd() { return ad; }
     public String getUzmanlikAlani() { return uzmanlikAlani; }

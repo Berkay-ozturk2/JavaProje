@@ -3,13 +3,12 @@ package Servis;
 import Arayuzler.Raporlanabilir;
 import Cihazlar.*;
 import Musteri.Musteri;
-import java.io.Serializable;
 import java.time.LocalDate;
 
-public class ServisKaydi implements Serializable, Raporlanabilir {
-    private static final long serialVersionUID = 3L;
+// 'implements Serializable, Raporlanabilir' yerine sadece 'Raporlanabilir'
+public class ServisKaydi implements Raporlanabilir {
+    // 'serialVersionUID' kaldırıldı
 
-    // 'final' ifadeleri kaldırılarak sonradan set edilebilir hale getirildi
     private Cihaz cihaz;
     private String sorunAciklamasi;
     private LocalDate girisTarihi;
@@ -28,12 +27,10 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
         this.atananTeknisyen = null;
     }
 
-    // --- TXT DÖNÜŞÜM METOTLARI ---
     public String toTxtFormat() {
         String tekAd = (atananTeknisyen != null) ? atananTeknisyen.getAd() : "Yok";
         String tekUzmanlik = (atananTeknisyen != null) ? atananTeknisyen.getUzmanlikAlani() : "Yok";
 
-        // Format: SERINO;;CIHAZ_TURU;;MARKA;;MODEL;;SORUN;;GIRIS_TARIHI;;DURUM;;TEK_AD;;TEK_UZMAN;;UCRET
         return String.format("%s;;%s;;%s;;%s;;%s;;%s;;%s;;%s;;%s;;%.2f",
                 cihaz.getSeriNo(), cihaz.getCihazTuru(), cihaz.getMarka(), cihaz.getModel(),
                 sorunAciklamasi, girisTarihi.toString(), durum.toString(),
@@ -43,7 +40,6 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
     public static ServisKaydi fromTxtFormat(String line) {
         try {
             String[] p = line.split(";;");
-            // Güvenlik kontrolleri
             if(p.length < 10) return null;
 
             String seriNo = p[0].trim();
@@ -55,14 +51,10 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
             String durumStr = p[6].trim();
             String tekAd = p[7].trim();
             String tekUzmanlik = p[8].trim();
-
-            // FİYAT DÜZELTME
             double ucret = Double.parseDouble(p[9].replace(",", ".").trim());
 
             Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
             Cihaz tempCihaz = null;
-
-            // Cihazı geçmiş tarihli oluşturuyoruz ki garanti bitmiş varsayılsın ve kayıtlı ücret geçerli olsun.
             LocalDate gecmisTarih = LocalDate.now().minusYears(10);
 
             if(tur.equalsIgnoreCase("Telefon"))
@@ -76,7 +68,7 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
             kayit.setGirisTarihi(giris);
 
             for(ServisDurumu d : ServisDurumu.values()) {
-                if(d.toString().equalsIgnoreCase(durumStr)) { // equalsIgnoreCase yaptık
+                if(d.toString().equalsIgnoreCase(durumStr)) {
                     kayit.setDurum(d);
                     break;
                 }
@@ -94,7 +86,6 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
         }
     }
 
-    // Getterlar
     public Cihaz getCihaz() { return cihaz; }
     public String getSorunAciklamasi() { return sorunAciklamasi; }
     public LocalDate getGirisTarihi() { return girisTarihi; }
@@ -115,14 +106,13 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
         }
     }
 
-    // Setterlar
     public void setTahminiTamirUcreti(double tahminiTamirUcreti) {
         this.tahminiTamirUcreti = tahminiTamirUcreti;
     }
     public void setAtananTeknisyen(Teknisyen atananTeknisyen) {
         this.atananTeknisyen = atananTeknisyen;
     }
-    public void setGirisTarihi(LocalDate girisTarihi) { // Yeni Setter
+    public void setGirisTarihi(LocalDate girisTarihi) {
         this.girisTarihi = girisTarihi;
     }
 
@@ -134,21 +124,17 @@ public class ServisKaydi implements Serializable, Raporlanabilir {
             this.tamamlamaTarihi = null;
         }
     }
-    // ... Diğer setter metodlarının yanına ekleyin ...
 
-    // YENİ EKLENECEK METOT:
-    // Txt okumalarında geçici cihaz verisini gerçek verilerle değiştirmek için gerekli.
     public void setCihaz(Cihaz cihaz) {
         this.cihaz = cihaz;
     }
 
     @Override
     public String toString() {
-        String garantiDurumu = isGarantiKapsaminda() ? "EVET" : "HAYIR";
-        String teknisyenAd = atananTeknisyen != null ? atananTeknisyen.getAd() : "Yok";
         return String.format("Servis Kaydı [%s] - Cihaz: %s, Sorun: %s, Durum: %s",
                 cihaz.getSeriNo(), cihaz.toString(), sorunAciklamasi, durum.toString());
     }
+
     @Override
     public String detayliRaporVer() {
         return "=== SERVİS DETAY RAPORU ===\n" +

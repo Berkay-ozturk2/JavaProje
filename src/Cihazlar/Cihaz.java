@@ -1,12 +1,12 @@
 package Cihazlar;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Random;
 import Musteri.Musteri;
 
-public abstract class Cihaz implements Serializable {
-    private static final long serialVersionUID = 20240520L;
+// 'implements Serializable' kaldırıldı
+public abstract class Cihaz {
+    // 'serialVersionUID' kaldırıldı
 
     private String seriNo;
     private String marka;
@@ -26,7 +26,6 @@ public abstract class Cihaz implements Serializable {
         this.fiyat = fiyat;
         this.sahip = sahip;
 
-        // Eğer garantiBaslangic null gelirse (txt okumalarında gelmez ama tedbir)
         if (garantiBaslangic == null) {
             this.garantiBaslangic = randomGarantiBaslangic(getGarantiSuresiYil());
         } else {
@@ -40,31 +39,23 @@ public abstract class Cihaz implements Serializable {
         return LocalDate.now().minusDays(randomDaysInPast);
     }
 
-    // --- TXT DÖNÜŞÜM METOTLARI (YENİ) ---
     public abstract String toTxtFormat();
 
     public static Cihaz fromTxtFormat(String line) {
         try {
-            // Veri parçalarını ayır
             String[] parcalar = line.split(";;");
 
-            // Beklenen format kontrolü (En az 10 veri olmalı)
             if (parcalar.length < 10) {
                 return null;
             }
 
-            // Boşlukları temizle (.trim())
             String tur = parcalar[0].trim();
             String seriNo = parcalar[1].trim();
             String marka = parcalar[2].trim();
             String model = parcalar[3].trim();
-
-            // FİYAT HATASI DÜZELTMESİ: Virgülü noktaya çevir ve boşlukları sil
             double fiyat = Double.parseDouble(parcalar[4].trim().replace(",", "."));
-
             LocalDate tarih = LocalDate.parse(parcalar[5].trim());
             int ekstraSure = Integer.parseInt(parcalar[6].trim());
-
             Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
 
             Cihaz cihaz = null;
@@ -73,7 +64,6 @@ public abstract class Cihaz implements Serializable {
             } else if (tur.equalsIgnoreCase("Laptop")) {
                 cihaz = new Laptop(seriNo, marka, model, fiyat, tarih, musteri);
             } else if (tur.equalsIgnoreCase("Tablet")) {
-                // Tablet için ekstra boolean kontrolü
                 boolean kalem = false;
                 if (parcalar.length > 10) {
                     kalem = Boolean.parseBoolean(parcalar[10].trim());
@@ -86,21 +76,17 @@ public abstract class Cihaz implements Serializable {
             }
             return cihaz;
         } catch (Exception e) {
-            // Hata olursa konsola yazdıralım ki görebilelim
             System.err.println("Cihaz okuma hatası (Satır: " + line + ") -> " + e.getMessage());
             return null;
         }
     }
 
-    // Getter Metotları
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
     public double getFiyat() { return fiyat; }
     public LocalDate getGarantiBaslangic() { return garantiBaslangic; }
     public Musteri getSahip() { return sahip; }
-
-    // YENİ GETTER (Txt kaydı için gerekli)
     public int getEkstraGarantiSuresiAy() { return ekstraGarantiSuresiAy; }
 
     public abstract int getGarantiSuresiYil();
