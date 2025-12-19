@@ -3,23 +3,24 @@ package Cihazlar;
 import java.time.LocalDate;
 import java.util.Random;
 import Musteri.Musteri;
+import Garantiler.*; // Yeni paket eklendi
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Cihaz {
-    // 'serialVersionUID' kaldırıldı
+    // serialVersionUID vb. kaldırıldı
 
     private String seriNo;
     private String marka;
     private String model;
     private double fiyat;
-    private LocalDate garantiBaslangic;
-    private static final Random rand = new Random();
     private Musteri sahip;
 
-    // Sonradan satın alınan ek garanti süresi (Ay cinsinden)
-    private int ekstraGarantiSuresiAy = 0;
+    // DEĞİŞİKLİK: Tarih ve süre yerine Garanti nesnesi
+    protected Garanti garanti;
+
+    private static final Random rand = new Random();
 
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
         this.seriNo = seriNo;
@@ -28,11 +29,15 @@ public abstract class Cihaz {
         this.fiyat = fiyat;
         this.sahip = sahip;
 
+        LocalDate baslangic;
         if (garantiBaslangic == null) {
-            this.garantiBaslangic = randomGarantiBaslangic(getGarantiSuresiYil());
+            baslangic = randomGarantiBaslangic(getGarantiSuresiYil());
         } else {
-            this.garantiBaslangic = garantiBaslangic;
+            baslangic = garantiBaslangic;
         }
+
+        // Varsayılan olarak Standart Garanti ile başlatıyoruz
+        this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
     private LocalDate randomGarantiBaslangic(int sureYil) {
@@ -46,10 +51,7 @@ public abstract class Cihaz {
     public static Cihaz fromTxtFormat(String line) {
         try {
             String[] parcalar = line.split(";;");
-
-            if (parcalar.length < 10) {
-                return null;
-            }
+            if (parcalar.length < 10) return null;
 
             String tur = parcalar[0].trim();
             String seriNo = parcalar[1].trim();
@@ -73,17 +75,18 @@ public abstract class Cihaz {
                 cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
             }
 
+            // Eğer dosyada ekstra süre varsa, garantiyi güncelle
             if (cihaz != null && ekstraSure > 0) {
                 cihaz.garantiUzat(ekstraSure);
             }
             return cihaz;
         } catch (Exception e) {
-            System.err.println("Cihaz okuma hatası (Satır: " + line + ") -> " + e.getMessage());
+            System.err.println("Cihaz okuma hatası: " + e.getMessage());
             return null;
         }
     }
 
-    // --- YENİ EKLENEN MERKEZİ DOSYA OKUMA METODU ---
+    // Merkezi veri yükleme metodu
     public static List<Cihaz> verileriYukle(String dosyaAdi) {
         List<Cihaz> liste = new ArrayList<>();
         File dosya = new File(dosyaAdi);
@@ -103,39 +106,66 @@ public abstract class Cihaz {
         }
         return liste;
     }
-    // -----------------------------------------------
 
+    // Getter Metotları
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
     public double getFiyat() { return fiyat; }
-    public LocalDate getGarantiBaslangic() { return garantiBaslangic; }
     public Musteri getSahip() { return sahip; }
-    public int getEkstraGarantiSuresiAy() { return ekstraGarantiSuresiAy; }
+
+    // Garanti nesnesine erişim
+    public Garanti getGaranti() { return garanti; }
+
+    public LocalDate getGarantiBaslangic() {
+        return garanti.getBaslangicTarihi();
+    }
+
+    public LocalDate getGarantiBitisTarihi() {
+        return garanti.getBitisTarihi();
+    }
+
+    public boolean isGarantiAktif() {
+        return garanti.isDevamEdiyor();
+    }
+
+    // Ekstra süreyi hesapla (txt kaydı için gerekli)
+    public int getEkstraGarantiSuresiAy() {
+        long standartBitisEpoch = garanti.getBaslangicTarihi().plusYears(getGarantiSuresiYil()).toEpochDay();
+        long guncelBitisEpoch = garanti.getBitisTarihi().toEpochDay();
+
+        // Gün farkını aya çevir (yaklaşık)
+        if (guncelBitisEpoch > standartBitisEpoch) {
+            long farkGun = guncelBitisEpoch - standartBitisEpoch;
+            return (int) (farkGun / 30);
+        }
+        return 0;
+    }
+
+    // Garantiyi uzat ve TÜRÜNÜ GÜNCELLE
+    public void garantiUzat(int ay) {
+        this.garanti.sureUzat(ay);
+
+        // Eğer hala standart garantiyse, 'UzatilmisGaranti' nesnesine dönüştür (Upgrade)
+        if (this.garanti instanceof StandartGaranti) {
+            int toplamEkstraSure = getEkstraGarantiSuresiAy(); // Toplam uzatmayı hesapla
+            this.garanti = new UzatilmisGaranti(
+                    this.garanti.getBaslangicTarihi(),
+                    getGarantiSuresiYil(),
+                    toplamEkstraSure
+            );
+        }
+    }
 
     public abstract int getGarantiSuresiYil();
     public abstract String getCihazTuru();
 
-    public LocalDate getGarantiBitisTarihi() {
-        return garantiBaslangic
-                .plusYears(getGarantiSuresiYil())
-                .plusMonths(ekstraGarantiSuresiAy);
-    }
-
-    public boolean isGarantiAktif() {
-        return LocalDate.now().isBefore(getGarantiBitisTarihi());
-    }
-
-    public void garantiUzat(int ay) {
-        this.ekstraGarantiSuresiAy += ay;
-    }
-
     @Override
     public String toString() {
         String garantiDurumu = isGarantiAktif() ? "Aktif" : "Sona Ermiş";
-        String ekstraBilgi = ekstraGarantiSuresiAy > 0 ? " (+" + ekstraGarantiSuresiAy + " Ay Uzatıldı)" : "";
+        String ekstraBilgi = getEkstraGarantiSuresiAy() > 0 ? " (+" + getEkstraGarantiSuresiAy() + " Ay Uzatıldı)" : "";
 
-        return String.format("%s [%s - %s] (Seri No: %s, Fiyat: %.2f TL) - Garanti: %s%s",
-                getCihazTuru(), marka, model, seriNo, fiyat, garantiDurumu, ekstraBilgi);
+        return String.format("%s [%s - %s] (Seri No: %s) - Garanti: %s%s",
+                getCihazTuru(), marka, model, seriNo, garantiDurumu, ekstraBilgi);
     }
 }

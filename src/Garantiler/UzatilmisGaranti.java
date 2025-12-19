@@ -1,50 +1,45 @@
 package Garantiler;
 
+import java.time.LocalDate;
+
 public class UzatilmisGaranti extends Garanti {
 
-    // Fiyatlandırma Oranları (Cihaz Fiyatının Yüzdesi)
-    // final değişkenler değerleri değişmez
-    private static final double ORAN_6_AY = 0.05;  // %5
-    private static final double ORAN_12_AY = 0.07; // %7
-    private static final double ORAN_24_AY = 0.10; // %10
-
-    // Constructor: Abstract sınıfın (Garanti) constructor'ını çağırır
-    public UzatilmisGaranti(int sureYil) {
-        super(sureYil);
-    }
-
-    /**
-     * Statik Metot: Seçilen aya göre paket fiyatını hesaplar.
-     */
+    // Paket satış fiyatı hesaplama (Statik olarak kalıyor)
     public static double paketFiyatiHesapla(double cihazFiyati, int ay) {
         switch (ay) {
-            case 6:
-                return cihazFiyati * ORAN_6_AY;
-            case 12:
-                return cihazFiyati * ORAN_12_AY;
-            case 24:
-                return cihazFiyati * ORAN_24_AY;
-            default:
-                return 0.0;
+            case 6: return cihazFiyati * 0.05;
+            case 12: return cihazFiyati * 0.07;
+            case 24: return cihazFiyati * 0.10;
+            default: return 0.0;
         }
     }
 
-    @Override
-    public double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi) {
-        // Uzatılmış garanti aktifse ücretsiz, değilse %10 indirimli tamir
-        return garantiAktifMi ? 0.0 : cihazFiyati * 0.10;
+    public UzatilmisGaranti(LocalDate baslangicTarihi, int sureYil, int ekstraAy) {
+        super(baslangicTarihi, sureYil, ekstraAy);
     }
 
     @Override
-    public double garantiUcretiHesapla(double cihazFiyati) {
-        // Bu metot abstract olduğu için override edilmek zorundadır.
-        // Ama biz hesaplamayı yukarıdaki statik metotla yapıyoruz.
-        // O yüzden burası varsayılan bir değer dönebilir.
-        return 0.0;
+    public double sonMaliyetHesapla(double hamUcret) {
+        if (isDevamEdiyor()) {
+            return 0.0;
+        } else {
+            // JEST: Uzatılmış garanti alan müşteri, süresi bitse bile %10 indirim alır.
+            return hamUcret * 0.90;
+        }
     }
 
     @Override
     public String garantiTuru() {
         return "Uzatılmış Garanti Paketi";
+    }
+
+    @Override
+    public double garantiUcretiHesapla(double cihazFiyati) {
+        return 0.0;
+    }
+
+    @Override
+    public double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi) {
+        return 0.0;
     }
 }

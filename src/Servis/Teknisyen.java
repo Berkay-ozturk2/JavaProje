@@ -1,9 +1,6 @@
 package Servis;
 
-// 'import java.io.Serializable;' kaldırıldı
-
 public class Teknisyen {
-    // 'serialVersionUID' kaldırıldı
 
     private String ad;
     private String uzmanlikAlani;
@@ -22,6 +19,8 @@ public class Teknisyen {
 
     @Override
     public String toString() {
-        return ad + " (" + uzmanlikAlani + ")";
+        // ÇIKTI FORMATI DEĞİŞTİ: Artık ID de görünüyor.
+        // Örn: "[1] Osman Can Küçdemir (Laptop Onarım)"
+        return "[" + teknisyenId + "] " + ad + " (" + uzmanlikAlani + ")";
     }
 }

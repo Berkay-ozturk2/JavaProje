@@ -5,9 +5,7 @@ import Cihazlar.*;
 import Musteri.Musteri;
 import java.time.LocalDate;
 
-// 'implements Serializable, Raporlanabilir' yerine sadece 'Raporlanabilir'
 public class ServisKaydi implements Raporlanabilir {
-    // 'serialVersionUID' kaldırıldı
 
     private Cihaz cihaz;
     private String sorunAciklamasi;
@@ -55,7 +53,7 @@ public class ServisKaydi implements Raporlanabilir {
 
             Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
             Cihaz tempCihaz = null;
-            LocalDate gecmisTarih = LocalDate.now().minusYears(10);
+            LocalDate gecmisTarih = LocalDate.now().minusYears(10); // Dummy tarih
 
             if(tur.equalsIgnoreCase("Telefon"))
                 tempCihaz = new Telefon(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
@@ -74,9 +72,11 @@ public class ServisKaydi implements Raporlanabilir {
                 }
             }
 
+            // DEĞİŞİKLİK: Teknisyen ID'sini korumak için depodan çekiyoruz
             if(!tekAd.equals("Yok")) {
-                kayit.setAtananTeknisyen(new Teknisyen(tekAd, tekUzmanlik));
+                kayit.setAtananTeknisyen(TeknisyenDeposu.teknisyenBulVeyaOlustur(tekAd, tekUzmanlik));
             }
+
             kayit.setTahminiTamirUcreti(ucret);
 
             return kayit;
@@ -86,6 +86,7 @@ public class ServisKaydi implements Raporlanabilir {
         }
     }
 
+    // Getter & Setterlar
     public Cihaz getCihaz() { return cihaz; }
     public String getSorunAciklamasi() { return sorunAciklamasi; }
     public LocalDate getGirisTarihi() { return girisTarihi; }
@@ -95,15 +96,15 @@ public class ServisKaydi implements Raporlanabilir {
     public Teknisyen getAtananTeknisyen() { return atananTeknisyen; }
 
     public boolean isGarantiKapsaminda() {
+        // Artık garanti kontrolünü Cihaz'ın içindeki Garanti nesnesi yapıyor ama
+        // buradaki basit tarih kontrolü kalabilir.
         return girisTarihi.isBefore(cihaz.getGarantiBitisTarihi());
     }
 
     public double getOdenecekTamirUcreti() {
-        if (isGarantiKapsaminda()) {
-            return 0.0;
-        } else {
-            return tahminiTamirUcreti;
-        }
+        // NOT: Artık ücret Main ekranında hesaplanıp setTahminiTamirUcreti ile buraya yazılıyor.
+        // O yüzden direkt tutarı döndürebiliriz.
+        return tahminiTamirUcreti;
     }
 
     public void setTahminiTamirUcreti(double tahminiTamirUcreti) {
@@ -141,7 +142,7 @@ public class ServisKaydi implements Raporlanabilir {
                 "Cihaz: " + cihaz.getMarka() + " " + cihaz.getModel() + "\n" +
                 "Sorun: " + sorunAciklamasi + "\n" +
                 "Durum: " + durum + "\n" +
-                "Tahmini Ücret: " + tahminiTamirUcreti + " TL\n" +
-                "Teknisyen: " + (atananTeknisyen != null ? atananTeknisyen.getAd() : "Atanmadı");
+                "Tahmini/Ödenecek Ücret: " + tahminiTamirUcreti + " TL\n" +
+                "Teknisyen: " + (atananTeknisyen != null ? atananTeknisyen.toString() : "Atanmadı");
     }
 }
