@@ -1,11 +1,13 @@
 package Servis;
 
 import Arayuzler.Raporlanabilir;
+// --- YENİ EKLENDİ: Tarih aracını import ediyoruz ---
+import Araclar.TarihYardimcisi;
 import Cihazlar.*;
 import Musteri.Musteri;
-import java.time.DayOfWeek;
+// import java.time.DayOfWeek; // Bu import artık gereksiz, silebilirsiniz.
 import java.time.LocalDate;
-import java.util.List; // Eklendi
+import java.util.List;
 
 public class ServisKaydi implements Raporlanabilir {
 
@@ -27,19 +29,8 @@ public class ServisKaydi implements Raporlanabilir {
         this.atananTeknisyen = null;
     }
 
-    private LocalDate isGunuEkle(LocalDate baslangic, int isGunuSayisi) {
-        LocalDate tarih = baslangic;
-        int sayac = 0;
-
-        while (sayac < isGunuSayisi) {
-            tarih = tarih.plusDays(1);
-            if (tarih.getDayOfWeek() != DayOfWeek.SATURDAY &&
-                    tarih.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                sayac++;
-            }
-        }
-        return tarih;
-    }
+    // --- SİLİNDİ: 'private LocalDate isGunuEkle(...)' metodu buradan kaldırıldı ---
+    // Artık bu işi 'TarihYardimcisi' sınıfı yapıyor.
 
     public String toTxtFormat() {
         String tekAd = (atananTeknisyen != null) ? atananTeknisyen.getAd() : "Yok";
@@ -52,7 +43,6 @@ public class ServisKaydi implements Raporlanabilir {
                 tekAd, tekUzmanlik, tahminiTamirUcreti, bitisTarihiStr);
     }
 
-    // --- DÜZELTİLEN METOT: List<Cihaz> parametresi eklendi ---
     public static ServisKaydi fromTxtFormat(String line, List<Cihaz> guncelCihazListesi) {
         try {
             String[] p = line.split(";;");
@@ -70,7 +60,6 @@ public class ServisKaydi implements Raporlanabilir {
             double ucret = Double.parseDouble(p[9].replace(",", ".").trim());
             String bitisTarihiStr = (p.length > 10) ? p[10].trim() : "Yok";
 
-            // 1. Önce listeden gerçek cihazı bulmaya çalış
             Cihaz gercekCihaz = null;
             if (guncelCihazListesi != null) {
                 for (Cihaz c : guncelCihazListesi) {
@@ -81,7 +70,6 @@ public class ServisKaydi implements Raporlanabilir {
                 }
             }
 
-            // 2. Cihaz listede yoksa (silinmişse vb.) hata vermemesi için geçici oluştur (Fallback)
             if (gercekCihaz == null) {
                 Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
                 LocalDate gecmisTarih = LocalDate.now().minusYears(10);
@@ -93,7 +81,6 @@ public class ServisKaydi implements Raporlanabilir {
                     gercekCihaz = new Tablet(seriNo, marka, model, 0, gecmisTarih, false, dummyMusteri);
             }
 
-            // Bulunan veya oluşturulan cihazı kullan
             ServisKaydi kayit = new ServisKaydi(gercekCihaz, sorun);
             kayit.setGirisTarihi(giris);
 
@@ -121,6 +108,7 @@ public class ServisKaydi implements Raporlanabilir {
         }
     }
 
+    // Getter & Setterlar
     public Cihaz getCihaz() { return cihaz; }
     public String getSorunAciklamasi() { return sorunAciklamasi; }
     public LocalDate getGirisTarihi() { return girisTarihi; }
@@ -129,7 +117,6 @@ public class ServisKaydi implements Raporlanabilir {
     public Teknisyen getAtananTeknisyen() { return atananTeknisyen; }
     public LocalDate getTamamlamaTarihi() { return tamamlamaTarihi; }
 
-    // Gereksiz getOdenecekTamirUcreti metodunu kaldırdık veya buna yönlendirebilirsiniz
     public double getOdenecekTamirUcreti() { return tahminiTamirUcreti; }
 
     public void setTahminiTamirUcreti(double tahminiTamirUcreti) {
@@ -144,9 +131,11 @@ public class ServisKaydi implements Raporlanabilir {
 
     public void setDurum(ServisDurumu durum) {
         this.durum = durum;
+
         if (durum == ServisDurumu.TAMAMLANDI) {
             if (this.tamamlamaTarihi == null) {
-                this.tamamlamaTarihi = isGunuEkle(this.girisTarihi, 20);
+                // --- DEĞİŞİKLİK: Tarih hesaplaması artık Utility sınıfından çağrılıyor ---
+                this.tamamlamaTarihi = TarihYardimcisi.isGunuEkle(this.girisTarihi, 20);
             }
         } else if (this.tamamlamaTarihi != null && durum != ServisDurumu.TAMAMLANDI) {
             this.tamamlamaTarihi = null;

@@ -2,6 +2,7 @@ package gui;
 
 import Cihazlar.Cihaz;
 import Garantiler.UzatilmisGaranti;
+import Servis.FiyatlandirmaHizmeti; // --- YENİ EKLENDİ ---
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 import Servis.Teknisyen;
@@ -11,23 +12,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends JFrame implements CihazEkleListener {
 
-    private static final Map<String, Double> SORUN_MALIYET_ORANLARI = new LinkedHashMap<>();
-
-    static {
-        SORUN_MALIYET_ORANLARI.put("Ekran Kırık (Cihaz Fiyatı %15)", 0.15);
-        SORUN_MALIYET_ORANLARI.put("Dokunmatik Arızası (Cihaz Fiyatı %10)", 0.10);
-        SORUN_MALIYET_ORANLARI.put("Batarya/Pil Değişimi (Cihaz Fiyatı %8)", 0.08);
-        SORUN_MALIYET_ORANLARI.put("Şarj Soketi Arızası (Cihaz Fiyatı %5)", 0.05);
-        SORUN_MALIYET_ORANLARI.put("Kasa/Kapak Değişimi (Cihaz Fiyatı %7)", 0.07);
-        SORUN_MALIYET_ORANLARI.put("Kamera Arızası (Cihaz Fiyatı %12)", 0.12);
-        SORUN_MALIYET_ORANLARI.put("Anakarta Sıvı Teması (Cihaz Fiyatı %30)", 0.30);
-        SORUN_MALIYET_ORANLARI.put("Yazılım/Sıfırlama (Sabit 250 TL)", 0.0);
-    }
+    // --- SİLİNDİ: SORUN_MALIYET_ORANLARI map'i ve static bloğu buradan kaldırıldı. ---
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -43,12 +33,10 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Cihazları merkezi metotla yükle
         cihazListesi = Cihaz.verileriYukle(CİHAZ_DOSYA_ADI);
 
-        // --- DÜZELTME: ServisYonetimi artık cihaz listesini constructor'da alıyor ---
+        // Önceki düzeltmemiz: Cihaz listesini veriyoruz
         servisYonetimi = new ServisYonetimi(cihazListesi);
-        // servisYonetimi.cihazBilgileriniEslestir(cihazListesi); // BU SATIR SİLİNDİ
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
@@ -113,6 +101,7 @@ public class Main extends JFrame implements CihazEkleListener {
             dialog.setVisible(true);
         });
 
+        // --- SERVİS KAYDI BUTONU DEĞİŞİKLİKLERİ BURADA ---
         btnServisKaydi.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
@@ -121,7 +110,9 @@ public class Main extends JFrame implements CihazEkleListener {
                 boolean garantiAktifMi = selectedCihaz.isGarantiAktif();
                 String garantiDurumu = garantiAktifMi ? "Aktif" : "BİTMİŞ";
 
-                JComboBox<String> sorunComboBox = new JComboBox<>(SORUN_MALIYET_ORANLARI.keySet().toArray(new String[0]));
+                // --- DEĞİŞİKLİK 1: Listeyi artık yeni sınıftan çekiyoruz ---
+                JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
+
                 String mesaj = String.format("Cihaz: %s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
                         selectedCihaz.getModel(), garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
 
@@ -130,21 +121,15 @@ public class Main extends JFrame implements CihazEkleListener {
                 if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
                     String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-                    double hamUcret = 0.0;
-                    double oran = SORUN_MALIYET_ORANLARI.get(secilenSorun);
+                    // --- DEĞİŞİKLİK 2: Hesaplama mantığını yeni sınıfa devrettik ---
+                    // Main sınıfı artık "Nasıl hesaplanır?" sorusuyla ilgilenmiyor, sadece sonucu alıyor.
+                    double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(secilenSorun, selectedCihaz.getFiyat());
 
-                    if (oran == 0.0 && secilenSorun.contains("Yazılım")) {
-                        hamUcret = 250.0;
-                    } else {
-                        hamUcret = selectedCihaz.getFiyat() * oran;
-                    }
-
+                    // Garanti indirimi uygulaması
                     double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
                     String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
-                    // --- DÜZELTME: Bu noktada artık cihaz nesnesine doğrudan referans veriyoruz ---
                     ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
-
                     yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
                     Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());

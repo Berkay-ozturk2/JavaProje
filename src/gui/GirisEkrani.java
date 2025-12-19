@@ -64,3 +64,4 @@ public class GirisEkrani extends JFrame {
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
+//Yorum satırırırırırırrırıır
