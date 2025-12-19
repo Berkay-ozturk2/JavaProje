@@ -20,9 +20,13 @@ public class Main extends JFrame implements CihazEkleListener {
     private JTable table;
     private DefaultTableModel tableModel;
     private List<Cihaz> cihazListesi = new ArrayList<>();
-    private static final String CIHAZ_DOSYA_ADI = "cihazlar.txt";
-    private ServisYonetimi servisYonetimi;
 
+    // --- GÜNCELLENEN DOSYA YOLU ---
+    private static final String CIHAZ_DOSYA_ADI = System.getProperty("user.dir") +
+            System.getProperty("file.separator") +
+            "cihazlar.txt";
+
+    private ServisYonetimi servisYonetimi;
     private final List<Teknisyen> teknisyenler = TeknisyenDeposu.getTumTeknisyenler();
 
     public Main() {
@@ -46,21 +50,14 @@ public class Main extends JFrame implements CihazEkleListener {
         cihazKaydet(cihazListesi);
     }
 
-    // --- TEMİZLENMİŞ INITUI METODU ---
     private void initUI() {
-        // Tablo Ayarları
         setupTable();
-
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Buton Paneli Oluşturma
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        // Buton Fontu
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
 
-        // Butonları Oluştur ve Ekle
         JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", new Color(52, 152, 219), Color.WHITE, btnFont);
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
@@ -69,11 +66,11 @@ public class Main extends JFrame implements CihazEkleListener {
         buttonPanel.add(btnCihazEkle);
 
         JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", new Color(52, 152, 219), Color.WHITE, btnFont);
-        btnServisKaydi.addActionListener(e -> servisKaydiOlusturIslemi()); // Metoda taşındı
+        btnServisKaydi.addActionListener(e -> servisKaydiOlusturIslemi());
         buttonPanel.add(btnServisKaydi);
 
         JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
-        btnGarantiUzat.addActionListener(e -> garantiUzatmaIslemi()); // Metoda taşındı
+        btnGarantiUzat.addActionListener(e -> garantiUzatmaIslemi());
         buttonPanel.add(btnGarantiUzat);
 
         JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
@@ -81,7 +78,7 @@ public class Main extends JFrame implements CihazEkleListener {
         buttonPanel.add(btnServisListele);
 
         JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
-        btnSil.addActionListener(e -> cihazSilIslemi()); // Metoda taşındı
+        btnSil.addActionListener(e -> cihazSilIslemi());
         buttonPanel.add(btnSil);
 
         JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
@@ -89,14 +86,14 @@ public class Main extends JFrame implements CihazEkleListener {
             new GirisEkrani().setVisible(true);
             this.dispose();
         });
+        JButton btnTemizle = createStyledButton("Tüm Servis Verilerini Sil", new Color(17, 4, 8), Color.WHITE, btnFont);
+        btnTemizle.addActionListener(e -> veriTemizlemeIslemi());
+        buttonPanel.add(btnTemizle);
         buttonPanel.add(btnGeriDon);
 
-        // Ana Frame'e Ekleme
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     }
-
-    // --- YARDIMCI METOTLAR (İŞ MANTIĞI BURAYA TAŞINDI) ---
 
     private void setupTable() {
         tableModel = new DefaultTableModel(
@@ -111,9 +108,6 @@ public class Main extends JFrame implements CihazEkleListener {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
 
-    /**
-     * Servis kaydı oluşturma mantığı buraya ayrıldı.
-     */
     private void servisKaydiOlusturIslemi() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow < 0) {
@@ -133,12 +127,10 @@ public class Main extends JFrame implements CihazEkleListener {
         if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
             String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-            // Hesaplamalar
             double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(secilenSorun, selectedCihaz.getFiyat());
             double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
             String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
-            // Kayıt Oluşturma
             ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
             yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
@@ -153,9 +145,6 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    /**
-     * Garanti uzatma işlemleri buraya ayrıldı.
-     */
     private void garantiUzatmaIslemi() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow < 0) {
@@ -165,8 +154,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
         Cihaz seciliCihaz = cihazListesi.get(selectedRow);
 
-        // Zaten uzatılmış garanti mi kontrolü
-        if (seciliCihaz.getGaranti().garantiTuru().contains("Uzatılmış")) { // Basit kontrol
+        if (seciliCihaz.getGaranti().garantiTuru().contains("Uzatılmış")) {
             JOptionPane.showMessageDialog(this, "Bu cihazın garantisi zaten uzatılmış.");
             return;
         }
@@ -175,39 +163,40 @@ public class Main extends JFrame implements CihazEkleListener {
         double fiyat6Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 6);
         double fiyat12Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 12);
         double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
+        // EKLENDİ: 36 Ay fiyatı hesaplama
+        double fiyat36Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 36);
 
         Object[] options = {
                 String.format("6 Ay (%.2f TL)", fiyat6Ay),
                 String.format("12 Ay (%.2f TL)", fiyat12Ay),
                 String.format("24 Ay (%.2f TL)", fiyat24Ay),
+                String.format("36 Ay (%.2f TL)", fiyat36Ay), // EKLENDİ: Seçeneklere eklendi
                 "İptal"
         };
 
         int n = JOptionPane.showOptionDialog(this,
-                "Garanti Paketi Seçin (Süre bitse bile %10 servis indirimi sağlar):",
+                "Garanti Paketi Seçin (Süre bitse bile %10 indirim):",
                 "Garanti Uzatma Teklifi",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_CANCEL_OPTION, // Buton tipi
+                JOptionPane.QUESTION_MESSAGE,     // İkon tipi
                 null,
                 options,
-                options[3]);
+                options[4]); // Varsayılan buton (İptal) indeksi güncellendi
 
         int uzatilacakAy = 0;
         if (n == 0) uzatilacakAy = 6;
         else if (n == 1) uzatilacakAy = 12;
         else if (n == 2) uzatilacakAy = 24;
+        else if (n == 3) uzatilacakAy = 36; // EKLENDİ: 36 ay seçimi kontrolü
 
         if (uzatilacakAy > 0) {
             seciliCihaz.garantiUzat(uzatilacakAy);
             cihazKaydet(cihazListesi);
             cihazListesiniTabloyaDoldur(cihazListesi);
-            JOptionPane.showMessageDialog(this, "İşlem Başarılı! Garanti süresi uzatıldı ve paketi güncellendi.");
+            JOptionPane.showMessageDialog(this, "İşlem Başarılı! Garanti süresi uzatıldı.");
         }
     }
 
-    /**
-     * Cihaz silme işlemleri buraya ayrıldı.
-     */
     private void cihazSilIslemi() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
@@ -253,6 +242,10 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
+        // --- EKLENEN SIRALAMA İŞLEMİ (Gereksinim: sort) ---
+        // Cihazları fiyatlarına göre pahalıdan ucuza doğru sıralar
+        liste.sort((c1, c2) -> Double.compare(c2.getFiyat(), c1.getFiyat()));
+
         tableModel.setRowCount(0);
         for (Cihaz c : liste) {
             tableModel.addRow(new Object[]{
@@ -264,6 +257,26 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             });
+        }
+    }
+    private void veriTemizlemeIslemi() {
+        // Kullanıcıdan güvenlik onayı al
+        int secim = JOptionPane.showConfirmDialog(this,
+                "DİKKAT: Tüm GEÇMİŞ SERVİS KAYITLARI kalıcı olarak silinecektir!\n" +
+                        "Cihaz kayıtları silinmez, sadece servis geçmişi temizlenir.\n\n" +
+                        "Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+                "Veri Temizleme Onayı",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (secim == JOptionPane.YES_OPTION) {
+            // ServisYonetimi içindeki metodumuzu çağırıyoruz
+            servisYonetimi.verileriTemizle();
+
+            JOptionPane.showMessageDialog(this,
+                    "İşlem Başarılı.\nTüm servis geçmişi temizlendi.",
+                    "Bilgi",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }

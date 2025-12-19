@@ -10,6 +10,7 @@ public class UzatilmisGaranti extends Garanti {
             case 6: return cihazFiyati * 0.05;
             case 12: return cihazFiyati * 0.07;
             case 24: return cihazFiyati * 0.10;
+            case 36: return cihazFiyati * 0.15; // EKLENEN 4. CASE
             default: return 0.0;
         }
     }

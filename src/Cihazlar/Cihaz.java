@@ -3,23 +3,21 @@ package Cihazlar;
 import java.time.LocalDate;
 import java.util.Random;
 import Musteri.Musteri;
-import Garantiler.*; // Yeni paket eklendi
+import Garantiler.*;
+import Istisnalar.GecersizDegerException; // EKLENDİ
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Cihaz {
-    // serialVersionUID vb. kaldırıldı
-
     private String seriNo;
     private String marka;
     private String model;
     private double fiyat;
     private Musteri sahip;
 
-    // DEĞİŞİKLİK: Tarih ve süre yerine Garanti nesnesi
     protected Garanti garanti;
-
     private static final Random rand = new Random();
 
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
@@ -35,8 +33,6 @@ public abstract class Cihaz {
         } else {
             baslangic = garantiBaslangic;
         }
-
-        // Varsayılan olarak Standart Garanti ile başlatıyoruz
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
@@ -75,7 +71,6 @@ public abstract class Cihaz {
                 cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
             }
 
-            // Eğer dosyada ekstra süre varsa, garantiyi güncelle
             if (cihaz != null && ekstraSure > 0) {
                 cihaz.garantiUzat(ekstraSure);
             }
@@ -86,7 +81,6 @@ public abstract class Cihaz {
         }
     }
 
-    // Merkezi veri yükleme metodu
     public static List<Cihaz> verileriYukle(String dosyaAdi) {
         List<Cihaz> liste = new ArrayList<>();
         File dosya = new File(dosyaAdi);
@@ -107,34 +101,46 @@ public abstract class Cihaz {
         return liste;
     }
 
-    // Getter Metotları
+    // --- GETTER METOTLARI ---
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
     public double getFiyat() { return fiyat; }
     public Musteri getSahip() { return sahip; }
-
-    // Garanti nesnesine erişim
     public Garanti getGaranti() { return garanti; }
+    public LocalDate getGarantiBaslangic() { return garanti.getBaslangicTarihi(); }
+    public LocalDate getGarantiBitisTarihi() { return garanti.getBitisTarihi(); }
+    public boolean isGarantiAktif() { return garanti.isDevamEdiyor(); }
 
-    public LocalDate getGarantiBaslangic() {
-        return garanti.getBaslangicTarihi();
+    // --- EKLENEN SETTER METOTLARI (Gereksinim: Validasyon ve Exception) ---
+
+    // Setter 1: Fiyat kontrolü
+    public void setFiyat(double fiyat) throws GecersizDegerException {
+        if (fiyat < 0) {
+            throw new GecersizDegerException("Fiyat negatif olamaz!");
+        }
+        this.fiyat = fiyat;
     }
 
-    public LocalDate getGarantiBitisTarihi() {
-        return garanti.getBitisTarihi();
+    // Setter 2: Marka boş olamaz kontrolü
+    public void setMarka(String marka) throws GecersizDegerException {
+        if (marka == null || marka.trim().isEmpty()) {
+            throw new GecersizDegerException("Marka alanı boş bırakılamaz.");
+        }
+        this.marka = marka;
     }
 
-    public boolean isGarantiAktif() {
-        return garanti.isDevamEdiyor();
+    // Setter 3: Model boş olamaz kontrolü
+    public void setModel(String model) throws GecersizDegerException {
+        if (model == null || model.trim().isEmpty()) {
+            throw new GecersizDegerException("Model alanı boş bırakılamaz.");
+        }
+        this.model = model;
     }
 
-    // Ekstra süreyi hesapla (txt kaydı için gerekli)
     public int getEkstraGarantiSuresiAy() {
         long standartBitisEpoch = garanti.getBaslangicTarihi().plusYears(getGarantiSuresiYil()).toEpochDay();
         long guncelBitisEpoch = garanti.getBitisTarihi().toEpochDay();
-
-        // Gün farkını aya çevir (yaklaşık)
         if (guncelBitisEpoch > standartBitisEpoch) {
             long farkGun = guncelBitisEpoch - standartBitisEpoch;
             return (int) (farkGun / 30);
@@ -142,13 +148,10 @@ public abstract class Cihaz {
         return 0;
     }
 
-    // Garantiyi uzat ve TÜRÜNÜ GÜNCELLE
     public void garantiUzat(int ay) {
         this.garanti.sureUzat(ay);
-
-        // Eğer hala standart garantiyse, 'UzatilmisGaranti' nesnesine dönüştür (Upgrade)
         if (this.garanti instanceof StandartGaranti) {
-            int toplamEkstraSure = getEkstraGarantiSuresiAy(); // Toplam uzatmayı hesapla
+            int toplamEkstraSure = getEkstraGarantiSuresiAy();
             this.garanti = new UzatilmisGaranti(
                     this.garanti.getBaslangicTarihi(),
                     getGarantiSuresiYil(),
@@ -164,7 +167,6 @@ public abstract class Cihaz {
     public String toString() {
         String garantiDurumu = isGarantiAktif() ? "Aktif" : "Sona Ermiş";
         String ekstraBilgi = getEkstraGarantiSuresiAy() > 0 ? " (+" + getEkstraGarantiSuresiAy() + " Ay Uzatıldı)" : "";
-
         return String.format("%s [%s - %s] (Seri No: %s) - Garanti: %s%s",
                 getCihazTuru(), marka, model, seriNo, garantiDurumu, ekstraBilgi);
     }

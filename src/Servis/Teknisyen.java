@@ -13,14 +13,18 @@ public class Teknisyen {
         this.uzmanlikAlani = uzmanlikAlani;
     }
 
+    // --- EKLENEN CONSTRUCTOR (Overloading) ---
+    // Uzmanlık alanı belirtilmezse varsayılan olarak "Genel Bakım" atanır.
+    public Teknisyen(String ad) {
+        this(ad, "Genel Bakım");
+    }
+
     public int getTeknisyenId() { return teknisyenId; }
     public String getAd() { return ad; }
     public String getUzmanlikAlani() { return uzmanlikAlani; }
 
     @Override
     public String toString() {
-        // ÇIKTI FORMATI DEĞİŞTİ: Artık ID de görünüyor.
-        // Örn: "[1] Osman Can Küçdemir (Laptop Onarım)"
         return "[" + teknisyenId + "] " + ad + " (" + uzmanlikAlani + ")";
     }
 }
