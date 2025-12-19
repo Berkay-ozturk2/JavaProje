@@ -38,7 +38,11 @@ public class MusteriTakipEkrani extends JFrame {
         txtBilgiEkrani.setFont(new Font("Monospaced", Font.PLAIN, 13));
         txtBilgiEkrani.setMargin(new Insets(10, 10, 10, 10));
 
+        // Mevcut: Butona tıklama aksiyonu
         btnSorgula.addActionListener(e -> sorgula());
+
+        // --- EKLENEN: Enter tuşuna basınca sorgulama aksiyonu ---
+        txtSeriNo.addActionListener(e -> sorgula());
 
         add(panelArama, BorderLayout.NORTH);
         add(new JScrollPane(txtBilgiEkrani), BorderLayout.CENTER);

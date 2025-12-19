@@ -54,47 +54,58 @@ public class Main extends JFrame implements CihazEkleListener {
         setupTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        // --- BUTON GRUPLANDIRMA ---
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+
+        // 1. ÜST PANEL (Temel İşlemler: Ekle, Servis, Garanti, Takip)
+        JPanel panelUstIslemler = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelUstIslemler.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", new Color(52, 152, 219), Color.WHITE, btnFont);
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
             dialog.setVisible(true);
         });
-        buttonPanel.add(btnCihazEkle);
+        panelUstIslemler.add(btnCihazEkle);
 
         JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", new Color(52, 152, 219), Color.WHITE, btnFont);
         btnServisKaydi.addActionListener(e -> servisKaydiOlusturIslemi());
-        buttonPanel.add(btnServisKaydi);
+        panelUstIslemler.add(btnServisKaydi);
 
         JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
         btnGarantiUzat.addActionListener(e -> garantiUzatmaIslemi());
-        buttonPanel.add(btnGarantiUzat);
+        panelUstIslemler.add(btnGarantiUzat);
 
         JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
         btnServisListele.addActionListener(e -> new ServisTakipFrame(servisYonetimi).setVisible(true));
-        buttonPanel.add(btnServisListele);
+        panelUstIslemler.add(btnServisListele);
+
+
+        // 2. ALT PANEL (Yönetim ve Çıkış: Sil, Temizle, Geri Dön)
+        JPanel panelAltYonetim = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15)); // Boşluk biraz artırıldı
 
         JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
         btnSil.addActionListener(e -> cihazSilIslemi());
-        buttonPanel.add(btnSil);
+        panelAltYonetim.add(btnSil);
 
+        JButton btnTemizle = createStyledButton("Tüm Servis Verilerini Sil", new Color(17, 4, 8), Color.WHITE, btnFont);
+        btnTemizle.addActionListener(e -> veriTemizlemeIslemi());
+        panelAltYonetim.add(btnTemizle);
+
+        // Geri Dön butonunu belirginleştirmek için gri tonlarında yapabiliriz veya mevcut rengi koruyabiliriz
         JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
         btnGeriDon.addActionListener(e -> {
             new GirisEkrani().setVisible(true);
             this.dispose();
         });
-        JButton btnTemizle = createStyledButton("Tüm Servis Verilerini Sil", new Color(17, 4, 8), Color.WHITE, btnFont);
-        btnTemizle.addActionListener(e -> veriTemizlemeIslemi());
-        buttonPanel.add(btnTemizle);
-        buttonPanel.add(btnGeriDon);
+        panelAltYonetim.add(btnGeriDon);
 
+        // --- YERLEŞİM (LAYOUT) ---
+        // Üst paneli pencerenin üstüne (NORTH), Tabloyu ortaya (CENTER), Alt paneli alta (SOUTH) koyuyoruz.
+        add(panelUstIslemler, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(panelAltYonetim, BorderLayout.SOUTH);
     }
-
     private void setupTable() {
         tableModel = new DefaultTableModel(
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Müşteri", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
