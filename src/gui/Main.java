@@ -2,7 +2,7 @@ package gui;
 
 import Cihazlar.Cihaz;
 import Garantiler.UzatilmisGaranti;
-import Servis.FiyatlandirmaHizmeti; // --- YENİ EKLENDİ ---
+import Servis.FiyatlandirmaHizmeti;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 import Servis.Teknisyen;
@@ -17,12 +17,10 @@ import java.util.List;
 
 public class Main extends JFrame implements CihazEkleListener {
 
-    // --- SİLİNDİ: SORUN_MALIYET_ORANLARI map'i ve static bloğu buradan kaldırıldı. ---
-
     private JTable table;
     private DefaultTableModel tableModel;
     private List<Cihaz> cihazListesi = new ArrayList<>();
-    private static final String CİHAZ_DOSYA_ADI = "cihazlar.txt";
+    private static final String CIHAZ_DOSYA_ADI = "cihazlar.txt";
     private ServisYonetimi servisYonetimi;
 
     private final List<Teknisyen> teknisyenler = TeknisyenDeposu.getTumTeknisyenler();
@@ -33,9 +31,8 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        cihazListesi = Cihaz.verileriYukle(CİHAZ_DOSYA_ADI);
-
-        // Önceki düzeltmemiz: Cihaz listesini veriyoruz
+        // Verileri yükle
+        cihazListesi = Cihaz.verileriYukle(CIHAZ_DOSYA_ADI);
         servisYonetimi = new ServisYonetimi(cihazListesi);
 
         initUI();
@@ -49,31 +46,59 @@ public class Main extends JFrame implements CihazEkleListener {
         cihazKaydet(cihazListesi);
     }
 
-    private void cihazKaydet(List<Cihaz> liste) {
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(CİHAZ_DOSYA_ADI), "UTF-8"))) {
-            for (Cihaz c : liste) {
-                bw.write(c.toTxtFormat());
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
-        }
-    }
-
-    private Teknisyen teknisyenSec(String cihazTuru) {
-        if (cihazTuru.equalsIgnoreCase("Laptop")) {
-            return teknisyenler.get(0);
-        } else if (cihazTuru.equalsIgnoreCase("Telefon")) {
-            return teknisyenler.get(1);
-        } else if (cihazTuru.equalsIgnoreCase("Tablet")) {
-            return teknisyenler.get(2);
-        } else {
-            return teknisyenler.get(0);
-        }
-    }
-
+    // --- TEMİZLENMİŞ INITUI METODU ---
     private void initUI() {
+        // Tablo Ayarları
+        setupTable();
+
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Buton Paneli Oluşturma
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Buton Fontu
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+
+        // Butonları Oluştur ve Ekle
+        JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", new Color(52, 152, 219), Color.WHITE, btnFont);
+        btnCihazEkle.addActionListener(e -> {
+            CihazKayitDialog dialog = new CihazKayitDialog(this, this);
+            dialog.setVisible(true);
+        });
+        buttonPanel.add(btnCihazEkle);
+
+        JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", new Color(52, 152, 219), Color.WHITE, btnFont);
+        btnServisKaydi.addActionListener(e -> servisKaydiOlusturIslemi()); // Metoda taşındı
+        buttonPanel.add(btnServisKaydi);
+
+        JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
+        btnGarantiUzat.addActionListener(e -> garantiUzatmaIslemi()); // Metoda taşındı
+        buttonPanel.add(btnGarantiUzat);
+
+        JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
+        btnServisListele.addActionListener(e -> new ServisTakipFrame(servisYonetimi).setVisible(true));
+        buttonPanel.add(btnServisListele);
+
+        JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
+        btnSil.addActionListener(e -> cihazSilIslemi()); // Metoda taşındı
+        buttonPanel.add(btnSil);
+
+        JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
+        btnGeriDon.addActionListener(e -> {
+            new GirisEkrani().setVisible(true);
+            this.dispose();
+        });
+        buttonPanel.add(btnGeriDon);
+
+        // Ana Frame'e Ekleme
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    // --- YARDIMCI METOTLAR (İŞ MANTIĞI BURAYA TAŞINDI) ---
+
+    private void setupTable() {
         tableModel = new DefaultTableModel(
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Müşteri", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
             @Override
@@ -84,146 +109,138 @@ public class Main extends JFrame implements CihazEkleListener {
         table.setRowHeight(25);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+    }
 
-        JScrollPane scrollPane = new JScrollPane(table);
+    /**
+     * Servis kaydı oluşturma mantığı buraya ayrıldı.
+     */
+    private void servisKaydiOlusturIslemi() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Lütfen cihaz seçin.");
+            return;
+        }
 
-        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+        Cihaz selectedCihaz = cihazListesi.get(selectedRow);
+        String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "BİTMİŞ";
 
-        JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", new Color(52, 152, 219), Color.WHITE, btnFont);
-        JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", new Color(52, 152, 219), Color.WHITE, btnFont);
-        JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
-        JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
-        JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
-        JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
+        JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
+        String mesaj = String.format("Cihaz: %s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
+                selectedCihaz.getModel(), garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
 
-        btnCihazEkle.addActionListener(e -> {
-            CihazKayitDialog dialog = new CihazKayitDialog(this, this);
-            dialog.setVisible(true);
-        });
+        int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION);
 
-        // --- SERVİS KAYDI BUTONU DEĞİŞİKLİKLERİ BURADA ---
-        btnServisKaydi.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0) {
-                Cihaz selectedCihaz = cihazListesi.get(selectedRow);
+        if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
+            String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-                boolean garantiAktifMi = selectedCihaz.isGarantiAktif();
-                String garantiDurumu = garantiAktifMi ? "Aktif" : "BİTMİŞ";
+            // Hesaplamalar
+            double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(secilenSorun, selectedCihaz.getFiyat());
+            double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
+            String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
-                // --- DEĞİŞİKLİK 1: Listeyi artık yeni sınıftan çekiyoruz ---
-                JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
+            // Kayıt Oluşturma
+            ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
+            yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
-                String mesaj = String.format("Cihaz: %s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
-                        selectedCihaz.getModel(), garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
+            Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
+            yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
-                int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION);
+            servisYonetimi.servisKaydiEkle(yeniKayit);
 
-                if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
-                    String secilenSorun = (String) sorunComboBox.getSelectedItem();
+            JOptionPane.showMessageDialog(this,
+                    String.format("Kayıt Başarılı!\nSorun: %s\nListe Fiyatı: %.2f TL\nÖdenecek Tutar: %.2f TL\nTeknisyen: %s",
+                            temizSorunAdi, hamUcret, musteriOdeyecek, atananTeknisyen.getAd()));
+        }
+    }
 
-                    // --- DEĞİŞİKLİK 2: Hesaplama mantığını yeni sınıfa devrettik ---
-                    // Main sınıfı artık "Nasıl hesaplanır?" sorusuyla ilgilenmiyor, sadece sonucu alıyor.
-                    double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(secilenSorun, selectedCihaz.getFiyat());
+    /**
+     * Garanti uzatma işlemleri buraya ayrıldı.
+     */
+    private void garantiUzatmaIslemi() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Lütfen garanti işlemi yapılacak cihazı seçin.");
+            return;
+        }
 
-                    // Garanti indirimi uygulaması
-                    double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
-                    String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
+        Cihaz seciliCihaz = cihazListesi.get(selectedRow);
 
-                    ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
-                    yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
+        // Zaten uzatılmış garanti mi kontrolü
+        if (seciliCihaz.getGaranti().garantiTuru().contains("Uzatılmış")) { // Basit kontrol
+            JOptionPane.showMessageDialog(this, "Bu cihazın garantisi zaten uzatılmış.");
+            return;
+        }
 
-                    Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
-                    yeniKayit.setAtananTeknisyen(atananTeknisyen);
-                    servisYonetimi.servisKaydiEkle(yeniKayit);
+        double cihazFiyati = seciliCihaz.getFiyat();
+        double fiyat6Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 6);
+        double fiyat12Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 12);
+        double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
 
-                    JOptionPane.showMessageDialog(this,
-                            String.format("Kayıt Başarılı!\nSorun: %s\nListe Fiyatı: %.2f TL\nÖdenecek Tutar: %.2f TL\nTeknisyen: %s",
-                                    temizSorunAdi, hamUcret, musteriOdeyecek, atananTeknisyen.getAd()));
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Lütfen cihaz seçin.");
-            }
-        });
+        Object[] options = {
+                String.format("6 Ay (%.2f TL)", fiyat6Ay),
+                String.format("12 Ay (%.2f TL)", fiyat12Ay),
+                String.format("24 Ay (%.2f TL)", fiyat24Ay),
+                "İptal"
+        };
 
-        btnGarantiUzat.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0) {
-                Cihaz seciliCihaz = cihazListesi.get(selectedRow);
+        int n = JOptionPane.showOptionDialog(this,
+                "Garanti Paketi Seçin (Süre bitse bile %10 servis indirimi sağlar):",
+                "Garanti Uzatma Teklifi",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[3]);
 
-                if (!seciliCihaz.isGarantiAktif() || seciliCihaz.getGaranti().garantiTuru().contains("Standart")) {
-                    double cihazFiyati = seciliCihaz.getFiyat();
-                    double fiyat6Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 6);
-                    double fiyat12Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 12);
-                    double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
+        int uzatilacakAy = 0;
+        if (n == 0) uzatilacakAy = 6;
+        else if (n == 1) uzatilacakAy = 12;
+        else if (n == 2) uzatilacakAy = 24;
 
-                    Object[] options = {
-                            String.format("6 Ay (%.2f TL)", fiyat6Ay),
-                            String.format("12 Ay (%.2f TL)", fiyat12Ay),
-                            String.format("24 Ay (%.2f TL)", fiyat24Ay),
-                            "İptal"
-                    };
+        if (uzatilacakAy > 0) {
+            seciliCihaz.garantiUzat(uzatilacakAy);
+            cihazKaydet(cihazListesi);
+            cihazListesiniTabloyaDoldur(cihazListesi);
+            JOptionPane.showMessageDialog(this, "İşlem Başarılı! Garanti süresi uzatıldı ve paketi güncellendi.");
+        }
+    }
 
-                    int n = JOptionPane.showOptionDialog(this,
-                            "Garanti Paketi Seçin (Süre bitse bile %10 servis indirimi sağlar):",
-                            "Garanti Uzatma Teklifi",
-                            JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.QUESTION_MESSAGE,
-                            null,
-                            options,
-                            options[3]);
+    /**
+     * Cihaz silme işlemleri buraya ayrıldı.
+     */
+    private void cihazSilIslemi() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow >= 0) {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Bu cihazı silmek istediğinize emin misiniz?", "Onay", JOptionPane.YES_NO_OPTION);
 
-                    int uzatilacakAy = 0;
-                    if (n == 0) { uzatilacakAy = 6; }
-                    else if (n == 1) { uzatilacakAy = 12; }
-                    else if (n == 2) { uzatilacakAy = 24; }
-
-                    if (uzatilacakAy > 0) {
-                        seciliCihaz.garantiUzat(uzatilacakAy);
-                        cihazKaydet(cihazListesi);
-                        cihazListesiniTabloyaDoldur(cihazListesi);
-                        JOptionPane.showMessageDialog(this, "İşlem Başarılı! Garanti süresi uzatıldı ve paketi güncellendi.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Bu cihazın garantisi zaten uzatılmış.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Lütfen garanti işlemi yapılacak cihazı seçin.");
-            }
-        });
-
-        btnServisListele.addActionListener(e -> {
-            ServisTakipFrame servisFrame = new ServisTakipFrame(servisYonetimi);
-            servisFrame.setVisible(true);
-        });
-
-        btnSil.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0) {
+            if (confirm == JOptionPane.YES_OPTION) {
                 cihazListesi.remove(selectedRow);
                 tableModel.removeRow(selectedRow);
                 cihazKaydet(cihazListesi);
-            } else {
-                JOptionPane.showMessageDialog(this, "Silinecek cihazı seçin.");
             }
-        });
+        } else {
+            JOptionPane.showMessageDialog(this, "Silinecek cihazı seçin.");
+        }
+    }
 
-        btnGeriDon.addActionListener(e -> {
-            new GirisEkrani().setVisible(true);
-            this.dispose();
-        });
+    private void cihazKaydet(List<Cihaz> liste) {
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(CIHAZ_DOSYA_ADI), "UTF-8"))) {
+            for (Cihaz c : liste) {
+                bw.write(c.toTxtFormat());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
+        }
+    }
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        buttonPanel.add(btnCihazEkle);
-        buttonPanel.add(btnServisKaydi);
-        buttonPanel.add(btnGarantiUzat);
-        buttonPanel.add(btnServisListele);
-        buttonPanel.add(btnSil);
-        buttonPanel.add(btnGeriDon);
-
-        add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+    private Teknisyen teknisyenSec(String cihazTuru) {
+        if (cihazTuru.equalsIgnoreCase("Laptop")) return teknisyenler.get(0);
+        else if (cihazTuru.equalsIgnoreCase("Telefon")) return teknisyenler.get(1);
+        else if (cihazTuru.equalsIgnoreCase("Tablet")) return teknisyenler.get(2);
+        return teknisyenler.get(0);
     }
 
     private JButton createStyledButton(String text, Color bgColor, Color fgColor, Font font) {
