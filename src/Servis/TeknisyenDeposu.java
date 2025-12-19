@@ -32,16 +32,4 @@ public class TeknisyenDeposu {
         mevcutTeknisyenler.add(yeni);
         return yeni;
     }
-
-    /**
-     * ID kullanarak teknisyen bulma (Artık ID'ler sabit olduğu için kullanılabilir)
-     */
-    public static Teknisyen getById(int id) {
-        for (Teknisyen t : mevcutTeknisyenler) {
-            if (t.getTeknisyenId() == id) {
-                return t;
-            }
-        }
-        return null;
-    }
 }

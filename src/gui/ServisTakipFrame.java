@@ -18,7 +18,7 @@ public class ServisTakipFrame extends JFrame {
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         setTitle("Servis Kayıtları ve Takibi");
-        setSize(1000, 500);
+        setSize(1100, 500); // Tablo genişlediği için frame boyutunu biraz artırdık
         setLocationRelativeTo(null);
 
         initUI();
@@ -26,11 +26,14 @@ public class ServisTakipFrame extends JFrame {
     }
 
     private void initUI() {
+        // --- GÜNCELLEME: En sona "Bitiş Tarihi" sütunu eklendi ---
         servisTableModel = new DefaultTableModel(
-                // "Müşteri İletişim" sütunu eklendi
-                new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)"}, 0
+                new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)", "Bitiş Tarihi"}, 0
         ) {
-            // ...
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         servisTable = new JTable(servisTableModel);
@@ -43,8 +46,6 @@ public class ServisTakipFrame extends JFrame {
         // --- BUTONLAR ---
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
 
-        // DEĞİŞİKLİK 1: Parlak turkuaz yerine daha sakin bir gri-mavi tonu.
-        // Bu ton, ana ekrandaki mavi butonlarla uyumlu ama onlardan farklıdır.
         JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
         btnDurumGuncelle.setBackground(new Color(84, 110, 122));
         btnDurumGuncelle.setForeground(Color.WHITE);
@@ -68,7 +69,6 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
-        // DEĞİŞİKLİK 2: Parlak kırmızı yerine, ana ekranda kullandığımız tok kiremit kırmızısı.
         JButton btnSil = new JButton("Seçili Servis Kaydını Sil");
         btnSil.setBackground(new Color(169, 50, 38));
         btnSil.setForeground(Color.WHITE);
@@ -106,11 +106,9 @@ public class ServisTakipFrame extends JFrame {
         buttonPanel.add(btnDurumGuncelle);
         buttonPanel.add(btnSil);
 
-
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     }
-
 
     private void kayitlariTabloyaDoldur() {
         servisTableModel.setRowCount(0);
@@ -119,6 +117,8 @@ public class ServisTakipFrame extends JFrame {
         for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
 
+            // --- GÜNCELLEME: Tarih verisini al, null ise "-" koy ---
+            Object bitisTarihi = (sk.getTamamlamaTarihi() != null) ? sk.getTamamlamaTarihi() : "-";
 
             servisTableModel.addRow(new Object[]{
                     sk.getCihaz().getSeriNo(),
@@ -128,9 +128,9 @@ public class ServisTakipFrame extends JFrame {
                     sk.getGirisTarihi(),
                     sk.getDurum(),
                     teknisyenAdi,
-                    sk.getOdenecekTamirUcreti()
+                    sk.getOdenecekTamirUcreti(),
+                    bitisTarihi // Yeni sütun verisi
             });
         }
     }
 }
-//DJSBVJHADSBJVBAU
