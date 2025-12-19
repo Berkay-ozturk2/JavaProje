@@ -1,19 +1,18 @@
 package Musteri;
 
+import Istisnalar.GecersizDegerException; // EKLENDİ
+
 public class Musteri {
     private String ad;
     private String soyad;
     private String telefon;
 
-    // Mevcut Constructor
     public Musteri(String ad, String soyad, String telefon) {
         this.ad = ad;
         this.soyad = soyad;
         this.telefon = telefon;
     }
 
-    // GEREKSİNİM: Constructor Overloading (Aşırı Yükleme)
-    // Telefonu henüz bilinmeyen müşteri için
     public Musteri(String ad, String soyad) {
         this(ad, soyad, "Belirtilmedi");
     }
@@ -22,11 +21,27 @@ public class Musteri {
     public String getSoyad() { return soyad.toUpperCase(); }
     public String getTelefon() { return telefon; }
 
-    // GEREKSİNİM: Setter içinde Validasyon (Null kontrolü)
+    // --- EKLENEN SETTER METOTLARI ---
+
+    // Setter 4: Ad Validasyonu
+    public void setAd(String ad) throws GecersizDegerException {
+        if (ad == null || ad.length() < 2) {
+            throw new GecersizDegerException("Ad en az 2 karakter olmalıdır.");
+        }
+        this.ad = ad;
+    }
+
+    // Setter 5: Soyad Validasyonu
+    public void setSoyad(String soyad) throws GecersizDegerException {
+        if (soyad == null || soyad.length() < 2) {
+            throw new GecersizDegerException("Soyad en az 2 karakter olmalıdır.");
+        }
+        this.soyad = soyad;
+    }
+
     public void setTelefon(String telefon) {
         if (telefon == null || telefon.length() < 10) {
             System.err.println("Geçersiz telefon formatı!");
-            // Burada normalde throw new exception yapılır ama GUI çökmesin diye log basıyoruz.
             return;
         }
         this.telefon = telefon;

@@ -4,14 +4,18 @@ import Cihazlar.Cihaz;
 import Arayuzler.VeriIslemleri;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashSet; // GEREKSİNİM: 3. Koleksiyon Türü
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class ServisYonetimi implements VeriIslemleri {
     private List<ServisKaydi> kayitlar;
     private List<Cihaz> cihazListesiRef;
-    private static final String DOSYA_ADI = "servisler.txt";
+
+    // --- GÜNCELLENEN DOSYA YOLU (GEREKSİNİM: Platform Bağımsızlık) ---
+    private static final String DOSYA_ADI = System.getProperty("user.dir") +
+            System.getProperty("file.separator") +
+            "servisler.txt";
 
     public ServisYonetimi(List<Cihaz> cihazListesi) {
         this.cihazListesiRef = cihazListesi;
@@ -54,25 +58,23 @@ public class ServisYonetimi implements VeriIslemleri {
                 }
             } catch (IOException e) {
                 System.err.println("Yükleme hatası.");
+            } finally {
+                // --- EKLENEN FINALLY BLOĞU (GEREKSİNİM) ---
+                System.out.println("Servis verileri yükleme işlemi tamamlandı (Başarılı veya Hatalı).");
             }
         }
     }
 
-    // GEREKSİNİM: Interface'in 3. metodu
     @Override
     public void verileriTemizle() {
-        // do-while döngüsü örneği (Gereksinim 9)
         int i = 0;
         do {
-            // Simülasyon: Veriler bellekte temizleniyor...
             i++;
         } while (i < 1);
-
         kayitlar.clear();
         System.out.println("Bellekteki servis kayıtları temizlendi.");
     }
 
-    // GEREKSİNİM: HashSet Kullanımı (ArrayList ve HashMap dışında 3. tür)
     public Set<String> getBenzersizTeknisyenIsimleri() {
         Set<String> teknisyenler = new HashSet<>();
         for (ServisKaydi sk : kayitlar) {

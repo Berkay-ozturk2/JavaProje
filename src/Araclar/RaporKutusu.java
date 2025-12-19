@@ -2,7 +2,6 @@ package Araclar;
 
 import java.util.List;
 
-// GEREKSİNİM: En az 1 Generic Sınıf (<T>)
 public class RaporKutusu<T> {
     private List<T> veriListesi;
 
@@ -10,24 +9,30 @@ public class RaporKutusu<T> {
         this.veriListesi = veriListesi;
     }
 
-    // GEREKSİNİM: Generic Metot 1
     public void listeyiKonsolaYazdir() {
         if (veriListesi == null || veriListesi.isEmpty()) {
             System.out.println("Liste boş.");
             return;
         }
         System.out.println("--- Rapor Kutusu İçeriği ---");
-        // GEREKSİNİM: for-each döngüsü
         for (T eleman : veriListesi) {
             System.out.println(eleman.toString());
         }
     }
 
-    // GEREKSİNİM: Generic Metot 2
     public T getIlkEleman() {
         if (veriListesi != null && !veriListesi.isEmpty()) {
             return veriListesi.get(0);
         }
         return null;
+    }
+
+    // --- EKLENEN WILDCARD (?) KULLANIMI ---
+    // GEREKSİNİM: List<?> veya List<? extends Number> kullanımı
+    public void wildcardTest(List<? extends Number> sayilar) {
+        System.out.println("[Wildcard Test] Sayısal Veriler:");
+        for (Number n : sayilar) {
+            System.out.println("- " + n);
+        }
     }
 }

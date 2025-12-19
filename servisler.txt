@@ -6,4 +6,3 @@ TEL-2176;;Telefon;;Samsung;;Galaxy Flip 5;;Batarya/Pil Değişimi;;2025-12-19;;K
 TEL-8407;;Telefon;;Apple;;iPhone 13;;Şarj Soketi Arızası;;2025-12-19;;Tamamlandı;;Çağatay Oğuz;;Telefon Onarım;;0,00;;2025-12-19
 LAP-3445;;Laptop;;Lenovo;;IdeaPad 5 Pro;;Ekran Kırık;;2025-12-19;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
 LAP-9505;;Laptop;;Apple;;MacBook Pro 16;;Batarya/Pil Değişimi;;2025-12-19;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
-LAP-1882;;Laptop;;Msi;;Titan GT77;;Hoparlör/Mikrofon Sorunu;;2025-12-19;;Tamamlandı;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;2025-12-19
