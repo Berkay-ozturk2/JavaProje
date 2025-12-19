@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class UzatilmisGaranti extends Garanti {
 
-    // Paket satış fiyatı hesaplama (Statik olarak kalıyor)
+    // Paket satış fiyatı hesaplama (Statik olarak kalıyor, Main içinde kullanılıyor)
     public static double paketFiyatiHesapla(double cihazFiyati, int ay) {
         switch (ay) {
             case 6: return cihazFiyati * 0.05;
@@ -33,13 +33,5 @@ public class UzatilmisGaranti extends Garanti {
         return "Uzatılmış Garanti Paketi";
     }
 
-    @Override
-    public double garantiUcretiHesapla(double cihazFiyati) {
-        return 0.0;
-    }
-
-    @Override
-    public double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi) {
-        return 0.0;
-    }
+    // SİLİNEN METOTLAR: garantiUcretiHesapla, servisUcretiHesapla
 }

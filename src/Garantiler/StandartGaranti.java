@@ -23,18 +23,10 @@ public class StandartGaranti extends Garanti {
     }
 
     @Override
-    public double garantiUcretiHesapla(double cihazFiyati) {
-        return 0.0;
-    }
-
-    @Override
-    public double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi) {
-        return garantiAktifMi ? 0.0 : cihazFiyati;
-    }
-
-    @Override
     public String toString() {
         long kalan = getKalanGunSayisi();
         return garantiTuru() + (kalan > 0 ? " (" + kalan + " gün kaldı)" : " (Süre Doldu)");
     }
+
+    // SİLİNEN METOTLAR: garantiUcretiHesapla, servisUcretiHesapla
 }

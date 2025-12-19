@@ -8,7 +8,7 @@ public abstract class Garanti {
     protected LocalDate baslangicTarihi;
     protected LocalDate bitisTarihi;
 
-    // Yeni Constructor: Ekstra ay eklenebilir yapıda
+    // Constructor: Standart ve Uzatılmış garanti için ortak yapı
     public Garanti(LocalDate baslangicTarihi, int sureYil, int ekstraAy) {
         this.baslangicTarihi = baslangicTarihi;
         this.bitisTarihi = baslangicTarihi.plusYears(sureYil).plusMonths(ekstraAy);
@@ -19,7 +19,7 @@ public abstract class Garanti {
         return LocalDate.now().isBefore(bitisTarihi) || LocalDate.now().isEqual(bitisTarihi);
     }
 
-    // Tamir ücreti hesaplama (Polimorfizm)
+    // Main sınıfında kullanılan temel maliyet hesaplama metodu (KALACAK)
     public abstract double sonMaliyetHesapla(double hamUcret);
 
     public abstract String garantiTuru();
@@ -42,7 +42,5 @@ public abstract class Garanti {
         this.bitisTarihi = this.bitisTarihi.plusMonths(ay);
     }
 
-    // Eski abstract metotlar (uyumluluk için boş veya varsayılan bırakılabilir)
-    public abstract double garantiUcretiHesapla(double cihazFiyati);
-    public abstract double servisUcretiHesapla(double cihazFiyati, boolean garantiAktifMi);
+    // SİLİNEN METOTLAR: garantiUcretiHesapla, servisUcretiHesapla
 }
