@@ -4,19 +4,20 @@ import Cihazlar.Cihaz; // --- EKLENDİ: Cihaz sınıfını kullanabilmek için -
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import Arayuzler.VeriIslemleri; // Import
 
-public class ServisYonetimi {
+public class ServisYonetimi implements VeriIslemleri {
     private List<ServisKaydi> kayitlar;
     private static final String DOSYA_ADI = "servisler.txt";
 
     public ServisYonetimi() {
         this.kayitlar = new ArrayList<>();
-        yukle();
+        Yukle();
     }
 
     public void servisKaydiEkle(ServisKaydi kayit) {
         kayitlar.add(kayit);
-        kaydet();
+        Kaydet();
     }
 
     public List<ServisKaydi> getKayitlar() {
@@ -24,10 +25,11 @@ public class ServisYonetimi {
     }
 
     public void kayitGuncelle() {
-        kaydet();
+        Kaydet();
     }
 
-    public void kaydet() {
+    @Override
+    public void Kaydet() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(DOSYA_ADI))) {
             for (ServisKaydi k : kayitlar) {
                 bw.write(k.toTxtFormat());
@@ -38,7 +40,8 @@ public class ServisYonetimi {
         }
     }
 
-    public void yukle() {
+    @Override
+    public void Yukle() {
         File dosya = new File(DOSYA_ADI);
         this.kayitlar = new ArrayList<>();
 
@@ -48,7 +51,7 @@ public class ServisYonetimi {
                 while ((line = br.readLine()) != null) {
                     if (!line.trim().isEmpty()) {
                         ServisKaydi k = ServisKaydi.fromTxtFormat(line);
-                        if(k != null) kayitlar.add(k);
+                        if (k != null) kayitlar.add(k);
                     }
                 }
                 // System.out.println("Servis kayıtları yüklendi: " + kayitlar.size());

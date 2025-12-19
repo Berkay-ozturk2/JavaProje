@@ -1,11 +1,12 @@
 package Servis;
 
+import Arayuzler.Raporlanabilir;
 import Cihazlar.*;
 import Musteri.Musteri;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class ServisKaydi implements Serializable {
+public class ServisKaydi implements Serializable, Raporlanabilir {
     private static final long serialVersionUID = 3L;
 
     // 'final' ifadeleri kaldırılarak sonradan set edilebilir hale getirildi
@@ -147,5 +148,14 @@ public class ServisKaydi implements Serializable {
         String teknisyenAd = atananTeknisyen != null ? atananTeknisyen.getAd() : "Yok";
         return String.format("Servis Kaydı [%s] - Cihaz: %s, Sorun: %s, Durum: %s",
                 cihaz.getSeriNo(), cihaz.toString(), sorunAciklamasi, durum.toString());
+    }
+    @Override
+    public String detayliRaporVer() {
+        return "=== SERVİS DETAY RAPORU ===\n" +
+                "Cihaz: " + cihaz.getMarka() + " " + cihaz.getModel() + "\n" +
+                "Sorun: " + sorunAciklamasi + "\n" +
+                "Durum: " + durum + "\n" +
+                "Tahmini Ücret: " + tahminiTamirUcreti + " TL\n" +
+                "Teknisyen: " + (atananTeknisyen != null ? atananTeknisyen.getAd() : "Atanmadı");
     }
 }
