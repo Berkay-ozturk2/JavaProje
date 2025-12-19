@@ -3,8 +3,9 @@ package Servis;
 import Arayuzler.Raporlanabilir;
 import Cihazlar.*;
 import Musteri.Musteri;
-import java.time.DayOfWeek; // EKLENDİ: Gün kontrolü için gerekli
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List; // Eklendi
 
 public class ServisKaydi implements Raporlanabilir {
 
@@ -26,14 +27,12 @@ public class ServisKaydi implements Raporlanabilir {
         this.atananTeknisyen = null;
     }
 
-    // --- YARDIMCI METOT: İş Günü Hesaplama ---
     private LocalDate isGunuEkle(LocalDate baslangic, int isGunuSayisi) {
         LocalDate tarih = baslangic;
         int sayac = 0;
 
         while (sayac < isGunuSayisi) {
             tarih = tarih.plusDays(1);
-            // Cumartesi ve Pazar değilse sayacı artır
             if (tarih.getDayOfWeek() != DayOfWeek.SATURDAY &&
                     tarih.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 sayac++;
@@ -53,7 +52,8 @@ public class ServisKaydi implements Raporlanabilir {
                 tekAd, tekUzmanlik, tahminiTamirUcreti, bitisTarihiStr);
     }
 
-    public static ServisKaydi fromTxtFormat(String line) {
+    // --- DÜZELTİLEN METOT: List<Cihaz> parametresi eklendi ---
+    public static ServisKaydi fromTxtFormat(String line, List<Cihaz> guncelCihazListesi) {
         try {
             String[] p = line.split(";;");
             if(p.length < 10) return null;
@@ -70,23 +70,36 @@ public class ServisKaydi implements Raporlanabilir {
             double ucret = Double.parseDouble(p[9].replace(",", ".").trim());
             String bitisTarihiStr = (p.length > 10) ? p[10].trim() : "Yok";
 
-            Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
-            Cihaz tempCihaz = null;
-            LocalDate gecmisTarih = LocalDate.now().minusYears(10);
+            // 1. Önce listeden gerçek cihazı bulmaya çalış
+            Cihaz gercekCihaz = null;
+            if (guncelCihazListesi != null) {
+                for (Cihaz c : guncelCihazListesi) {
+                    if (c.getSeriNo().equalsIgnoreCase(seriNo)) {
+                        gercekCihaz = c;
+                        break;
+                    }
+                }
+            }
 
-            if(tur.equalsIgnoreCase("Telefon"))
-                tempCihaz = new Telefon(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
-            else if(tur.equalsIgnoreCase("Laptop"))
-                tempCihaz = new Laptop(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
-            else
-                tempCihaz = new Tablet(seriNo, marka, model, 0, gecmisTarih, false, dummyMusteri);
+            // 2. Cihaz listede yoksa (silinmişse vb.) hata vermemesi için geçici oluştur (Fallback)
+            if (gercekCihaz == null) {
+                Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
+                LocalDate gecmisTarih = LocalDate.now().minusYears(10);
+                if(tur.equalsIgnoreCase("Telefon"))
+                    gercekCihaz = new Telefon(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
+                else if(tur.equalsIgnoreCase("Laptop"))
+                    gercekCihaz = new Laptop(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
+                else
+                    gercekCihaz = new Tablet(seriNo, marka, model, 0, gecmisTarih, false, dummyMusteri);
+            }
 
-            ServisKaydi kayit = new ServisKaydi(tempCihaz, sorun);
+            // Bulunan veya oluşturulan cihazı kullan
+            ServisKaydi kayit = new ServisKaydi(gercekCihaz, sorun);
             kayit.setGirisTarihi(giris);
 
             for(ServisDurumu d : ServisDurumu.values()) {
                 if(d.toString().equalsIgnoreCase(durumStr)) {
-                    kayit.setDurum(d); // Burada setDurum içindeki tarih mantığı çalışır ama aşağıda override ediyoruz
+                    kayit.setDurum(d);
                     break;
                 }
             }
@@ -97,7 +110,6 @@ public class ServisKaydi implements Raporlanabilir {
 
             kayit.setTahminiTamirUcreti(ucret);
 
-            // Dosyadan okurken kayıtlı tarihi esas al (tekrar hesaplama yapma)
             if (!bitisTarihiStr.equals("Yok")) {
                 kayit.tamamlamaTarihi = LocalDate.parse(bitisTarihiStr);
             }
@@ -109,7 +121,6 @@ public class ServisKaydi implements Raporlanabilir {
         }
     }
 
-    // Getter & Setterlar
     public Cihaz getCihaz() { return cihaz; }
     public String getSorunAciklamasi() { return sorunAciklamasi; }
     public LocalDate getGirisTarihi() { return girisTarihi; }
@@ -118,6 +129,7 @@ public class ServisKaydi implements Raporlanabilir {
     public Teknisyen getAtananTeknisyen() { return atananTeknisyen; }
     public LocalDate getTamamlamaTarihi() { return tamamlamaTarihi; }
 
+    // Gereksiz getOdenecekTamirUcreti metodunu kaldırdık veya buna yönlendirebilirsiniz
     public double getOdenecekTamirUcreti() { return tahminiTamirUcreti; }
 
     public void setTahminiTamirUcreti(double tahminiTamirUcreti) {
@@ -130,17 +142,13 @@ public class ServisKaydi implements Raporlanabilir {
         this.girisTarihi = girisTarihi;
     }
 
-    // --- GÜNCELLENEN METOT: Tarihi 20 iş günü sonrasına ayarlar ---
     public void setDurum(ServisDurumu durum) {
         this.durum = durum;
-
         if (durum == ServisDurumu.TAMAMLANDI) {
-            // Eğer tarih daha önce atanmamışsa hesapla
             if (this.tamamlamaTarihi == null) {
                 this.tamamlamaTarihi = isGunuEkle(this.girisTarihi, 20);
             }
         } else if (this.tamamlamaTarihi != null && durum != ServisDurumu.TAMAMLANDI) {
-            // Tamamlandı'dan geri alınıyorsa tarihi temizle
             this.tamamlamaTarihi = null;
         }
     }

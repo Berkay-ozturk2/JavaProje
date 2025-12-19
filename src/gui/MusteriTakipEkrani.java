@@ -79,12 +79,10 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
         }
 
-        // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir (ServisYonetimi kullanımı)
-        // ServisYonetimi, constructor içinde otomatik olarak servisleri yükler.
-        ServisYonetimi servisYonetimi = new ServisYonetimi();
-
-        // Cihaz bilgilerini servis kayıtlarıyla eşleştir (böylece müşteri bilgileri güncellenir)
-        servisYonetimi.cihazBilgileriniEslestir(cihazlar);
+        // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir
+        // --- DÜZELTME: ServisYonetimi'ne cihaz listesini veriyoruz ---
+        ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
+        // servisYonetimi.cihazBilgileriniEslestir(cihazlar); // BU SATIR SİLİNDİ
 
         ServisKaydi bulunanKayit = null;
         for (ServisKaydi k : servisYonetimi.getKayitlar()) {
@@ -102,7 +100,6 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
         }
 
-        // SONUÇ: Ekrana Yazdır
         if (!cihazBulundu) {
             txtBilgiEkrani.setText("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz.");
         } else {

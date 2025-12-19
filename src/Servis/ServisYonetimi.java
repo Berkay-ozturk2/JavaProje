@@ -1,16 +1,20 @@
 package Servis;
 
-import Cihazlar.Cihaz; // --- EKLENDİ: Cihaz sınıfını kullanabilmek için ---
+import Cihazlar.Cihaz;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import Arayuzler.VeriIslemleri; // Import
+import Arayuzler.VeriIslemleri;
 
 public class ServisYonetimi implements VeriIslemleri {
     private List<ServisKaydi> kayitlar;
+    // --- DÜZELTME: Cihaz listesini referans olarak tutuyoruz ---
+    private List<Cihaz> cihazListesiRef;
     private static final String DOSYA_ADI = "servisler.txt";
 
-    public ServisYonetimi() {
+    // --- DÜZELTME: Constructor parametre alıyor ---
+    public ServisYonetimi(List<Cihaz> cihazListesi) {
+        this.cihazListesiRef = cihazListesi;
         this.kayitlar = new ArrayList<>();
         Yukle();
     }
@@ -50,32 +54,16 @@ public class ServisYonetimi implements VeriIslemleri {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (!line.trim().isEmpty()) {
-                        ServisKaydi k = ServisKaydi.fromTxtFormat(line);
+                        // --- DÜZELTME: Listeyi parametre olarak gönderiyoruz ---
+                        ServisKaydi k = ServisKaydi.fromTxtFormat(line, this.cihazListesiRef);
                         if (k != null) kayitlar.add(k);
                     }
                 }
-                // System.out.println("Servis kayıtları yüklendi: " + kayitlar.size());
             } catch (IOException e) {
                 System.err.println("Servis kayıtları yüklenirken hata oluştu.");
             }
         }
     }
 
-    // --- YENİ EKLENEN METOT ---
-    // Bu metot, servisler.txt'den gelen "Bilinmiyor" müşterili kayıtları,
-    // cihazlar.txt'den gelen "Gerçek" müşterili cihazlarla değiştirir.
-    public void cihazBilgileriniEslestir(List<Cihaz> guncelCihazListesi) {
-        for (ServisKaydi kayit : kayitlar) {
-            String servisSeriNo = kayit.getCihaz().getSeriNo();
-
-            // Cihaz listesinde bu seri numarasına sahip cihazı bul
-            for (Cihaz gercekCihaz : guncelCihazListesi) {
-                if (gercekCihaz.getSeriNo().equalsIgnoreCase(servisSeriNo)) {
-                    // Servis kaydındaki eksik cihazı, müşteri bilgisi olan cihazla değiştir
-                    kayit.setCihaz(gercekCihaz);
-                    break;
-                }
-            }
-        }
-    }
+    // 'cihazBilgileriniEslestir' metodu tamamen silindi.
 }

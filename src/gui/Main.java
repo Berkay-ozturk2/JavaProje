@@ -5,7 +5,7 @@ import Garantiler.UzatilmisGaranti;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 import Servis.Teknisyen;
-import Servis.TeknisyenDeposu; // YENİ: Depo sınıfı eklendi
+import Servis.TeknisyenDeposu;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +35,6 @@ public class Main extends JFrame implements CihazEkleListener {
     private static final String CİHAZ_DOSYA_ADI = "cihazlar.txt";
     private ServisYonetimi servisYonetimi;
 
-    // DEĞİŞİKLİK 1: Teknisyenleri artık merkezi depodan çekiyoruz (ID tutarlılığı için)
     private final List<Teknisyen> teknisyenler = TeknisyenDeposu.getTumTeknisyenler();
 
     public Main() {
@@ -47,8 +46,9 @@ public class Main extends JFrame implements CihazEkleListener {
         // Cihazları merkezi metotla yükle
         cihazListesi = Cihaz.verileriYukle(CİHAZ_DOSYA_ADI);
 
-        servisYonetimi = new ServisYonetimi();
-        servisYonetimi.cihazBilgileriniEslestir(cihazListesi);
+        // --- DÜZELTME: ServisYonetimi artık cihaz listesini constructor'da alıyor ---
+        servisYonetimi = new ServisYonetimi(cihazListesi);
+        // servisYonetimi.cihazBilgileriniEslestir(cihazListesi); // BU SATIR SİLİNDİ
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
@@ -74,7 +74,6 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private Teknisyen teknisyenSec(String cihazTuru) {
-        // Liste sırası TeknisyenDeposu'nda sabitlendiği için indeksler güvenilirdir.
         if (cihazTuru.equalsIgnoreCase("Laptop")) {
             return teknisyenler.get(0);
         } else if (cihazTuru.equalsIgnoreCase("Telefon")) {
@@ -109,24 +108,20 @@ public class Main extends JFrame implements CihazEkleListener {
         JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
         JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
 
-        // --- AKSİYONLAR ---
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
             dialog.setVisible(true);
         });
 
-        // DEĞİŞİKLİK 2: Servis kaydı ve ücret hesaplama mantığı güncellendi
         btnServisKaydi.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 Cihaz selectedCihaz = cihazListesi.get(selectedRow);
 
-                // Garanti durumu artık nesne üzerinden okunuyor
                 boolean garantiAktifMi = selectedCihaz.isGarantiAktif();
                 String garantiDurumu = garantiAktifMi ? "Aktif" : "BİTMİŞ";
 
                 JComboBox<String> sorunComboBox = new JComboBox<>(SORUN_MALIYET_ORANLARI.keySet().toArray(new String[0]));
-                // Mesajda garanti türünü de gösteriyoruz
                 String mesaj = String.format("Cihaz: %s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
                         selectedCihaz.getModel(), garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
 
@@ -135,7 +130,6 @@ public class Main extends JFrame implements CihazEkleListener {
                 if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
                     String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-                    // 1. ADIM: Ham Ücreti Hesapla
                     double hamUcret = 0.0;
                     double oran = SORUN_MALIYET_ORANLARI.get(secilenSorun);
 
@@ -145,14 +139,12 @@ public class Main extends JFrame implements CihazEkleListener {
                         hamUcret = selectedCihaz.getFiyat() * oran;
                     }
 
-                    // 2. ADIM: Garanti Nesnesine "Son Fiyat Ne?" Diye Sor
-                    // (Bu metot Standart veya Uzatılmış garantiye göre indirim uygular veya ücretsiz yapar)
                     double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
-
                     String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
+
+                    // --- DÜZELTME: Bu noktada artık cihaz nesnesine doğrudan referans veriyoruz ---
                     ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
 
-                    // Hesaplanan son tutarı kaydet
                     yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
                     Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
@@ -173,11 +165,8 @@ public class Main extends JFrame implements CihazEkleListener {
             if (selectedRow >= 0) {
                 Cihaz seciliCihaz = cihazListesi.get(selectedRow);
 
-                // Garanti bitmişse veya standart garantiyse uzatılabilir
-                // (Buradaki mantığı isteğinize göre esnetebilirsiniz)
                 if (!seciliCihaz.isGarantiAktif() || seciliCihaz.getGaranti().garantiTuru().contains("Standart")) {
                     double cihazFiyati = seciliCihaz.getFiyat();
-                    // Uzatılmış Garanti sınıfındaki statik metodu kullanıyoruz
                     double fiyat6Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 6);
                     double fiyat12Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 12);
                     double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
@@ -274,14 +263,5 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getGarantiBitisTarihi()
             });
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
-        } catch (Exception ex) {
-            System.err.println("FlatLaf başlatılamadı!");
-        }
-        SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
