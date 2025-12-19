@@ -2,6 +2,8 @@ package gui;
 
 import Cihazlar.*;
 import Musteri.Musteri;
+import Istisnalar.GecersizDegerException; // Yeni eklediğimiz exception
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
@@ -27,7 +29,6 @@ public class CihazKayitDialog extends JDialog {
     private JTextField txtMusteriSoyad;
     private JTextField txtMusteriTelefon;
 
-    // YENİ EKLENEN KUTUCUK
     private JCheckBox chkEskiTarih;
 
     private final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
@@ -163,11 +164,9 @@ public class CihazKayitDialog extends JDialog {
         generalPanel.add(new JLabel("Müşteri Soyadı:"));
         generalPanel.add(txtMusteriSoyad);
 
-        // --- GÜNCELLEME 1: KUTUCUK +90 İLE BAŞLIYOR ---
         txtMusteriTelefon = new JTextField("+90");
         generalPanel.add(new JLabel("Telefon ((+90)5..):"));
         generalPanel.add(txtMusteriTelefon);
-        // ----------------------------------------------
 
         generalPanel.add(new JLabel("Cihaz Türü:"));
         String[] turler = {"Telefon", "Tablet", "Laptop"};
@@ -278,6 +277,7 @@ public class CihazKayitDialog extends JDialog {
         }
     }
 
+    // --- DÜZENLENMİŞ KAYDET METODU (ÖZEL EXCEPTION & VALIDASYON İÇERİR) ---
     private void kaydet() {
         try {
             String mAd = txtMusteriAd.getText().trim();
@@ -285,36 +285,37 @@ public class CihazKayitDialog extends JDialog {
             String mTelefon = txtMusteriTelefon.getText().trim();
 
             if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
-                throw new IllegalArgumentException("Müşteri bilgileri zorunludur.");
+                throw new GecersizDegerException("Müşteri bilgileri boş bırakılamaz!");
             }
 
-            // --- GÜNCELLEME 2: TELEFON FORMATI KONTROLÜ (+90 ve 13 hane) ---
             if (!mTelefon.startsWith("+90")) {
-                throw new IllegalArgumentException("Telefon numarası +90 ile başlamalıdır.");
+                throw new GecersizDegerException("Telefon numarası +90 ile başlamalıdır.");
             }
 
-            // +90 5XX XXX XX XX (Toplam 13 karakter)
-            // substring(1) ile "+" işaretini atlayıp geri kalanın rakam olup olmadığına bakıyoruz
             if (mTelefon.length() != 13 || !mTelefon.substring(1).matches("\\d+")) {
-                throw new IllegalArgumentException("Telefon numarası +905XXXXXXXXX formatında (13 hane) olmalıdır.");
+                throw new GecersizDegerException("Telefon numarası +905XXXXXXXXX formatında olmalıdır.");
             }
-            // ----------------------------------------------------------------
 
+            // Müşteri nesnesi oluşturma
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
             String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
             String model = (String) cmbModel.getSelectedItem();
 
             if (marka == null || model == null) {
-                throw new IllegalArgumentException("Marka ve Model seçimi zorunludur.");
+                throw new GecersizDegerException("Marka ve Model seçimi zorunludur.");
             }
 
-            double fiyat = Double.parseDouble(txtFiyat.getText().trim());
-            if (fiyat <= 0) throw new IllegalArgumentException("Cihaz fiyatı pozitif olmalıdır.");
+            double fiyat;
+            try {
+                fiyat = Double.parseDouble(txtFiyat.getText().trim());
+            } catch (NumberFormatException e) {
+                throw new GecersizDegerException("Fiyat geçerli bir sayı olmalıdır.");
+            }
+
+            if (fiyat <= 0) throw new GecersizDegerException("Cihaz fiyatı pozitif olmalıdır.");
 
             String tur = (String) cmbTur.getSelectedItem();
-
-            // Checkbox seçiliyse null gider (rastgele tarih), değilse bugün
             LocalDate garantiBaslangic = chkEskiTarih.isSelected() ? null : LocalDate.now();
 
             Cihaz yeniCihaz;
@@ -330,17 +331,17 @@ public class CihazKayitDialog extends JDialog {
                     yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
                     break;
                 default:
-                    throw new IllegalArgumentException("Geçersiz tür.");
+                    throw new GecersizDegerException("Geçersiz tür.");
             }
 
             listener.cihazEklendi(yeniCihaz);
             JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "Başarılı", JOptionPane.INFORMATION_MESSAGE);
             dispose();
 
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Fiyat geçerli bir sayı olmalıdır.", "Hata", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
+        } catch (GecersizDegerException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Giriş Hatası", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Beklenmeyen Hata: " + ex.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
