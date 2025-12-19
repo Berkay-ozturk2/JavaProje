@@ -1,11 +1,8 @@
 package Servis;
 
 import Arayuzler.Raporlanabilir;
-// --- YENİ EKLENDİ: Tarih aracını import ediyoruz ---
-import Araclar.TarihYardimcisi;
 import Cihazlar.*;
 import Musteri.Musteri;
-// import java.time.DayOfWeek; // Bu import artık gereksiz, silebilirsiniz.
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,9 +25,6 @@ public class ServisKaydi implements Raporlanabilir {
         this.tahminiTamirUcreti = 0.0;
         this.atananTeknisyen = null;
     }
-
-    // --- SİLİNDİ: 'private LocalDate isGunuEkle(...)' metodu buradan kaldırıldı ---
-    // Artık bu işi 'TarihYardimcisi' sınıfı yapıyor.
 
     public String toTxtFormat() {
         String tekAd = (atananTeknisyen != null) ? atananTeknisyen.getAd() : "Yok";
@@ -129,15 +123,15 @@ public class ServisKaydi implements Raporlanabilir {
         this.girisTarihi = girisTarihi;
     }
 
+    // --- DÜZENLENEN KISIM ---
     public void setDurum(ServisDurumu durum) {
         this.durum = durum;
 
         if (durum == ServisDurumu.TAMAMLANDI) {
-            if (this.tamamlamaTarihi == null) {
-                // --- DEĞİŞİKLİK: Tarih hesaplaması artık Utility sınıfından çağrılıyor ---
-                this.tamamlamaTarihi = TarihYardimcisi.isGunuEkle(this.girisTarihi, 20);
-            }
+            // Durum 'Tamamlandı' olduğunda o anki tarihi bitiş tarihi olarak atar.
+            this.tamamlamaTarihi = LocalDate.now();
         } else if (this.tamamlamaTarihi != null && durum != ServisDurumu.TAMAMLANDI) {
+            // Eğer durum tekrar 'Tamamlandı' dışına çıkarsa (örn: yanlışlıkla basıldıysa), tarihi temizle.
             this.tamamlamaTarihi = null;
         }
     }
@@ -159,7 +153,7 @@ public class ServisKaydi implements Raporlanabilir {
                 "Sorun: " + sorunAciklamasi + "\n" +
                 "Durum: " + durum + "\n" +
                 "Tahmini/Ödenecek Ücret: " + tahminiTamirUcreti + " TL\n" +
-                "Tamamlanma/Teslim Tarihi: " + (tamamlamaTarihi != null ? tamamlamaTarihi : "Hesaplanmadı") + "\n" +
+                "Tamamlanma/Teslim Tarihi: " + (tamamlamaTarihi != null ? tamamlamaTarihi : "Devam Ediyor") + "\n" +
                 "Teknisyen: " + (atananTeknisyen != null ? atananTeknisyen.toString() : "Atanmadı");
     }
 }
