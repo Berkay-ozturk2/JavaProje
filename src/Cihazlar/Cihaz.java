@@ -3,8 +3,10 @@ package Cihazlar;
 import java.time.LocalDate;
 import java.util.Random;
 import Musteri.Musteri;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
-// 'implements Serializable' kaldırıldı
 public abstract class Cihaz {
     // 'serialVersionUID' kaldırıldı
 
@@ -80,6 +82,28 @@ public abstract class Cihaz {
             return null;
         }
     }
+
+    // --- YENİ EKLENEN MERKEZİ DOSYA OKUMA METODU ---
+    public static List<Cihaz> verileriYukle(String dosyaAdi) {
+        List<Cihaz> liste = new ArrayList<>();
+        File dosya = new File(dosyaAdi);
+        if (!dosya.exists()) return liste;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(dosya), "UTF-8"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    Cihaz c = fromTxtFormat(line);
+                    if (c != null) liste.add(c);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Dosya okuma hatası: " + e.getMessage());
+        }
+        return liste;
+    }
+    // -----------------------------------------------
 
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }

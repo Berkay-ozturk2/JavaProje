@@ -2,12 +2,11 @@ package gui;
 
 import Cihazlar.Cihaz;
 import Servis.ServisKaydi;
+import Servis.ServisYonetimi;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
 import java.util.List;
-import java.util.ArrayList;
 
 public class MusteriTakipEkrani extends JFrame {
 
@@ -45,49 +44,6 @@ public class MusteriTakipEkrani extends JFrame {
         add(new JScrollPane(txtBilgiEkrani), BorderLayout.CENTER);
     }
 
-    // --- TXT VERİ OKUMA METOTLARI ---
-    // Not: İdeal senaryoda bu veri okuma işlemleri merkezi bir 'VeriYoneticisi' sınıfından yapılmalıdır.
-    // Mevcut yapıyı korumak adına burada bırakılmıştır.
-    private List<Cihaz> cihazlariYukleTxt() {
-        List<Cihaz> liste = new ArrayList<>();
-        File dosya = new File("cihazlar.txt");
-        if(dosya.exists()){
-            try(BufferedReader br = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(dosya), "UTF-8"))){
-                String line;
-                while((line = br.readLine()) != null){
-                    if(!line.trim().isEmpty()) {
-                        Cihaz c = Cihaz.fromTxtFormat(line);
-                        if(c != null) liste.add(c);
-                    }
-                }
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        return liste;
-    }
-
-    private List<ServisKaydi> servisleriYukleTxt() {
-        List<ServisKaydi> liste = new ArrayList<>();
-        File dosya = new File("servisler.txt");
-        if(dosya.exists()){
-            try(BufferedReader br = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(dosya), "UTF-8"))){
-                String line;
-                while((line = br.readLine()) != null){
-                    if(!line.trim().isEmpty()) {
-                        ServisKaydi k = ServisKaydi.fromTxtFormat(line);
-                        if(k != null) liste.add(k);
-                    }
-                }
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        return liste;
-    }
-
     private void sorgula() {
         String arananSeriNo = txtSeriNo.getText().trim();
         if (arananSeriNo.isEmpty()) {
@@ -99,8 +55,8 @@ public class MusteriTakipEkrani extends JFrame {
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 
-        // 1. ADIM: Cihazları Yükle ve Ara
-        List<Cihaz> cihazlar = cihazlariYukleTxt();
+        // 1. ADIM: Cihazları Yükle (Merkezi metot kullanımı)
+        List<Cihaz> cihazlar = Cihaz.verileriYukle("cihazlar.txt");
         Cihaz bulunanCihaz = null;
 
         for (Cihaz c : cihazlar) {
@@ -123,32 +79,28 @@ public class MusteriTakipEkrani extends JFrame {
             rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
         }
 
-        // 2. ADIM: Servis Kayıtlarını Yükle ve Ara
-        List<ServisKaydi> servisKayitlari = servisleriYukleTxt();
-        ServisKaydi bulunanKayit = null;
+        // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir (ServisYonetimi kullanımı)
+        // ServisYonetimi, constructor içinde otomatik olarak servisleri yükler.
+        ServisYonetimi servisYonetimi = new ServisYonetimi();
 
-        for (ServisKaydi k : servisKayitlari) {
+        // Cihaz bilgilerini servis kayıtlarıyla eşleştir (böylece müşteri bilgileri güncellenir)
+        servisYonetimi.cihazBilgileriniEslestir(cihazlar);
+
+        ServisKaydi bulunanKayit = null;
+        for (ServisKaydi k : servisYonetimi.getKayitlar()) {
             if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
                 bulunanKayit = k;
-                // Eğer cihaz bulunduysa, servis kaydındaki 'dummy' cihazı gerçek verilerle güncelle
-                if (bulunanCihaz != null) {
-                    bulunanKayit.setCihaz(bulunanCihaz);
-                }
                 break;
             }
         }
 
-        // --- DEĞİŞİKLİK BURADA YAPILDI ---
         if (bulunanKayit != null) {
-            // Raporlanabilir Interface'i kullanılarak detaylı rapor çekiliyor.
-            // Artık rapor formatı ServisKaydi sınıfı içindeki detayliRaporVer() metodundan geliyor.
             rapor.append("\n");
             rapor.append(bulunanKayit.detayliRaporVer());
         } else if (cihazBulundu) {
             rapor.append("=== SERVİS DURUMU ===\n");
             rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
         }
-        // ---------------------------------
 
         // SONUÇ: Ekrana Yazdır
         if (!cihazBulundu) {
