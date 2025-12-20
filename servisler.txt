@@ -1,1 +1,4 @@
 LAP-0849;;Laptop;;Lenovo;;ThinkPad X1 Carbon;;Ekran Kırık;;2025-12-20;;Tamamlandı;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;2025-12-20
+TAB-1372;;Tablet;;Apple;;iPad Pro (M4);;Ekran Kırık;;2025-12-20;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00;;Yok
+LAP-3445;;Laptop;;Lenovo;;IdeaPad 5 Pro;;Dokunmatik Arızası;;2025-12-20;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
+TAB-1372;;Tablet;;Apple;;iPad Pro (M4);;Hoparlör/Mikrofon Sorunu;;2025-12-20;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00;;Yok

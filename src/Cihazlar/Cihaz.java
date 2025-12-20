@@ -1,10 +1,9 @@
 package Cihazlar;
 
 import java.time.LocalDate;
-import java.util.Random;
 import Musteri.Musteri;
 import Garantiler.*;
-import Istisnalar.GecersizDegerException; // EKLENDİ
+import Istisnalar.GecersizDegerException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ public abstract class Cihaz {
     private Musteri sahip;
 
     protected Garanti garanti;
-    private static final Random rand = new Random();
 
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
         this.seriNo = seriNo;
@@ -29,22 +27,15 @@ public abstract class Cihaz {
 
         LocalDate baslangic;
         if (garantiBaslangic == null) {
-            baslangic = randomGarantiBaslangic(getGarantiSuresiYil());
+            // Garanti sınıfındaki statik metot kullanılıyor
+            baslangic = Garanti.rastgeleBaslangicOlustur(getGarantiSuresiYil());
         } else {
             baslangic = garantiBaslangic;
         }
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
-    private LocalDate randomGarantiBaslangic(int sureYil) {
-        int maxRandomDays = (sureYil + 1) * 365;
-        int randomDaysInPast = rand.nextInt(maxRandomDays + 1);
-        return LocalDate.now().minusDays(randomDaysInPast);
-    }
-
     public abstract String toTxtFormat();
-
-    // ... (Önceki importlar ve kodlar aynı)
 
     public static Cihaz fromTxtFormat(String line) {
         try {
@@ -59,33 +50,25 @@ public abstract class Cihaz {
             LocalDate tarih = LocalDate.parse(parcalar[5].trim());
             int ekstraSure = Integer.parseInt(parcalar[6].trim());
 
-            // Müşteriyi oluştur
             Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
 
-            // --- YENİ: VIP OKUMA MANTIĞI (Geriye dönük uyumluluk ile) ---
             boolean isVip = false;
-            boolean kalem = false; // Tablet için
+            boolean kalem = false;
 
             if (tur.equalsIgnoreCase("Tablet")) {
-                // Tablet formatı eskiden 11 parçaydı (sonuncusu kalem), şimdi 12 olacak (VIP + Kalem)
                 if (parcalar.length > 11) {
-                    // Yeni Format: ...;;Tel;;VIP;;Kalem
                     isVip = Boolean.parseBoolean(parcalar[10].trim());
                     kalem = Boolean.parseBoolean(parcalar[11].trim());
                 } else if (parcalar.length == 11) {
-                    // Eski Format: ...;;Tel;;Kalem
                     kalem = Boolean.parseBoolean(parcalar[10].trim());
                 }
             } else {
-                // Laptop ve Telefon
                 if (parcalar.length > 10) {
-                    // Yeni Format: ...;;Tel;;VIP
                     isVip = Boolean.parseBoolean(parcalar[10].trim());
                 }
             }
 
             musteri.setVip(isVip);
-            // -----------------------------------------------------------
 
             Cihaz cihaz = null;
             if (tur.equalsIgnoreCase("Telefon")) {
@@ -105,7 +88,6 @@ public abstract class Cihaz {
             return null;
         }
     }
-    // ... (Geri kalan kodlar aynı)
 
     public static List<Cihaz> verileriYukle(String dosyaAdi) {
         List<Cihaz> liste = new ArrayList<>();
@@ -127,7 +109,18 @@ public abstract class Cihaz {
         return liste;
     }
 
-    // --- GETTER METOTLARI ---
+    // --- YENİ EKLENEN METOT (Dosya Yazma İşlemi Main'den Taşındı) ---
+    public static void verileriKaydet(List<Cihaz> liste, String dosyaAdi) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(dosyaAdi), "UTF-8"))) {
+            for (Cihaz c : liste) {
+                bw.write(c.toTxtFormat());
+                bw.newLine();
+            }
+        }
+    }
+
+    // Getter & Setter
     public String getSeriNo() { return seriNo; }
     public String getMarka() { return marka; }
     public String getModel() { return model; }
@@ -138,40 +131,23 @@ public abstract class Cihaz {
     public LocalDate getGarantiBitisTarihi() { return garanti.getBitisTarihi(); }
     public boolean isGarantiAktif() { return garanti.isDevamEdiyor(); }
 
-    // --- EKLENEN SETTER METOTLARI (Gereksinim: Validasyon ve Exception) ---
-
-    // Setter 1: Fiyat kontrolü
     public void setFiyat(double fiyat) throws GecersizDegerException {
-        if (fiyat < 0) {
-            throw new GecersizDegerException("Fiyat negatif olamaz!");
-        }
+        if (fiyat < 0) throw new GecersizDegerException("Fiyat negatif olamaz!");
         this.fiyat = fiyat;
     }
 
-    // Setter 2: Marka boş olamaz kontrolü
     public void setMarka(String marka) throws GecersizDegerException {
-        if (marka == null || marka.trim().isEmpty()) {
-            throw new GecersizDegerException("Marka alanı boş bırakılamaz.");
-        }
+        if (marka == null || marka.trim().isEmpty()) throw new GecersizDegerException("Marka alanı boş bırakılamaz.");
         this.marka = marka;
     }
 
-    // Setter 3: Model boş olamaz kontrolü
     public void setModel(String model) throws GecersizDegerException {
-        if (model == null || model.trim().isEmpty()) {
-            throw new GecersizDegerException("Model alanı boş bırakılamaz.");
-        }
+        if (model == null || model.trim().isEmpty()) throw new GecersizDegerException("Model alanı boş bırakılamaz.");
         this.model = model;
     }
 
     public int getEkstraGarantiSuresiAy() {
-        long standartBitisEpoch = garanti.getBaslangicTarihi().plusYears(getGarantiSuresiYil()).toEpochDay();
-        long guncelBitisEpoch = garanti.getBitisTarihi().toEpochDay();
-        if (guncelBitisEpoch > standartBitisEpoch) {
-            long farkGun = guncelBitisEpoch - standartBitisEpoch;
-            return (int) (farkGun / 30);
-        }
-        return 0;
+        return garanti.hesaplaEkstraSureAy(getGarantiSuresiYil());
     }
 
     public void garantiUzat(int ay) {

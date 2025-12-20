@@ -10,3 +10,4 @@ Tablet;;TAB-7700;;Huawei;;MatePad Pro 13.2;;30000,00;;2024-09-14;;0;;AHMET;;KOÇ
 Tablet;;TAB-9543;;Apple;;iPad Air;;25000,00;;2023-07-01;;0;;DAMLA;;AKSU;;+905568741232;;false;;false
 Laptop;;LAP-9742;;HP;;Victus 16;;10000,00;;2025-12-20;;0;;MAL;;ÇAĞATAY;;+905515518309;;false
 Laptop;;LAP-0849;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2023-03-20;;0;;ALİ;;KAMİL;;+901234567891;;true
+Tablet;;TAB-1372;;Apple;;iPad Pro (M4);;45000,00;;2025-06-10;;0;;AEA;;TRE;;+905514479933;;true;;false

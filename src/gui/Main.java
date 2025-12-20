@@ -13,7 +13,7 @@ import Servis.TeknisyenDeposu;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +35,6 @@ public class Main extends JFrame implements CihazEkleListener {
             "cihazlar.txt";
 
     private ServisYonetimi servisYonetimi;
-    private final List<Teknisyen> teknisyenler = TeknisyenDeposu.getTumTeknisyenler();
 
     public Main() {
         setTitle("Teknolojik Cihaz Garanti & Servis Takip Sistemi");
@@ -153,7 +152,6 @@ public class Main extends JFrame implements CihazEkleListener {
             return;
         }
 
-        // Garanti bilgisini ve Müşteri VIP durumunu mesajda gösterelim
         String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "BİTMİŞ";
         String vipBilgi = selectedCihaz.getSahip().isVip() ? " [VIP Müşteri]" : "";
 
@@ -169,14 +167,11 @@ public class Main extends JFrame implements CihazEkleListener {
         if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
             String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-            // --- DEĞİŞİKLİK BURADA ---
-            // Fiyat hesaplamasına müşterinin VIP durumu da (true/false) gönderiliyor.
             double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(
                     secilenSorun,
                     selectedCihaz.getFiyat(),
                     selectedCihaz.getSahip().isVip()
             );
-            // -------------------------
 
             double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
             String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
@@ -184,13 +179,11 @@ public class Main extends JFrame implements CihazEkleListener {
             int tahminiIsGunu = 20;
             LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), tahminiIsGunu);
 
-            System.out.println("[TarihYardimcisi] 20 İş günü sonrası hesaplanıyor...");
-            System.out.println("Tahmini teslim tarihi: " + tahminiTeslim);
-
             ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
             yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
-            Teknisyen atananTeknisyen = teknisyenSec(selectedCihaz.getCihazTuru());
+            // --- DEĞİŞİKLİK: Teknisyen seçimi artık Main'den değil Depo'dan yapılıyor ---
+            Teknisyen atananTeknisyen = TeknisyenDeposu.uzmanligaGoreGetir(selectedCihaz.getCihazTuru());
             yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
             servisYonetimi.servisKaydiEkle(yeniKayit);
@@ -269,29 +262,16 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
+    // --- DEĞİŞİKLİK: Bu metod artık Cihaz sınıfına delege ediyor ---
     private void cihazKaydet(List<Cihaz> liste) {
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(CIHAZ_DOSYA_ADI), "UTF-8"))) {
-            for (Cihaz c : liste) {
-                bw.write(c.toTxtFormat());
-                bw.newLine();
-            }
-        }
-        catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "Dosya bulunamadı: " + e.getMessage());
+        try {
+            Cihaz.verileriKaydet(liste, CIHAZ_DOSYA_ADI);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Beklenmeyen hata: " + e.getMessage());
         }
     }
 
-    private Teknisyen teknisyenSec(String cihazTuru) {
-        if (cihazTuru.equalsIgnoreCase("Laptop")) return teknisyenler.get(0);
-        else if (cihazTuru.equalsIgnoreCase("Telefon")) return teknisyenler.get(1);
-        else if (cihazTuru.equalsIgnoreCase("Tablet")) return teknisyenler.get(2);
-        return teknisyenler.get(0);
-    }
+    // eski teknisyenSec metodu TAMAMEN KALDIRILDI.
 
     private JButton createStyledButton(String text, Color bgColor, Color fgColor, Font font) {
         JButton btn = new JButton(text);
@@ -303,14 +283,11 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
-
-
         for (DefaultTableModel model : tableModels.values()) {
             model.setRowCount(0);
         }
 
         for (Cihaz c : liste) {
-            // VIP Müşteriyi tabloda da belirtelim (Görsellik için)
             String musteriBilgisi = c.getSahip().toString().toUpperCase();
             if (c.getSahip().isVip()) {
                 musteriBilgisi += " [VIP]";
@@ -321,7 +298,7 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    musteriBilgisi, // Güncellenen bilgi
+                    musteriBilgisi,
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             };
@@ -338,16 +315,13 @@ public class Main extends JFrame implements CihazEkleListener {
     private void konsolRaporuOlustur() {
         System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
 
-        // Generic sınıf örneği oluşturuluyor
         RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
 
         System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
         cihazRaporKutusu.listeyiKonsolaYazdir();
 
-        // --- YENİ EKLENEN KISIM (getIlkEleman Kullanımı) ---
         System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu Testi):");
 
-        // Generic metodumuzu çağırıyoruz:
         Cihaz ilkCihaz = cihazRaporKutusu.getIlkEleman();
 
         if (ilkCihaz != null) {
@@ -357,7 +331,6 @@ public class Main extends JFrame implements CihazEkleListener {
         } else {
             System.out.println("-> Liste boş, ilk eleman getirilemedi.");
         }
-        // ---------------------------------------------------
 
         System.out.println("\n[2] SİSTEM MESAJI:");
         cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
@@ -378,4 +351,3 @@ public class Main extends JFrame implements CihazEkleListener {
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }
 }
-//yine hatalandık
