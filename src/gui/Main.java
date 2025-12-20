@@ -16,6 +16,7 @@ import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -337,14 +338,30 @@ public class Main extends JFrame implements CihazEkleListener {
     private void konsolRaporuOlustur() {
         System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
 
+        // Generic sınıf örneği oluşturuluyor
         RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
 
         System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
         cihazRaporKutusu.listeyiKonsolaYazdir();
 
+        // --- YENİ EKLENEN KISIM (getIlkEleman Kullanımı) ---
+        System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu Testi):");
+
+        // Generic metodumuzu çağırıyoruz:
+        Cihaz ilkCihaz = cihazRaporKutusu.getIlkEleman();
+
+        if (ilkCihaz != null) {
+            System.out.println("-> Listedeki ilk cihaz bulundu.");
+            System.out.println("-> Seri No: " + ilkCihaz.getSeriNo());
+            System.out.println("-> Model: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel());
+        } else {
+            System.out.println("-> Liste boş, ilk eleman getirilemedi.");
+        }
+        // ---------------------------------------------------
+
         System.out.println("\n[2] SİSTEM MESAJI:");
         cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
-        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now());
+        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
         List<Double> fiyatListesi = new ArrayList<>();
         for (Cihaz c : cihazListesi) {
