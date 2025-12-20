@@ -214,4 +214,24 @@ public class ServisTakipFrame extends JFrame {
             }
         }
     }
+    private void veriTemizlemeIslemi() {
+        // Kullanıcıdan güvenlik onayı al
+        int secim = JOptionPane.showConfirmDialog(this,
+                "DİKKAT: Tüm GEÇMİŞ SERVİS KAYITLARI kalıcı olarak silinecektir!\n" +
+                        "Cihaz kayıtları silinmez, sadece servis geçmişi temizlenir.\n\n" +
+                        "Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+                "Veri Temizleme Onayı",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (secim == JOptionPane.YES_OPTION) {
+            // ServisYonetimi içindeki metodumuzu çağırıyoruz
+            servisYonetimi.verileriTemizle();
+
+            JOptionPane.showMessageDialog(this,
+                    "İşlem Başarılı.\nTüm servis geçmişi temizlendi.",
+                    "Bilgi",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 }
