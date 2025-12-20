@@ -25,3 +25,4 @@ public class UzatilmisGaranti extends Garanti {
         return "Uzatılmış Garanti Paketi";
     }
 }
+//yorumm222
