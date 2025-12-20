@@ -9,7 +9,6 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 interface CihazEkleListener {
     void cihazEklendi(Cihaz cihaz);
@@ -139,21 +138,7 @@ public class CihazKayitDialog extends JDialog {
         TUM_MODELLER.put("Laptop", laptopModelleri);
     }
 
-    private static String generateRandomSeriNo(String tur) {
-        String prefix = switch (tur) {
-            case "Telefon" -> "TEL";
-            case "Tablet" -> "TAB";
-            case "Laptop" -> "LAP";
-            default -> "DEV";
-        };
-        Random rnd = new Random();
-        StringBuilder sb = new StringBuilder();
-        String chars = "0123456789";
-        for (int i = 0; i < 4; i++) {
-            sb.append(chars.charAt(rnd.nextInt(chars.length())));
-        }
-        return prefix + "-" + sb.toString();
-    }
+    // generateRandomSeriNo METODU SİLİNDİ, CİHAZ SINIFINA TAŞINDI.
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
@@ -183,7 +168,8 @@ public class CihazKayitDialog extends JDialog {
         cmbTur = new JComboBox<>(turler);
         generalPanel.add(cmbTur);
 
-        txtSeriNo = new JTextField(generateRandomSeriNo((String) cmbTur.getSelectedItem()));
+        // ARTIK STATIC METOT ÇAĞRILIYOR:
+        txtSeriNo = new JTextField(Cihaz.rastgeleSeriNoUret((String) cmbTur.getSelectedItem()));
         txtSeriNo.setEditable(false);
         generalPanel.add(new JLabel("Seri No: (Otomatik)"));
         generalPanel.add(txtSeriNo);
@@ -200,7 +186,8 @@ public class CihazKayitDialog extends JDialog {
             String secilenTur = (String) cmbTur.getSelectedItem();
             guncelMarkaListesiniDoldur(secilenTur);
             cardLayout.show(specificPanel, secilenTur);
-            txtSeriNo.setText(generateRandomSeriNo(secilenTur));
+            // ARTIK STATIC METOT ÇAĞRILIYOR:
+            txtSeriNo.setText(Cihaz.rastgeleSeriNoUret(secilenTur));
         });
 
         cmbMarka.addActionListener(e -> {

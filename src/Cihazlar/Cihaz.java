@@ -8,6 +8,7 @@ import Istisnalar.GecersizDegerException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public abstract class Cihaz {
     private String seriNo;
@@ -33,6 +34,23 @@ public abstract class Cihaz {
             baslangic = garantiBaslangic;
         }
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
+    }
+
+    // --- GUI'DEN TAŞINAN METOT ---
+    public static String rastgeleSeriNoUret(String tur) {
+        String prefix = switch (tur) {
+            case "Telefon" -> "TEL";
+            case "Tablet" -> "TAB";
+            case "Laptop" -> "LAP";
+            default -> "DEV";
+        };
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder();
+        String chars = "0123456789";
+        for (int i = 0; i < 4; i++) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return prefix + "-" + sb.toString();
     }
 
     public abstract String toTxtFormat();
