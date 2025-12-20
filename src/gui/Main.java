@@ -1,7 +1,7 @@
 package gui;
 
-import Araclar.RaporKutusu;      // YENİ EKLENDİ
-import Araclar.TarihYardimcisi;  // YENİ EKLENDİ
+import Araclar.RaporKutusu;
+import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
 import Garantiler.UzatilmisGaranti;
 import Servis.FiyatlandirmaHizmeti;
@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime; // YENİ EKLENDİ
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,6 @@ import java.util.Map;
 
 public class Main extends JFrame implements CihazEkleListener {
 
-    // Tek bir tablo yerine artık sekmelerimiz ve çoklu tablolarımız var
     private JTabbedPane tabbedPane;
     private Map<String, DefaultTableModel> tableModels = new HashMap<>();
     private Map<String, JTable> tables = new HashMap<>();
@@ -39,7 +38,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
     public Main() {
         setTitle("Teknolojik Cihaz Garanti & Servis Takip Sistemi");
-        setSize(1250, 700); // Biraz genişletildi
+        setSize(1250, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -50,7 +49,6 @@ public class Main extends JFrame implements CihazEkleListener {
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
 
-        // Başlangıçta konsola bir generic test mesajı atalım (Opsiyonel)
         System.out.println("Sistem başlatıldı. Cihaz sayısı: " + cihazListesi.size());
     }
 
@@ -62,21 +60,17 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private void initUI() {
-        // --- SEKME YAPISI (TABBED PANE) ---
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // Kategoriler için sekmeleri oluştur
         createTab("Tümü");
         createTab("Telefon");
         createTab("Tablet");
         createTab("Laptop");
 
-        // --- BUTON YAPILANDIRMASI ---
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
         JPanel panelAltYonetim = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
 
-        // 1. Yeni Cihaz Ekle
         JButton btnCihazEkle = createStyledButton("Yeni Cihaz Ekle", new Color(52, 152, 219), Color.WHITE, btnFont);
         btnCihazEkle.addActionListener(e -> {
             CihazKayitDialog dialog = new CihazKayitDialog(this, this);
@@ -84,32 +78,26 @@ public class Main extends JFrame implements CihazEkleListener {
         });
         panelAltYonetim.add(btnCihazEkle);
 
-        // 2. Servis Kaydı Oluştur
         JButton btnServisKaydi = createStyledButton("Servis Kaydı Oluştur", new Color(52, 152, 219), Color.WHITE, btnFont);
         btnServisKaydi.addActionListener(e -> servisKaydiOlusturIslemi());
         panelAltYonetim.add(btnServisKaydi);
 
-        // 3. Garanti Paketleri
         JButton btnGarantiUzat = createStyledButton("Garanti Paketleri (Uzat)", new Color(93, 138, 103), Color.WHITE, btnFont);
         btnGarantiUzat.addActionListener(e -> garantiUzatmaIslemi());
         panelAltYonetim.add(btnGarantiUzat);
 
-        // 4. Servis Takip Ekranı
         JButton btnServisListele = createStyledButton("Servis Takip Ekranı", new Color(74, 101, 114), Color.WHITE, btnFont);
         btnServisListele.addActionListener(e -> new ServisTakipFrame(servisYonetimi).setVisible(true));
         panelAltYonetim.add(btnServisListele);
 
-        // 5. Seçili Cihazı Sil
         JButton btnSil = createStyledButton("Seçili Cihazı Sil", new Color(169, 50, 38), Color.WHITE, btnFont);
         btnSil.addActionListener(e -> cihazSilIslemi());
         panelAltYonetim.add(btnSil);
 
-        // 6. Konsol Raporu Al (YENİ EKLENEN - Generic/Wildcard Gösterimi İçin)
         JButton btnRaporla = createStyledButton("Konsol Raporu Al", new Color(36, 89, 69), Color.WHITE, btnFont);
         btnRaporla.addActionListener(e -> konsolRaporuOlustur());
         panelAltYonetim.add(btnRaporla);
 
-        // 7. Geri Dön
         JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
         btnGeriDon.addActionListener(e -> {
             new GirisEkrani().setVisible(true);
@@ -117,12 +105,10 @@ public class Main extends JFrame implements CihazEkleListener {
         });
         panelAltYonetim.add(btnGeriDon);
 
-        // --- YERLEŞİM ---
         add(tabbedPane, BorderLayout.CENTER);
         add(panelAltYonetim, BorderLayout.SOUTH);
     }
 
-    // Her kategori için ayrı bir tablo ve model oluşturan yardımcı metot
     private void createTab(String title) {
         DefaultTableModel model = new DefaultTableModel(
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Müşteri", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
@@ -135,7 +121,6 @@ public class Main extends JFrame implements CihazEkleListener {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // Listelere kaydet
         tableModels.put(title, model);
         tables.put(title, table);
 
@@ -143,7 +128,6 @@ public class Main extends JFrame implements CihazEkleListener {
         tabbedPane.addTab(title, scrollPane);
     }
 
-    // O an hangi sekme açıksa, oradaki seçili cihazı bulan yardımcı metot
     private Cihaz getSeciliCihaz() {
         String activeTitle = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
         JTable activeTable = tables.get(activeTitle);
@@ -168,31 +152,39 @@ public class Main extends JFrame implements CihazEkleListener {
             return;
         }
 
+        // Garanti bilgisini ve Müşteri VIP durumunu mesajda gösterelim
         String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "BİTMİŞ";
+        String vipBilgi = selectedCihaz.getSahip().isVip() ? " [VIP Müşteri]" : "";
 
         JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
-        String mesaj = String.format("Cihaz: %s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
-                selectedCihaz.getModel(), garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
+        String mesaj = String.format("Cihaz: %s\nSahibi: %s%s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
+                selectedCihaz.getModel(),
+                selectedCihaz.getSahip().getAd() + " " + selectedCihaz.getSahip().getSoyad(),
+                vipBilgi,
+                garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
 
         int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION);
 
         if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
             String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-            double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(secilenSorun, selectedCihaz.getFiyat());
+            // --- DEĞİŞİKLİK BURADA ---
+            // Fiyat hesaplamasına müşterinin VIP durumu da (true/false) gönderiliyor.
+            double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(
+                    secilenSorun,
+                    selectedCihaz.getFiyat(),
+                    selectedCihaz.getSahip().isVip()
+            );
+            // -------------------------
+
             double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
             String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
-            // --- YENİ EKLENEN: TARİH YARDIMCISI KULLANIMI (Gereksinim: Madde 6) ---
-            // Tüm arızalar için standart 20 iş günü (Yaklaşık 1 takvim ayı sürer)
-            // Bu sayede araya giren hafta sonlarının atlandığı net şekilde görülebilir.
             int tahminiIsGunu = 20;
             LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), tahminiIsGunu);
 
-            // Konsola bilgi vererek hocaya bu sınıfın çalıştığını kanıtlıyoruz
             System.out.println("[TarihYardimcisi] 20 İş günü sonrası hesaplanıyor...");
             System.out.println("Tahmini teslim tarihi: " + tahminiTeslim);
-            // ---------------------------------------------------------------------
 
             ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
             yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
@@ -284,8 +276,6 @@ public class Main extends JFrame implements CihazEkleListener {
                 bw.newLine();
             }
         }
-        // --- YENİ EKLENEN: ÇOKLU CATCH YAPISI (Gereksinim: Madde 7 - En az 2 yerde gerekli) ---
-        // Birincisi CihazKayitDialog'da idi, ikincisi burada.
         catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, "Dosya bulunamadı: " + e.getMessage());
         } catch (IOException e) {
@@ -312,22 +302,25 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
-        // Önce listeyi fiyata göre sırala
         liste.sort((c1, c2) -> Double.compare(c2.getFiyat(), c1.getFiyat()));
 
-        // Tüm sekmelerin modellerini temizle
         for (DefaultTableModel model : tableModels.values()) {
             model.setRowCount(0);
         }
 
-        // Listeyi dön ve uygun sekmelere ekle
         for (Cihaz c : liste) {
+            // VIP Müşteriyi tabloda da belirtelim (Görsellik için)
+            String musteriBilgisi = c.getSahip().toString().toUpperCase();
+            if (c.getSahip().isVip()) {
+                musteriBilgisi += " [VIP]";
+            }
+
             Object[] rowData = new Object[]{
                     c.getCihazTuru(),
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    c.getSahip().toString().toUpperCase(),
+                    musteriBilgisi, // Güncellenen bilgi
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             };
@@ -341,39 +334,31 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    // --- YENİ EKLENEN: KONSOL RAPOR METODU (Gereksinim: Madde 5 - Generic/Wildcard) ---
     private void konsolRaporuOlustur() {
         System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
 
-        // 1. GENERIC SINIF KULLANIMI (RaporKutusu<Cihaz>)
-        // Cihaz listesini generic sınıfa veriyoruz.
         RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
 
         System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
         cihazRaporKutusu.listeyiKonsolaYazdir();
 
-        // 2. GENERIC METOT KULLANIMI (<E>)
-        // Herhangi bir nesneyi (String, Integer vs.) yazdırabilir.
         System.out.println("\n[2] SİSTEM MESAJI:");
         cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
-        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now()); // Tarih nesnesi de gönderebiliriz
+        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now());
 
-        // 3. WILDCARD KULLANIMI (List<? extends Number>)
-        // Cihaz fiyatlarını sayısal bir liste olarak toplayıp wildcard metoda gönderiyoruz.
         List<Double> fiyatListesi = new ArrayList<>();
         for (Cihaz c : cihazListesi) {
             fiyatListesi.add(c.getFiyat());
         }
 
-        // Servis ücretleri veya süreleri (Farklı sayısal türde örnek)
         List<Integer> servisSureleri = new ArrayList<>();
         servisSureleri.add(3);
         servisSureleri.add(5);
         servisSureleri.add(14);
 
         System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
-        cihazRaporKutusu.wildcardTest(fiyatListesi);   // Double listesi kabul eder
-        cihazRaporKutusu.wildcardTest(servisSureleri); // Integer listesi kabul eder (? extends Number sayesinde)
+        cihazRaporKutusu.wildcardTest(fiyatListesi);
+        cihazRaporKutusu.wildcardTest(servisSureleri);
 
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }

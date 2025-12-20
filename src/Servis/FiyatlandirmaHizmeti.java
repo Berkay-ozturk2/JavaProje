@@ -2,17 +2,15 @@ package Servis;
 
 public class FiyatlandirmaHizmeti {
 
-    // --- EKLENEN SABİTLER (Gereksinim: byte, short, char, float kullanımı) ---
     public static final byte KDV_ORANI_YUZDE = 20;
     public static final short MIN_SERVIS_UCRETI = 200;
     public static final char PARA_BIRIMI = '₺';
     public static final float INDIRIM_ORANI = 0.15f;
 
-    // --- EKLENEN ÇOK BOYUTLU DİZİ ---
-    // GEREKSİNİM: En az 1 çok boyutlu dizi (String[][] veya double[][])
+    // Satır 0: Normal Müşteri, Satır 1: VIP Müşteri
     private static final double[][] FIYAT_KATSAYILARI = {
-            {1.0, 1.2}, // Standart Müşteri Katsayıları (Normal, Acil)
-            {0.9, 1.0}  // VIP Müşteri Katsayıları (Normal, Acil)
+            {1.0, 1.2}, // Standart Müşteri (Normal, Acil - Acil şu an kullanılmıyor ama yapı hazır)
+            {0.8, 1.0}  // VIP Müşteri (%20 İndirimli)
     };
 
     public static String[] getSorunListesi() {
@@ -30,7 +28,8 @@ public class FiyatlandirmaHizmeti {
         };
     }
 
-    public static double tamirUcretiHesapla(String secilenSorun, double cihazFiyati) {
+    // İmzayı değiştirdik: boolean isVip parametresi eklendi
+    public static double tamirUcretiHesapla(String secilenSorun, double cihazFiyati, boolean isVip) {
         if (secilenSorun == null) return 0.0;
 
         double ucret;
@@ -59,13 +58,15 @@ public class FiyatlandirmaHizmeti {
             ucret = 250.0;
         }
 
-        // Çok boyutlu diziyi sembolik olarak kullanmış olalım (Standart - Normal işlem katsayısı)
-        return ucret * FIYAT_KATSAYILARI[0][0];
+        // DİNAMİK KATSAYI SEÇİMİ
+        // VIP ise 1. satır (indirimli), değilse 0. satır (standart)
+        int musteriTipiIndex = isVip ? 1 : 0;
+
+        // Çok boyutlu diziden katsayıyı çekiyoruz
+        return ucret * FIYAT_KATSAYILARI[musteriTipiIndex][0];
     }
 
-    // --- EKLENEN METOT (Gereksinim: Mod (%) operatörü kullanımı) ---
     public static boolean kampanyaVarMi(int servisId) {
-        // Her 5. serviste bir kampanya olsun
         return (servisId % 5) == 0;
     }
 }

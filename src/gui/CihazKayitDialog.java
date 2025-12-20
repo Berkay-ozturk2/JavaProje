@@ -2,7 +2,7 @@ package gui;
 
 import Cihazlar.*;
 import Musteri.Musteri;
-import Istisnalar.GecersizDegerException; // Yeni eklediğimiz exception
+import Istisnalar.GecersizDegerException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +29,9 @@ public class CihazKayitDialog extends JDialog {
     private JTextField txtMusteriSoyad;
     private JTextField txtMusteriTelefon;
 
+    // --- EKLENEN: VIP Seçim Kutusu ---
+    private JCheckBox chkVip;
+
     private JCheckBox chkEskiTarih;
 
     private final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
@@ -47,7 +50,7 @@ public class CihazKayitDialog extends JDialog {
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı", true);
         this.listener = listener;
-        setSize(500, 650);
+        setSize(500, 700); // Boyut biraz artırıldı
         setLocationRelativeTo(parent);
 
         initModelData();
@@ -154,7 +157,8 @@ public class CihazKayitDialog extends JDialog {
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
-        JPanel generalPanel = new JPanel(new GridLayout(11, 2, 5, 5));
+        // Satır sayısını 1 artırdık (11 -> 12)
+        JPanel generalPanel = new JPanel(new GridLayout(12, 2, 5, 5));
 
         txtMusteriAd = new JTextField();
         generalPanel.add(new JLabel("Müşteri Adı:"));
@@ -167,6 +171,12 @@ public class CihazKayitDialog extends JDialog {
         txtMusteriTelefon = new JTextField("+90");
         generalPanel.add(new JLabel("Telefon ((+90)5..):"));
         generalPanel.add(txtMusteriTelefon);
+
+        // --- EKLENEN: VIP Müşteri Checkbox ---
+        chkVip = new JCheckBox("VIP Müşteri (%20 İndirim)");
+        generalPanel.add(new JLabel("Müşteri Statüsü:"));
+        generalPanel.add(chkVip);
+        // -------------------------------------
 
         generalPanel.add(new JLabel("Cihaz Türü:"));
         String[] turler = {"Telefon", "Tablet", "Laptop"};
@@ -277,7 +287,6 @@ public class CihazKayitDialog extends JDialog {
         }
     }
 
-    // --- DÜZENLENMİŞ KAYDET METODU (ÖZEL EXCEPTION & VALIDASYON İÇERİR) ---
     private void kaydet() {
         try {
             String mAd = txtMusteriAd.getText().trim();
@@ -298,6 +307,11 @@ public class CihazKayitDialog extends JDialog {
 
             // Müşteri nesnesi oluşturma
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
+
+            // --- EKLENEN: VIP Durumunu Set Etme ---
+            sahip.setVip(chkVip.isSelected());
+            // -------------------------------------
+
             String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
             String model = (String) cmbModel.getSelectedItem();

@@ -1,29 +1,33 @@
 package Musteri;
 
-import Istisnalar.GecersizDegerException; // EKLENDİ
+import Istisnalar.GecersizDegerException;
 
 public class Musteri {
     private String ad;
     private String soyad;
     private String telefon;
+    private boolean vip; // YENİ EKLENEN ALAN
 
     public Musteri(String ad, String soyad, String telefon) {
         this.ad = ad;
         this.soyad = soyad;
         this.telefon = telefon;
+        this.vip = false; // Varsayılan olarak false
     }
 
     public Musteri(String ad, String soyad) {
         this(ad, soyad, "Belirtilmedi");
     }
 
+    // --- VIP Getter ve Setter ---
+    public boolean isVip() { return vip; }
+
+    public void setVip(boolean vip) { this.vip = vip; }
+
     public String getAd() { return ad.toUpperCase(); }
     public String getSoyad() { return soyad.toUpperCase(); }
     public String getTelefon() { return telefon; }
 
-    // --- EKLENEN SETTER METOTLARI ---
-
-    // Setter 4: Ad Validasyonu
     public void setAd(String ad) throws GecersizDegerException {
         if (ad == null || ad.length() < 2) {
             throw new GecersizDegerException("Ad en az 2 karakter olmalıdır.");
@@ -31,7 +35,6 @@ public class Musteri {
         this.ad = ad;
     }
 
-    // Setter 5: Soyad Validasyonu
     public void setSoyad(String soyad) throws GecersizDegerException {
         if (soyad == null || soyad.length() < 2) {
             throw new GecersizDegerException("Soyad en az 2 karakter olmalıdır.");
@@ -49,6 +52,7 @@ public class Musteri {
 
     @Override
     public String toString() {
-        return ad + " " + soyad + " (" + telefon + ")";
+        String vipEtiketi = vip ? " [VIP]" : "";
+        return ad + " " + soyad + vipEtiketi + " (" + telefon + ")";
     }
 }

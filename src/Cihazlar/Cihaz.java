@@ -44,6 +44,8 @@ public abstract class Cihaz {
 
     public abstract String toTxtFormat();
 
+    // ... (Önceki importlar ve kodlar aynı)
+
     public static Cihaz fromTxtFormat(String line) {
         try {
             String[] parcalar = line.split(";;");
@@ -56,7 +58,34 @@ public abstract class Cihaz {
             double fiyat = Double.parseDouble(parcalar[4].trim().replace(",", "."));
             LocalDate tarih = LocalDate.parse(parcalar[5].trim());
             int ekstraSure = Integer.parseInt(parcalar[6].trim());
+
+            // Müşteriyi oluştur
             Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
+
+            // --- YENİ: VIP OKUMA MANTIĞI (Geriye dönük uyumluluk ile) ---
+            boolean isVip = false;
+            boolean kalem = false; // Tablet için
+
+            if (tur.equalsIgnoreCase("Tablet")) {
+                // Tablet formatı eskiden 11 parçaydı (sonuncusu kalem), şimdi 12 olacak (VIP + Kalem)
+                if (parcalar.length > 11) {
+                    // Yeni Format: ...;;Tel;;VIP;;Kalem
+                    isVip = Boolean.parseBoolean(parcalar[10].trim());
+                    kalem = Boolean.parseBoolean(parcalar[11].trim());
+                } else if (parcalar.length == 11) {
+                    // Eski Format: ...;;Tel;;Kalem
+                    kalem = Boolean.parseBoolean(parcalar[10].trim());
+                }
+            } else {
+                // Laptop ve Telefon
+                if (parcalar.length > 10) {
+                    // Yeni Format: ...;;Tel;;VIP
+                    isVip = Boolean.parseBoolean(parcalar[10].trim());
+                }
+            }
+
+            musteri.setVip(isVip);
+            // -----------------------------------------------------------
 
             Cihaz cihaz = null;
             if (tur.equalsIgnoreCase("Telefon")) {
@@ -64,10 +93,6 @@ public abstract class Cihaz {
             } else if (tur.equalsIgnoreCase("Laptop")) {
                 cihaz = new Laptop(seriNo, marka, model, fiyat, tarih, musteri);
             } else if (tur.equalsIgnoreCase("Tablet")) {
-                boolean kalem = false;
-                if (parcalar.length > 10) {
-                    kalem = Boolean.parseBoolean(parcalar[10].trim());
-                }
                 cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
             }
 
@@ -80,6 +105,7 @@ public abstract class Cihaz {
             return null;
         }
     }
+    // ... (Geri kalan kodlar aynı)
 
     public static List<Cihaz> verileriYukle(String dosyaAdi) {
         List<Cihaz> liste = new ArrayList<>();

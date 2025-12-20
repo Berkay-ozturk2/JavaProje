@@ -7,3 +7,6 @@ TEL-8407;;Telefon;;Apple;;iPhone 13;;Yazılım/Format;;2025-12-20;;Kabul Edildi;
 TEL-8407;;Telefon;;Apple;;iPhone 13;;Kamera Arızası;;2025-12-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok
 LAP-3445;;Laptop;;Lenovo;;IdeaPad 5 Pro;;Anakart/Sıvı Teması;;2025-12-20;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
 LAP-9742;;Laptop;;HP;;Victus 16;;Dokunmatik Arızası;;2025-12-20;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
+TEL-2176;;Telefon;;Samsung;;Galaxy Flip 5;;Batarya/Pil Değişimi;;2025-12-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok
+TEL-8577;;Telefon;;Samsung;;Galaxy S24 Ultra;;Batarya/Pil Değişimi;;2025-12-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok
+TEL-4839;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-12-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok

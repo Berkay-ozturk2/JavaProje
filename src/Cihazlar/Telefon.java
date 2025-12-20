@@ -12,10 +12,11 @@ public class Telefon extends Cihaz {
 
     @Override
     public String toTxtFormat() {
-        return String.format("Telefon;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s",
+        return String.format("Telefon;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
                 getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
                 getEkstraGarantiSuresiAy(),
-                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon());
+                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
+                getSahip().isVip()); // EKLENDİ
     }
 
     @Override

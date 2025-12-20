@@ -19,10 +19,12 @@ public class Tablet extends Cihaz {
 
     @Override
     public String toTxtFormat() {
-        return String.format("Tablet;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
+        // Dikkat: VIP, Kalem bilgisinden önce gelsin ki standart korunsun
+        return String.format("Tablet;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b;;%b",
                 getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
                 getEkstraGarantiSuresiAy(),
                 getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
+                getSahip().isVip(), // EKLENDİ
                 kalemDestegi);
     }
 
