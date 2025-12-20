@@ -3,10 +3,9 @@ package gui;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
 import Servis.FiyatlandirmaHizmeti;
-import Servis.RaporlamaHizmeti; // YENİ EKLENDİ
+import Servis.RaporlamaHizmeti;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
-import Servis.Teknisyen;
 import Servis.TeknisyenDeposu;
 
 import javax.swing.*;
@@ -39,7 +38,6 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Verileri yükle
         cihazListesi = Cihaz.verileriYukle(CIHAZ_DOSYA_ADI);
         servisYonetimi = new ServisYonetimi(cihazListesi);
 
@@ -164,30 +162,21 @@ public class Main extends JFrame implements CihazEkleListener {
         if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
             String secilenSorun = (String) sorunComboBox.getSelectedItem();
 
-            double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(
-                    secilenSorun,
-                    selectedCihaz.getFiyat(),
-                    selectedCihaz.getSahip().isVip()
-            );
+            // MANTIK GUI'DEN SERVİS KATMANINA TAŞINDI
+            // Artık sadece sonucu gösteriyoruz.
+            ServisKaydi yeniKayit = servisYonetimi.yeniServisKaydiOlustur(selectedCihaz, secilenSorun);
 
-            double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
-            String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
+            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), 20);
 
-            int tahminiIsGunu = 20;
-            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), tahminiIsGunu);
-
-            ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
-            yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
-
-            Teknisyen atananTeknisyen = TeknisyenDeposu.uzmanligaGoreGetir(selectedCihaz.getCihazTuru());
-            yeniKayit.setAtananTeknisyen(atananTeknisyen);
-
-            servisYonetimi.servisKaydiEkle(yeniKayit);
+            // Fiyatlandırma için ham ücreti tekrar hesaplayabiliriz veya servisten dönebilirdik ama
+            // kullanıcıya bilgi göstermek için basitçe tekrar çekiyoruz veya kayıttan okuyoruz.
+            double musteriOdeyecek = yeniKayit.getOdenecekTamirUcreti();
+            String teknisyenAdi = yeniKayit.getAtananTeknisyen().getAd();
 
             JOptionPane.showMessageDialog(this,
-                    String.format("Kayıt Başarılı!\nSorun: %s\nListe Fiyatı: %.2f TL\nÖdenecek Tutar: %.2f TL\n" +
+                    String.format("Kayıt Başarılı!\nSorun: %s\nÖdenecek Tutar: %.2f TL\n" +
                                     "Teknisyen: %s\nTahmini Teslim: %s",
-                            temizSorunAdi, hamUcret, musteriOdeyecek, atananTeknisyen.getAd(), tahminiTeslim));
+                            yeniKayit.getSorunAciklamasi(), musteriOdeyecek, teknisyenAdi, tahminiTeslim));
         }
     }
 
@@ -306,11 +295,8 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    // --- DEĞİŞTİRİLEN METOT ---
-    // Artık mantık RaporlamaHizmeti'nde.
     private void konsolRaporuOlustur() {
         RaporlamaHizmeti.konsolRaporuOlustur(cihazListesi);
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }
 }
-//yotummmmm
