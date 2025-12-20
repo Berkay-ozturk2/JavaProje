@@ -5,9 +5,6 @@ import Musteri.Musteri;
 import Garantiler.*;
 import Istisnalar.GecersizDegerException;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public abstract class Cihaz {
@@ -28,7 +25,6 @@ public abstract class Cihaz {
 
         LocalDate baslangic;
         if (garantiBaslangic == null) {
-            // Garanti sınıfındaki statik metot kullanılıyor
             baslangic = Garanti.rastgeleBaslangicOlustur(getGarantiSuresiYil());
         } else {
             baslangic = garantiBaslangic;
@@ -36,7 +32,7 @@ public abstract class Cihaz {
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
-    // --- GUI'DEN TAŞINAN METOT ---
+    // Bu metot model ile ilgili olduğu için burada kalabilir
     public static String rastgeleSeriNoUret(String tur) {
         String prefix = switch (tur) {
             case "Telefon" -> "TEL";
@@ -53,8 +49,10 @@ public abstract class Cihaz {
         return prefix + "-" + sb.toString();
     }
 
+    // Veriyi metne çevirme (Serileştirme) işi modelin sorumluluğunda olabilir
     public abstract String toTxtFormat();
 
+    // Metni veriye çevirme (Deserileştirme) işi modelin sorumluluğunda olabilir
     public static Cihaz fromTxtFormat(String line) {
         try {
             String[] parcalar = line.split(";;");
@@ -107,36 +105,7 @@ public abstract class Cihaz {
         }
     }
 
-    public static List<Cihaz> verileriYukle(String dosyaAdi) {
-        List<Cihaz> liste = new ArrayList<>();
-        File dosya = new File(dosyaAdi);
-        if (!dosya.exists()) return liste;
-
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(dosya), "UTF-8"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    Cihaz c = fromTxtFormat(line);
-                    if (c != null) liste.add(c);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Dosya okuma hatası: " + e.getMessage());
-        }
-        return liste;
-    }
-
-    // --- YENİ EKLENEN METOT (Dosya Yazma İşlemi Main'den Taşındı) ---
-    public static void verileriKaydet(List<Cihaz> liste, String dosyaAdi) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(dosyaAdi), "UTF-8"))) {
-            for (Cihaz c : liste) {
-                bw.write(c.toTxtFormat());
-                bw.newLine();
-            }
-        }
-    }
+    // --- SİLİNEN METOTLAR: verileriYukle ve verileriKaydet (DosyaIslemleri'ne taşındı) ---
 
     // Getter & Setter
     public String getSeriNo() { return seriNo; }

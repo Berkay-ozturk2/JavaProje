@@ -1,5 +1,6 @@
 package Servis;
 
+import Araclar.DosyaIslemleri; // YENİ IMPORT
 import Araclar.RaporKutusu;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
@@ -57,9 +58,11 @@ public class RaporlamaHizmeti {
         StringBuilder rapor = new StringBuilder();
 
         // Veri Yükleme
-        // Not: Normalde dosya yolu dışarıdan parametre gelmeli ama yapıyı bozmamak için sabit bırakıyoruz.
         String dosyaYolu = System.getProperty("user.dir") + System.getProperty("file.separator") + "cihazlar.txt";
-        List<Cihaz> cihazlar = Cihaz.verileriYukle(dosyaYolu);
+
+        // DEĞİŞİKLİK: DosyaIslemleri üzerinden yükleniyor
+        List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
+
         Cihaz bulunanCihaz = null;
 
         for (Cihaz c : cihazlar) {

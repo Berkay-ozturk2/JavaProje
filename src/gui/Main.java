@@ -1,5 +1,6 @@
 package gui;
 
+import Araclar.DosyaIslemleri; // YENİ IMPORT: Dosya işlemleri için
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
 import Servis.FiyatlandirmaHizmeti;
@@ -26,6 +27,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
     private List<Cihaz> cihazListesi = new ArrayList<>();
 
+    // Dosya yolu platform bağımsız olarak alınıyor
     private static final String CIHAZ_DOSYA_ADI = System.getProperty("user.dir") +
             System.getProperty("file.separator") +
             "cihazlar.txt";
@@ -38,7 +40,10 @@ public class Main extends JFrame implements CihazEkleListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        cihazListesi = Cihaz.verileriYukle(CIHAZ_DOSYA_ADI);
+        // DEĞİŞİKLİK: Verileri yükleme işlemi artık DosyaIslemleri üzerinden yapılıyor
+        // Eski yöntem: cihazListesi = Cihaz.verileriYukle(CIHAZ_DOSYA_ADI);
+        cihazListesi = DosyaIslemleri.cihazlariYukle(CIHAZ_DOSYA_ADI);
+
         servisYonetimi = new ServisYonetimi(cihazListesi);
 
         initUI();
@@ -250,7 +255,8 @@ public class Main extends JFrame implements CihazEkleListener {
 
     private void cihazKaydet(List<Cihaz> liste) {
         try {
-            Cihaz.verileriKaydet(liste, CIHAZ_DOSYA_ADI);
+            // DEĞİŞİKLİK: Kaydetme işlemi artık DosyaIslemleri üzerinden yapılıyor
+            DosyaIslemleri.cihazlariKaydet(liste, CIHAZ_DOSYA_ADI);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
         }
