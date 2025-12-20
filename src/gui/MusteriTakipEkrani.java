@@ -1,13 +1,14 @@
 package gui;
 
-import Araclar.TarihYardimcisi; // EKLENDİ
+import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
+import Istisnalar.KayitBulunamadiException; // KayitBulunamadiException import edildi
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate; // EKLENDİ
+import java.time.LocalDate;
 import java.util.List;
 
 public class MusteriTakipEkrani extends JFrame {
@@ -17,7 +18,7 @@ public class MusteriTakipEkrani extends JFrame {
 
     public MusteriTakipEkrani() {
         setTitle("Cihaz Durum Sorgulama");
-        setSize(500, 450); // Tarih eklenince sığması için boyutu biraz artırdık
+        setSize(500, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -40,10 +41,7 @@ public class MusteriTakipEkrani extends JFrame {
         txtBilgiEkrani.setFont(new Font("Monospaced", Font.PLAIN, 13));
         txtBilgiEkrani.setMargin(new Insets(10, 10, 10, 10));
 
-        // Mevcut: Butona tıklama aksiyonu
         btnSorgula.addActionListener(e -> sorgula());
-
-        // --- EKLENEN: Enter tuşuna basınca sorgulama aksiyonu ---
         txtSeriNo.addActionListener(e -> sorgula());
 
         add(panelArama, BorderLayout.NORTH);
@@ -58,22 +56,28 @@ public class MusteriTakipEkrani extends JFrame {
         }
 
         txtBilgiEkrani.setText("Sorgulanıyor...");
-        StringBuilder rapor = new StringBuilder();
-        boolean cihazBulundu = false;
 
-        // 1. ADIM: Cihazları Yükle
-        List<Cihaz> cihazlar = Cihaz.verileriYukle("cihazlar.txt");
-        Cihaz bulunanCihaz = null;
+        try { // Hata yönetimi için try-catch bloğu eklendi
+            StringBuilder rapor = new StringBuilder();
 
-        for (Cihaz c : cihazlar) {
-            if (c.getSeriNo().equalsIgnoreCase(arananSeriNo)) {
-                bulunanCihaz = c;
-                cihazBulundu = true;
-                break;
+            // 1. ADIM: Cihazları Yükle
+            List<Cihaz> cihazlar = Cihaz.verileriYukle("cihazlar.txt");
+            Cihaz bulunanCihaz = null;
+
+            for (Cihaz c : cihazlar) {
+                if (c.getSeriNo().equalsIgnoreCase(arananSeriNo)) {
+                    bulunanCihaz = c;
+                    break;
+                }
             }
-        }
 
-        if (bulunanCihaz != null) {
+            // --- KayitBulunamadiException Kullanımı ---
+            if (bulunanCihaz == null) {
+                // Seri No eşleşmezse özel istisna fırlatılır
+                throw new KayitBulunamadiException("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz.");
+            }
+
+            // Cihaz bulunduysa rapor oluşturulur
             rapor.append("=== CİHAZ BİLGİLERİ ===\n");
             rapor.append("Sayın ").append(bulunanCihaz.getSahip().getAd())
                     .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append(",\n");
@@ -83,42 +87,41 @@ public class MusteriTakipEkrani extends JFrame {
             String garantiDurumu = bulunanCihaz.isGarantiAktif() ? "AKTİF" : "BİTMİŞ";
             rapor.append("Garanti Durumu: ").append(garantiDurumu).append("\n");
             rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
-        }
 
-        // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir
-        ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
+            // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir
+            ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
 
-        ServisKaydi bulunanKayit = null;
-        for (ServisKaydi k : servisYonetimi.getKayitlar()) {
-            if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
-                bulunanKayit = k;
-                break;
+            ServisKaydi bulunanKayit = null;
+            for (ServisKaydi k : servisYonetimi.getKayitlar()) {
+                if (k.getCihaz().getSeriNo().equalsIgnoreCase(arananSeriNo)) {
+                    bulunanKayit = k;
+                    break;
+                }
             }
-        }
 
-        if (bulunanKayit != null) {
-            rapor.append(bulunanKayit.detayliRaporVer());
+            if (bulunanKayit != null) {
+                rapor.append(bulunanKayit.detayliRaporVer());
 
-            // --- YENİ EKLENEN KISIM: TAHMİNİ TESLİM TARİHİ ---
-            // Main'de yaptığımız gibi giriş tarihine 20 iş günü ekliyoruz.
-            // Dosyaya kaydetmesek bile her sorgulamada yeniden hesaplayarak müşteriye gösteriyoruz.
-            LocalDate giris = bulunanKayit.getGirisTarihi();
-            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(giris, 20);
+                LocalDate giris = bulunanKayit.getGirisTarihi();
+                LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(giris, 20);
 
-            rapor.append("\n----------------------------------\n");
-            rapor.append("TAHMİNİ TESLİM TARİHİ: ").append(tahminiTeslim).append("\n");
-            rapor.append("(İşlem süresi standart 20 iş günüdür.)\n");
-            // ------------------------------------------------
+                rapor.append("\n----------------------------------\n");
+                rapor.append("TAHMİNİ TESLİM TARİHİ: ").append(tahminiTeslim).append("\n");
+                rapor.append("(İşlem süresi standart 20 iş günüdür.)\n");
 
-        } else if (cihazBulundu) {
-            rapor.append("=== SERVİS DURUMU ===\n");
-            rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
-        }
+            } else {
+                rapor.append("=== SERVİS DURUMU ===\n");
+                rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
+            }
 
-        if (!cihazBulundu) {
-            txtBilgiEkrani.setText("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz.");
-        } else {
             txtBilgiEkrani.setText(rapor.toString());
+
+        } catch (KayitBulunamadiException ex) {
+            // Yakalanan özel hata mesajı bilgi ekranına yazdırılır
+            txtBilgiEkrani.setText(ex.getMessage());
+        } catch (Exception ex) {
+            // Diğer beklenmedik hatalar için genel yakalama
+            txtBilgiEkrani.setText("Beklenmeyen bir hata oluştu: " + ex.getMessage());
         }
     }
 }
