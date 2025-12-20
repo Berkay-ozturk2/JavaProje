@@ -10,14 +10,7 @@ public class Laptop extends Cihaz {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
 
-    @Override
-    public String toTxtFormat() {
-        return String.format("Laptop;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
-                getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
-                getEkstraGarantiSuresiAy(),
-                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
-                getSahip().isVip()); // EKLENDİ
-    }
+    // toTxtFormat kaldırıldı -> Araclar.Formatlayici kullanılıyor.
 
     @Override
     public int getGarantiSuresiYil() {
@@ -28,5 +21,4 @@ public class Laptop extends Cihaz {
     public String getCihazTuru() {
         return "Laptop";
     }
-
 }

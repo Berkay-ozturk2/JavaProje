@@ -2,6 +2,8 @@ package Servis;
 
 import Cihazlar.Cihaz;
 import Arayuzler.VeriIslemleri;
+import Araclar.Formatlayici; // YENİ IMPORT
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,36 +29,23 @@ public class ServisYonetimi implements VeriIslemleri {
         Kaydet();
     }
 
-    // --- GUI'DEN TAŞINAN İŞ MANTIĞI ---
-    /**
-     * Cihaz ve sorun bilgisini alıp, tüm hesaplamaları yaparak (Fiyat, Teknisyen, vb.)
-     * yeni bir servis kaydı oluşturur ve sisteme ekler.
-     */
     public ServisKaydi yeniServisKaydiOlustur(Cihaz cihaz, String hamSorunMetni) {
-        // 1. Sorun adını temizle (Örn: "Ekran Kırık (Fiyat %20)" -> "Ekran Kırık")
         String temizSorunAdi = hamSorunMetni.split("\\(")[0].trim();
 
-        // 2. Fiyat Hesapla
         double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(
                 hamSorunMetni,
                 cihaz.getFiyat(),
                 cihaz.getSahip().isVip()
         );
 
-        // 3. Garanti Kontrolü ve Son Fiyat
         double musteriOdeyecek = cihaz.getGaranti().sonMaliyetHesapla(hamUcret);
-
-        // 4. Teknisyen Ata
         Teknisyen atananTeknisyen = TeknisyenDeposu.uzmanligaGoreGetir(cihaz.getCihazTuru());
 
-        // 5. Kaydı Oluştur
         ServisKaydi yeniKayit = new ServisKaydi(cihaz, temizSorunAdi);
         yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
         yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
-        // 6. Listeye Ekle ve Kaydet
         servisKaydiEkle(yeniKayit);
-
         return yeniKayit;
     }
 
@@ -67,7 +56,8 @@ public class ServisYonetimi implements VeriIslemleri {
     public void Kaydet() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(DOSYA_ADI))) {
             for (ServisKaydi k : kayitlar) {
-                bw.write(k.toTxtFormat());
+                // DEĞİŞİKLİK: Formatlayici kullanımı
+                bw.write(Formatlayici.servisKaydiMetneDonustur(k));
                 bw.newLine();
             }
         } catch (IOException e) {
@@ -84,25 +74,21 @@ public class ServisYonetimi implements VeriIslemleri {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (!line.trim().isEmpty()) {
-                        ServisKaydi k = ServisKaydi.fromTxtFormat(line, this.cihazListesiRef);
+                        // DEĞİŞİKLİK: Formatlayici kullanımı
+                        ServisKaydi k = Formatlayici.metniServisKaydinaDonustur(line, this.cihazListesiRef);
                         if (k != null) kayitlar.add(k);
                     }
                 }
             } catch (IOException e) {
                 System.err.println("Yükleme hatası.");
             } finally {
-                System.out.println("Servis verileri yükleme işlemi tamamlandı (Başarılı veya Hatalı).");
+                System.out.println("Servis verileri yükleme işlemi tamamlandı.");
             }
         }
     }
 
     @Override
     public void verileriTemizle() {
-        int i = 0;
-        do {
-            i++;
-        } while (i < 1);
-
         kayitlar.clear();
         Kaydet();
         System.out.println("Tüm servis kayıtları ve dosya içeriği temizlendi.");

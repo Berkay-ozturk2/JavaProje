@@ -5,8 +5,6 @@ import Musteri.Musteri;
 import Garantiler.*;
 import Istisnalar.GecersizDegerException;
 
-import java.util.Random;
-
 public abstract class Cihaz {
     private String seriNo;
     private String marka;
@@ -32,80 +30,9 @@ public abstract class Cihaz {
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
-    // Bu metot model ile ilgili olduğu için burada kalabilir
-    public static String rastgeleSeriNoUret(String tur) {
-        String prefix = switch (tur) {
-            case "Telefon" -> "TEL";
-            case "Tablet" -> "TAB";
-            case "Laptop" -> "LAP";
-            default -> "DEV";
-        };
-        Random rnd = new Random();
-        StringBuilder sb = new StringBuilder();
-        String chars = "0123456789";
-        for (int i = 0; i < 4; i++) {
-            sb.append(chars.charAt(rnd.nextInt(chars.length())));
-        }
-        return prefix + "-" + sb.toString();
-    }
-
-    // Veriyi metne çevirme (Serileştirme) işi modelin sorumluluğunda olabilir
-    public abstract String toTxtFormat();
-
-    // Metni veriye çevirme (Deserileştirme) işi modelin sorumluluğunda olabilir
-    public static Cihaz fromTxtFormat(String line) {
-        try {
-            String[] parcalar = line.split(";;");
-            if (parcalar.length < 10) return null;
-
-            String tur = parcalar[0].trim();
-            String seriNo = parcalar[1].trim();
-            String marka = parcalar[2].trim();
-            String model = parcalar[3].trim();
-            double fiyat = Double.parseDouble(parcalar[4].trim().replace(",", "."));
-            LocalDate tarih = LocalDate.parse(parcalar[5].trim());
-            int ekstraSure = Integer.parseInt(parcalar[6].trim());
-
-            Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
-
-            boolean isVip = false;
-            boolean kalem = false;
-
-            if (tur.equalsIgnoreCase("Tablet")) {
-                if (parcalar.length > 11) {
-                    isVip = Boolean.parseBoolean(parcalar[10].trim());
-                    kalem = Boolean.parseBoolean(parcalar[11].trim());
-                } else if (parcalar.length == 11) {
-                    kalem = Boolean.parseBoolean(parcalar[10].trim());
-                }
-            } else {
-                if (parcalar.length > 10) {
-                    isVip = Boolean.parseBoolean(parcalar[10].trim());
-                }
-            }
-
-            musteri.setVip(isVip);
-
-            Cihaz cihaz = null;
-            if (tur.equalsIgnoreCase("Telefon")) {
-                cihaz = new Telefon(seriNo, marka, model, fiyat, tarih, musteri);
-            } else if (tur.equalsIgnoreCase("Laptop")) {
-                cihaz = new Laptop(seriNo, marka, model, fiyat, tarih, musteri);
-            } else if (tur.equalsIgnoreCase("Tablet")) {
-                cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
-            }
-
-            if (cihaz != null && ekstraSure > 0) {
-                cihaz.garantiUzat(ekstraSure);
-            }
-            return cihaz;
-        } catch (Exception e) {
-            System.err.println("Cihaz okuma hatası: " + e.getMessage());
-            return null;
-        }
-    }
-
-    // --- SİLİNEN METOTLAR: verileriYukle ve verileriKaydet (DosyaIslemleri'ne taşındı) ---
+    // --- KALDIRILAN METOTLAR ---
+    // rastgeleSeriNoUret -> Araclar.KodUretici sınıfına taşındı.
+    // toTxtFormat ve fromTxtFormat -> Araclar.Formatlayici sınıfına taşındı.
 
     // Getter & Setter
     public String getSeriNo() { return seriNo; }

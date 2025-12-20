@@ -10,14 +10,7 @@ public class Telefon extends Cihaz {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
 
-    @Override
-    public String toTxtFormat() {
-        return String.format("Telefon;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
-                getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
-                getEkstraGarantiSuresiAy(),
-                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
-                getSahip().isVip()); // EKLENDİ
-    }
+    // toTxtFormat kaldırıldı -> Araclar.Formatlayici kullanılıyor.
 
     @Override
     public int getGarantiSuresiYil() {

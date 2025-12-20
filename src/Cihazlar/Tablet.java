@@ -12,21 +12,11 @@ public class Tablet extends Cihaz {
         this.kalemDestegi = kalemDestegi;
     }
 
-    // Private getter yerine sınıf içi erişim de mümkün ama dışarıdan erişim için:
     public boolean getKalemDestegi() {
         return kalemDestegi;
     }
 
-    @Override
-    public String toTxtFormat() {
-        // Dikkat: VIP, Kalem bilgisinden önce gelsin ki standart korunsun
-        return String.format("Tablet;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b;;%b",
-                getSeriNo(), getMarka(), getModel(), getFiyat(), getGarantiBaslangic(),
-                getEkstraGarantiSuresiAy(),
-                getSahip().getAd(), getSahip().getSoyad(), getSahip().getTelefon(),
-                getSahip().isVip(), // EKLENDİ
-                kalemDestegi);
-    }
+    // toTxtFormat kaldırıldı -> Araclar.Formatlayici kullanılıyor.
 
     @Override
     public int getGarantiSuresiYil() {

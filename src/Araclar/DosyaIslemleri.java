@@ -20,8 +20,8 @@ public class DosyaIslemleri {
             String line;
             while ((line = br.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
-                    // Cihaz sınıfındaki fabrika metodunu kullanmaya devam ediyoruz
-                    Cihaz c = Cihaz.fromTxtFormat(line);
+                    // DEĞİŞİKLİK: Artık Formatlayici sınıfı kullanılıyor
+                    Cihaz c = Formatlayici.metniCihazaDonustur(line);
                     if (c != null) liste.add(c);
                 }
             }
@@ -38,7 +38,8 @@ public class DosyaIslemleri {
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(dosyaAdi), "UTF-8"))) {
             for (Cihaz c : liste) {
-                bw.write(c.toTxtFormat());
+                // DEĞİŞİKLİK: Artık Formatlayici sınıfı kullanılıyor
+                bw.write(Formatlayici.cihazMetneDonustur(c));
                 bw.newLine();
             }
         }
