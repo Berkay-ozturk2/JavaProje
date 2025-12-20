@@ -363,3 +363,4 @@ public class Main extends JFrame implements CihazEkleListener {
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }
 }
+//yine hatalandık
