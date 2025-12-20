@@ -1,5 +1,7 @@
 package gui;
 
+import Araclar.RaporKutusu;      // YENİ EKLENDİ
+import Araclar.TarihYardimcisi;  // YENİ EKLENDİ
 import Cihazlar.Cihaz;
 import Garantiler.UzatilmisGaranti;
 import Servis.FiyatlandirmaHizmeti;
@@ -12,6 +14,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime; // YENİ EKLENDİ
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +39,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
     public Main() {
         setTitle("Teknolojik Cihaz Garanti & Servis Takip Sistemi");
-        setSize(1200, 650);
+        setSize(1250, 700); // Biraz genişletildi
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -45,6 +49,9 @@ public class Main extends JFrame implements CihazEkleListener {
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
+
+        // Başlangıçta konsola bir generic test mesajı atalım (Opsiyonel)
+        System.out.println("Sistem başlatıldı. Cihaz sayısı: " + cihazListesi.size());
     }
 
     @Override
@@ -97,7 +104,12 @@ public class Main extends JFrame implements CihazEkleListener {
         btnSil.addActionListener(e -> cihazSilIslemi());
         panelAltYonetim.add(btnSil);
 
-        // 6. Geri Dön
+        // 6. Konsol Raporu Al (YENİ EKLENEN - Generic/Wildcard Gösterimi İçin)
+        JButton btnRaporla = createStyledButton("Konsol Raporu Al", new Color(36, 89, 69), Color.WHITE, btnFont);
+        btnRaporla.addActionListener(e -> konsolRaporuOlustur());
+        panelAltYonetim.add(btnRaporla);
+
+        // 7. Geri Dön
         JButton btnGeriDon = createStyledButton("Geri Dön", new Color(146, 43, 33), Color.WHITE, btnFont);
         btnGeriDon.addActionListener(e -> {
             new GirisEkrani().setVisible(true);
@@ -106,7 +118,6 @@ public class Main extends JFrame implements CihazEkleListener {
         panelAltYonetim.add(btnGeriDon);
 
         // --- YERLEŞİM ---
-        // Tablo yerine artık Sekmeli Panel (tabbedPane) var
         add(tabbedPane, BorderLayout.CENTER);
         add(panelAltYonetim, BorderLayout.SOUTH);
     }
@@ -124,7 +135,7 @@ public class Main extends JFrame implements CihazEkleListener {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // Listelere kaydet (Daha sonra erişmek için)
+        // Listelere kaydet
         tableModels.put(title, model);
         tables.put(title, table);
 
@@ -140,8 +151,6 @@ public class Main extends JFrame implements CihazEkleListener {
         int selectedRow = activeTable.getSelectedRow();
         if (selectedRow < 0) return null;
 
-        // Tablodaki "Seri No" sütununu (indeks 3) alarak gerçek cihazı buluyoruz.
-        // Bu yöntem, filtreleme veya sıralama olsa bile her zaman doğru cihazı bulur.
         String seriNo = (String) activeTable.getValueAt(selectedRow, 3);
 
         for (Cihaz c : cihazListesi) {
@@ -174,6 +183,17 @@ public class Main extends JFrame implements CihazEkleListener {
             double musteriOdeyecek = selectedCihaz.getGaranti().sonMaliyetHesapla(hamUcret);
             String temizSorunAdi = secilenSorun.split("\\(")[0].trim();
 
+            // --- YENİ EKLENEN: TARİH YARDIMCISI KULLANIMI (Gereksinim: Madde 6) ---
+            // Tüm arızalar için standart 20 iş günü (Yaklaşık 1 takvim ayı sürer)
+            // Bu sayede araya giren hafta sonlarının atlandığı net şekilde görülebilir.
+            int tahminiIsGunu = 20;
+            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), tahminiIsGunu);
+
+            // Konsola bilgi vererek hocaya bu sınıfın çalıştığını kanıtlıyoruz
+            System.out.println("[TarihYardimcisi] 20 İş günü sonrası hesaplanıyor...");
+            System.out.println("Tahmini teslim tarihi: " + tahminiTeslim);
+            // ---------------------------------------------------------------------
+
             ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
             yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
@@ -183,8 +203,9 @@ public class Main extends JFrame implements CihazEkleListener {
             servisYonetimi.servisKaydiEkle(yeniKayit);
 
             JOptionPane.showMessageDialog(this,
-                    String.format("Kayıt Başarılı!\nSorun: %s\nListe Fiyatı: %.2f TL\nÖdenecek Tutar: %.2f TL\nTeknisyen: %s",
-                            temizSorunAdi, hamUcret, musteriOdeyecek, atananTeknisyen.getAd()));
+                    String.format("Kayıt Başarılı!\nSorun: %s\nListe Fiyatı: %.2f TL\nÖdenecek Tutar: %.2f TL\n" +
+                                    "Teknisyen: %s\nTahmini Teslim: %s",
+                            temizSorunAdi, hamUcret, musteriOdeyecek, atananTeknisyen.getAd(), tahminiTeslim));
         }
     }
 
@@ -248,7 +269,6 @@ public class Main extends JFrame implements CihazEkleListener {
             if (confirm == JOptionPane.YES_OPTION) {
                 cihazListesi.remove(silinecekCihaz);
                 cihazKaydet(cihazListesi);
-                // Tüm sekmeleri güncellememiz lazım
                 cihazListesiniTabloyaDoldur(cihazListesi);
             }
         } else {
@@ -263,8 +283,15 @@ public class Main extends JFrame implements CihazEkleListener {
                 bw.write(c.toTxtFormat());
                 bw.newLine();
             }
+        }
+        // --- YENİ EKLENEN: ÇOKLU CATCH YAPISI (Gereksinim: Madde 7 - En az 2 yerde gerekli) ---
+        // Birincisi CihazKayitDialog'da idi, ikincisi burada.
+        catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Dosya bulunamadı: " + e.getMessage());
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Beklenmeyen hata: " + e.getMessage());
         }
     }
 
@@ -305,14 +332,49 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getGarantiBitisTarihi()
             };
 
-            // 1. "Tümü" sekmesine her zaman ekle
             tableModels.get("Tümü").addRow(rowData);
 
-            // 2. Kendi türündeki sekmeye ekle (Telefon, Tablet, Laptop)
-            String tur = c.getCihazTuru(); // "Telefon", "Tablet" veya "Laptop" döner
+            String tur = c.getCihazTuru();
             if (tableModels.containsKey(tur)) {
                 tableModels.get(tur).addRow(rowData);
             }
         }
+    }
+
+    // --- YENİ EKLENEN: KONSOL RAPOR METODU (Gereksinim: Madde 5 - Generic/Wildcard) ---
+    private void konsolRaporuOlustur() {
+        System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
+
+        // 1. GENERIC SINIF KULLANIMI (RaporKutusu<Cihaz>)
+        // Cihaz listesini generic sınıfa veriyoruz.
+        RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
+
+        System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
+        cihazRaporKutusu.listeyiKonsolaYazdir();
+
+        // 2. GENERIC METOT KULLANIMI (<E>)
+        // Herhangi bir nesneyi (String, Integer vs.) yazdırabilir.
+        System.out.println("\n[2] SİSTEM MESAJI:");
+        cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
+        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now()); // Tarih nesnesi de gönderebiliriz
+
+        // 3. WILDCARD KULLANIMI (List<? extends Number>)
+        // Cihaz fiyatlarını sayısal bir liste olarak toplayıp wildcard metoda gönderiyoruz.
+        List<Double> fiyatListesi = new ArrayList<>();
+        for (Cihaz c : cihazListesi) {
+            fiyatListesi.add(c.getFiyat());
+        }
+
+        // Servis ücretleri veya süreleri (Farklı sayısal türde örnek)
+        List<Integer> servisSureleri = new ArrayList<>();
+        servisSureleri.add(3);
+        servisSureleri.add(5);
+        servisSureleri.add(14);
+
+        System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
+        cihazRaporKutusu.wildcardTest(fiyatListesi);   // Double listesi kabul eder
+        cihazRaporKutusu.wildcardTest(servisSureleri); // Integer listesi kabul eder (? extends Number sayesinde)
+
+        JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }
 }

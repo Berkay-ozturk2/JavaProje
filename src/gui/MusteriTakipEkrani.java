@@ -1,11 +1,13 @@
 package gui;
 
+import Araclar.TarihYardimcisi; // EKLENDİ
 import Cihazlar.Cihaz;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate; // EKLENDİ
 import java.util.List;
 
 public class MusteriTakipEkrani extends JFrame {
@@ -15,7 +17,7 @@ public class MusteriTakipEkrani extends JFrame {
 
     public MusteriTakipEkrani() {
         setTitle("Cihaz Durum Sorgulama");
-        setSize(500, 400);
+        setSize(500, 450); // Tarih eklenince sığması için boyutu biraz artırdık
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -59,7 +61,7 @@ public class MusteriTakipEkrani extends JFrame {
         StringBuilder rapor = new StringBuilder();
         boolean cihazBulundu = false;
 
-        // 1. ADIM: Cihazları Yükle (Merkezi metot kullanımı)
+        // 1. ADIM: Cihazları Yükle
         List<Cihaz> cihazlar = Cihaz.verileriYukle("cihazlar.txt");
         Cihaz bulunanCihaz = null;
 
@@ -84,9 +86,7 @@ public class MusteriTakipEkrani extends JFrame {
         }
 
         // 2. ADIM: Servis Kayıtlarını Yükle ve Eşleştir
-        // --- DÜZELTME: ServisYonetimi'ne cihaz listesini veriyoruz ---
         ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
-        // servisYonetimi.cihazBilgileriniEslestir(cihazlar); // BU SATIR SİLİNDİ
 
         ServisKaydi bulunanKayit = null;
         for (ServisKaydi k : servisYonetimi.getKayitlar()) {
@@ -97,8 +97,19 @@ public class MusteriTakipEkrani extends JFrame {
         }
 
         if (bulunanKayit != null) {
-            rapor.append("\n");
             rapor.append(bulunanKayit.detayliRaporVer());
+
+            // --- YENİ EKLENEN KISIM: TAHMİNİ TESLİM TARİHİ ---
+            // Main'de yaptığımız gibi giriş tarihine 20 iş günü ekliyoruz.
+            // Dosyaya kaydetmesek bile her sorgulamada yeniden hesaplayarak müşteriye gösteriyoruz.
+            LocalDate giris = bulunanKayit.getGirisTarihi();
+            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(giris, 20);
+
+            rapor.append("\n----------------------------------\n");
+            rapor.append("TAHMİNİ TESLİM TARİHİ: ").append(tahminiTeslim).append("\n");
+            rapor.append("(İşlem süresi standart 20 iş günüdür.)\n");
+            // ------------------------------------------------
+
         } else if (cihazBulundu) {
             rapor.append("=== SERVİS DURUMU ===\n");
             rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
