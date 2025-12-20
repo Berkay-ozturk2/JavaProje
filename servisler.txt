@@ -1,0 +1,3 @@
+TEL-5434;;Telefon;;Apple;;iPhone 15 Pro Max;;Batarya/Pil Değişimi;;2025-12-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok
+TAB-9543;;Tablet;;Apple;;iPad Air;;Yazılım/Format;;2025-12-20;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;500,00;;Yok
+LAP-3445;;Laptop;;Lenovo;;IdeaPad 5 Pro;;Genel Bakım ve Temizlik;;2025-12-20;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok

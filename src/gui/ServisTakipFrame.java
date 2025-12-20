@@ -26,7 +26,7 @@ public class ServisTakipFrame extends JFrame {
     }
 
     private void initUI() {
-        // --- GÜNCELLEME: En sona "Bitiş Tarihi" sütunu eklendi ---
+        // --- Tablo Yapılandırması ---
         servisTableModel = new DefaultTableModel(
                 new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)", "Bitiş Tarihi"}, 0
         ) {
@@ -46,6 +46,7 @@ public class ServisTakipFrame extends JFrame {
         // --- BUTONLAR ---
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
 
+        // 1. Durum Güncelle Butonu
         JButton btnDurumGuncelle = new JButton("Durumu Güncelle (Tamamlandı)");
         btnDurumGuncelle.setBackground(new Color(84, 110, 122));
         btnDurumGuncelle.setForeground(Color.WHITE);
@@ -69,8 +70,9 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
+        // 2. Seçili Kaydı Sil Butonu
         JButton btnSil = new JButton("Seçili Servis Kaydını Sil");
-        btnSil.setBackground(new Color(169, 50, 38));
+        btnSil.setBackground(new Color(169, 50, 38)); // Kırmızı ton
         btnSil.setForeground(Color.WHITE);
         btnSil.setFont(btnFont);
         btnSil.setFocusPainted(false);
@@ -102,9 +104,41 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
+        // 3. YENİ EKLENEN BUTON: Tüm Verileri Sil
+        JButton btnTumunuSil = new JButton("Tüm Servis Verilerini Sil");
+        btnTumunuSil.setBackground(new Color(17, 4, 8)); // Çok koyu (Siyahımsı)
+        btnTumunuSil.setForeground(Color.WHITE);
+        btnTumunuSil.setFont(btnFont);
+        btnTumunuSil.setFocusPainted(false);
+
+        btnTumunuSil.addActionListener(e -> {
+            // Kullanıcıdan güvenlik onayı al
+            int secim = JOptionPane.showConfirmDialog(this,
+                    "DİKKAT: Tüm GEÇMİŞ SERVİS KAYITLARI kalıcı olarak silinecektir!\n" +
+                            "Cihaz kayıtları silinmez, sadece servis geçmişi temizlenir.\n\n" +
+                            "Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+                    "Veri Temizleme Onayı",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+
+            if (secim == JOptionPane.YES_OPTION) {
+                // ServisYonetimi içindeki metodumuzu çağırıyoruz
+                servisYonetimi.verileriTemizle();
+
+                // Tabloyu güncelle (Boşalt)
+                kayitlariTabloyaDoldur();
+
+                JOptionPane.showMessageDialog(this,
+                        "İşlem Başarılı.\nTüm servis geçmişi temizlendi.",
+                        "Bilgi",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         buttonPanel.add(btnDurumGuncelle);
         buttonPanel.add(btnSil);
+        buttonPanel.add(btnTumunuSil); // Panele eklendi
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -116,8 +150,6 @@ public class ServisTakipFrame extends JFrame {
 
         for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
-
-            // --- GÜNCELLEME: Tarih verisini al, null ise "-" koy ---
             Object bitisTarihi = (sk.getTamamlamaTarihi() != null) ? sk.getTamamlamaTarihi() : "-";
 
             servisTableModel.addRow(new Object[]{
@@ -129,7 +161,7 @@ public class ServisTakipFrame extends JFrame {
                     sk.getDurum(),
                     teknisyenAdi,
                     sk.getOdenecekTamirUcreti(),
-                    bitisTarihi // Yeni sütun verisi
+                    bitisTarihi
             });
         }
     }
