@@ -302,14 +302,17 @@ public class Main extends JFrame implements CihazEkleListener {
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
-        liste.sort((c1, c2) -> Double.compare(c2.getFiyat(), c1.getFiyat()));
+        // ESKİ KOD: liste.sort((c1, c2) -> Double.compare(c2.getFiyat(), c1.getFiyat()));
+        // Bu satır silindiği için artık liste doğal ekleme sırasıyla görüntülenecektir.
 
+        // Tablo modellerini temizle
         for (DefaultTableModel model : tableModels.values()) {
             model.setRowCount(0);
         }
 
+        // Listeyi olduğu gibi (sıralamadan) tabloya ekle
         for (Cihaz c : liste) {
-            // VIP Müşteriyi tabloda da belirtelim (Görsellik için)
+            // VIP Müşteriyi tabloda belirtmek için
             String musteriBilgisi = c.getSahip().toString().toUpperCase();
             if (c.getSahip().isVip()) {
                 musteriBilgisi += " [VIP]";
@@ -320,13 +323,15 @@ public class Main extends JFrame implements CihazEkleListener {
                     c.getMarka(),
                     c.getModel(),
                     c.getSeriNo(),
-                    musteriBilgisi, // Güncellenen bilgi
+                    musteriBilgisi,
                     c.getFiyat(),
                     c.getGarantiBitisTarihi()
             };
 
+            // 1. "Tümü" sekmesine ekle
             tableModels.get("Tümü").addRow(rowData);
 
+            // 2. Kategori sekmesine ekle (Telefon, Tablet, Laptop)
             String tur = c.getCihazTuru();
             if (tableModels.containsKey(tur)) {
                 tableModels.get(tur).addRow(rowData);
