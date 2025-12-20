@@ -1,5 +1,6 @@
 package gui;
 
+import Cihazlar.Cihaz;
 import Servis.ServisDurumu;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
@@ -7,18 +8,23 @@ import Servis.ServisYonetimi;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServisTakipFrame extends JFrame {
 
     private final ServisYonetimi servisYonetimi;
-    private JTable servisTable;
-    private DefaultTableModel servisTableModel;
+
+    // Çoklu tablo yönetimi için yapılar
+    private JTabbedPane tabbedPane;
+    private Map<String, DefaultTableModel> tableModels = new HashMap<>();
+    private Map<String, JTable> tables = new HashMap<>();
 
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         setTitle("Servis Kayıtları ve Takibi");
-        setSize(1100, 500); // Tablo genişlediği için frame boyutunu biraz artırdık
+        setSize(1100, 600);
         setLocationRelativeTo(null);
 
         initUI();
@@ -26,22 +32,15 @@ public class ServisTakipFrame extends JFrame {
     }
 
     private void initUI() {
-        // --- Tablo Yapılandırması ---
-        servisTableModel = new DefaultTableModel(
-                new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)", "Bitiş Tarihi"}, 0
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        // --- SEKME YAPISI (TABBED PANE) ---
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        servisTable = new JTable(servisTableModel);
-        servisTable.setRowHeight(25);
-        servisTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        servisTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-
-        JScrollPane scrollPane = new JScrollPane(servisTable);
+        // Kategoriler için sekmeleri oluştur
+        createTab("Tümü");
+        createTab("Telefon");
+        createTab("Tablet");
+        createTab("Laptop");
 
         // --- BUTONLAR ---
         Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
@@ -54,13 +53,12 @@ public class ServisTakipFrame extends JFrame {
         btnDurumGuncelle.setFocusPainted(false);
 
         btnDurumGuncelle.addActionListener(e -> {
-            int selectedRow = servisTable.getSelectedRow();
-            if (selectedRow >= 0) {
-                ServisKaydi kayit = servisYonetimi.getKayitlar().get(selectedRow);
+            ServisKaydi kayit = getSeciliKayit();
+            if (kayit != null) {
                 if (kayit.getDurum() != ServisDurumu.TAMAMLANDI) {
                     kayit.setDurum(ServisDurumu.TAMAMLANDI);
                     servisYonetimi.kayitGuncelle();
-                    kayitlariTabloyaDoldur();
+                    kayitlariTabloyaDoldur(); // Tüm sekmeleri yenile
                     JOptionPane.showMessageDialog(this, "Durum güncellendi: Tamamlandı.");
                 } else {
                     JOptionPane.showMessageDialog(this, "Zaten tamamlanmış.");
@@ -78,10 +76,8 @@ public class ServisTakipFrame extends JFrame {
         btnSil.setFocusPainted(false);
 
         btnSil.addActionListener(e -> {
-            int selectedRow = servisTable.getSelectedRow();
-            if (selectedRow >= 0) {
-                ServisKaydi silinecekKayit = servisYonetimi.getKayitlar().get(selectedRow);
-
+            ServisKaydi silinecekKayit = getSeciliKayit();
+            if (silinecekKayit != null) {
                 int secim = JOptionPane.showConfirmDialog(
                         this,
                         "Seçilen servis kaydını silmek üzeresiniz:\n" +
@@ -94,9 +90,9 @@ public class ServisTakipFrame extends JFrame {
                 );
 
                 if (secim == JOptionPane.YES_OPTION) {
-                    servisYonetimi.getKayitlar().remove(selectedRow);
+                    servisYonetimi.getKayitlar().remove(silinecekKayit);
                     servisYonetimi.kayitGuncelle();
-                    kayitlariTabloyaDoldur();
+                    kayitlariTabloyaDoldur(); // Tüm sekmeleri yenile
                     JOptionPane.showMessageDialog(this, "Servis kaydı başarıyla silindi.");
                 }
             } else {
@@ -104,15 +100,14 @@ public class ServisTakipFrame extends JFrame {
             }
         });
 
-        // 3. YENİ EKLENEN BUTON: Tüm Verileri Sil
+        // 3. Tüm Verileri Sil Butonu
         JButton btnTumunuSil = new JButton("Tüm Servis Verilerini Sil");
-        btnTumunuSil.setBackground(new Color(17, 4, 8)); // Çok koyu (Siyahımsı)
+        btnTumunuSil.setBackground(new Color(17, 4, 8)); // Çok koyu
         btnTumunuSil.setForeground(Color.WHITE);
         btnTumunuSil.setFont(btnFont);
         btnTumunuSil.setFocusPainted(false);
 
         btnTumunuSil.addActionListener(e -> {
-            // Kullanıcıdan güvenlik onayı al
             int secim = JOptionPane.showConfirmDialog(this,
                     "DİKKAT: Tüm GEÇMİŞ SERVİS KAYITLARI kalıcı olarak silinecektir!\n" +
                             "Cihaz kayıtları silinmez, sadece servis geçmişi temizlenir.\n\n" +
@@ -122,12 +117,8 @@ public class ServisTakipFrame extends JFrame {
                     JOptionPane.WARNING_MESSAGE);
 
             if (secim == JOptionPane.YES_OPTION) {
-                // ServisYonetimi içindeki metodumuzu çağırıyoruz
                 servisYonetimi.verileriTemizle();
-
-                // Tabloyu güncelle (Boşalt)
                 kayitlariTabloyaDoldur();
-
                 JOptionPane.showMessageDialog(this,
                         "İşlem Başarılı.\nTüm servis geçmişi temizlendi.",
                         "Bilgi",
@@ -138,21 +129,70 @@ public class ServisTakipFrame extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         buttonPanel.add(btnDurumGuncelle);
         buttonPanel.add(btnSil);
-        buttonPanel.add(btnTumunuSil); // Panele eklendi
+        buttonPanel.add(btnTumunuSil);
 
-        add(scrollPane, BorderLayout.CENTER);
+        add(tabbedPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    // Her kategori için ayrı bir tablo oluşturan yardımcı metot
+    private void createTab(String title) {
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Atanan Teknisyen", "Ücret (TL)", "Bitiş Tarihi"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(25);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        // Map'lere kaydet
+        tableModels.put(title, model);
+        tables.put(title, table);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        tabbedPane.addTab(title, scrollPane);
+    }
+
+    // Aktif sekmedeki seçili satıra karşılık gelen ServisKaydi nesnesini bulur
+    private ServisKaydi getSeciliKayit() {
+        String activeTitle = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+        JTable activeTable = tables.get(activeTitle);
+
+        int selectedRow = activeTable.getSelectedRow();
+        if (selectedRow < 0) return null;
+
+        // Tablodaki ayırt edici verileri alıyoruz (Seri No ve Sorun Açıklaması)
+        String seriNo = (String) activeTable.getValueAt(selectedRow, 0);
+        String sorun = (String) activeTable.getValueAt(selectedRow, 3);
+
+        // Gerçek listeyi tara ve eşleşeni bul
+        for (ServisKaydi k : servisYonetimi.getKayitlar()) {
+            if (k.getCihaz().getSeriNo().equals(seriNo) && k.getSorunAciklamasi().equals(sorun)) {
+                return k;
+            }
+        }
+        return null;
+    }
+
     private void kayitlariTabloyaDoldur() {
-        servisTableModel.setRowCount(0);
+        // Tüm modelleri temizle
+        for (DefaultTableModel model : tableModels.values()) {
+            model.setRowCount(0);
+        }
+
         List<ServisKaydi> kayitlar = servisYonetimi.getKayitlar();
 
         for (ServisKaydi sk : kayitlar) {
             String teknisyenAdi = (sk.getAtananTeknisyen() != null) ? sk.getAtananTeknisyen().getAd() : "Atanmadı";
             Object bitisTarihi = (sk.getTamamlamaTarihi() != null) ? sk.getTamamlamaTarihi() : "-";
 
-            servisTableModel.addRow(new Object[]{
+            Object[] rowData = new Object[]{
                     sk.getCihaz().getSeriNo(),
                     sk.getCihaz().getMarka() + " " + sk.getCihaz().getModel(),
                     sk.getCihaz().getSahip().toString().toUpperCase(),
@@ -162,7 +202,16 @@ public class ServisTakipFrame extends JFrame {
                     teknisyenAdi,
                     sk.getOdenecekTamirUcreti(),
                     bitisTarihi
-            });
+            };
+
+            // 1. "Tümü" sekmesine ekle
+            tableModels.get("Tümü").addRow(rowData);
+
+            // 2. Kategori sekmesine ekle (Telefon, Tablet, Laptop)
+            String tur = sk.getCihaz().getCihazTuru();
+            if (tableModels.containsKey(tur)) {
+                tableModels.get(tur).addRow(rowData);
+            }
         }
     }
 }
