@@ -28,6 +28,18 @@ public class FiyatlandirmaHizmeti {
         };
     }
 
+    // --- EKLENEN METOT (Refactoring Sonrası Buraya Taşındı) ---
+    // Garanti paketi fiyat hesaplaması artık Fiyatlandırma Hizmeti'nin sorumluluğunda.
+    public static double paketFiyatiHesapla(double cihazFiyati, int ay) {
+        switch (ay) {
+            case 6: return cihazFiyati * 0.05;
+            case 12: return cihazFiyati * 0.07;
+            case 24: return cihazFiyati * 0.10;
+            case 36: return cihazFiyati * 0.15;
+            default: return 0.0;
+        }
+    }
+
     // İmzayı değiştirdik: boolean isVip parametresi eklendi
     public static double tamirUcretiHesapla(String secilenSorun, double cihazFiyati, boolean isVip) {
         if (secilenSorun == null) return 0.0;

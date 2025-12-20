@@ -1,10 +1,9 @@
 package gui;
 
-import Araclar.RaporKutusu;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
-import Garantiler.UzatilmisGaranti;
 import Servis.FiyatlandirmaHizmeti;
+import Servis.RaporlamaHizmeti; // YENİ EKLENDİ
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
 import Servis.Teknisyen;
@@ -15,8 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -182,7 +179,6 @@ public class Main extends JFrame implements CihazEkleListener {
             ServisKaydi yeniKayit = new ServisKaydi(selectedCihaz, temizSorunAdi);
             yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
 
-            // --- DEĞİŞİKLİK: Teknisyen seçimi artık Main'den değil Depo'dan yapılıyor ---
             Teknisyen atananTeknisyen = TeknisyenDeposu.uzmanligaGoreGetir(selectedCihaz.getCihazTuru());
             yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
@@ -208,10 +204,11 @@ public class Main extends JFrame implements CihazEkleListener {
         }
 
         double cihazFiyati = seciliCihaz.getFiyat();
-        double fiyat6Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 6);
-        double fiyat12Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 12);
-        double fiyat24Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 24);
-        double fiyat36Ay = UzatilmisGaranti.paketFiyatiHesapla(cihazFiyati, 36);
+
+        double fiyat6Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 6);
+        double fiyat12Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 12);
+        double fiyat24Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 24);
+        double fiyat36Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 36);
 
         Object[] options = {
                 String.format("6 Ay (%.2f TL)", fiyat6Ay),
@@ -262,7 +259,6 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
-    // --- DEĞİŞİKLİK: Bu metod artık Cihaz sınıfına delege ediyor ---
     private void cihazKaydet(List<Cihaz> liste) {
         try {
             Cihaz.verileriKaydet(liste, CIHAZ_DOSYA_ADI);
@@ -270,8 +266,6 @@ public class Main extends JFrame implements CihazEkleListener {
             JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
         }
     }
-
-    // eski teknisyenSec metodu TAMAMEN KALDIRILDI.
 
     private JButton createStyledButton(String text, Color bgColor, Color fgColor, Font font) {
         JButton btn = new JButton(text);
@@ -312,42 +306,10 @@ public class Main extends JFrame implements CihazEkleListener {
         }
     }
 
+    // --- DEĞİŞTİRİLEN METOT ---
+    // Artık mantık RaporlamaHizmeti'nde.
     private void konsolRaporuOlustur() {
-        System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
-
-        RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
-
-        System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
-        cihazRaporKutusu.listeyiKonsolaYazdir();
-
-        System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu Testi):");
-
-        Cihaz ilkCihaz = cihazRaporKutusu.getIlkEleman();
-
-        if (ilkCihaz != null) {
-            System.out.println("-> Listedeki ilk cihaz bulundu.");
-            System.out.println("-> Seri No: " + ilkCihaz.getSeriNo());
-            System.out.println("-> Model: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel());
-        } else {
-            System.out.println("-> Liste boş, ilk eleman getirilemedi.");
-        }
-
-        System.out.println("\n[2] SİSTEM MESAJI:");
-        cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
-        cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-
-        List<Double> fiyatListesi = new ArrayList<>();
-        for (Cihaz c : cihazListesi) {
-            fiyatListesi.add(c.getFiyat());
-        }
-
-        List<Integer> servisSureleri = new ArrayList<>();
-        servisSureleri.add(20);
-
-        System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
-        cihazRaporKutusu.wildcardTest(fiyatListesi);
-        cihazRaporKutusu.wildcardTest(servisSureleri);
-
+        RaporlamaHizmeti.konsolRaporuOlustur(cihazListesi);
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
     }
 }
