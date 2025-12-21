@@ -77,7 +77,7 @@ public class GirisEkrani extends JFrame {
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
         // --- 3. ALTBİLGİ ---
-        JLabel lblFooter = new JLabel("v1.0.3 - 2025 © Tüm Hakları Saklıdır", SwingConstants.CENTER);
+        JLabel lblFooter = new JLabel("İsmail Onur Koru - Berkay Öztürk", SwingConstants.CENTER);
         lblFooter.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblFooter.setForeground(Color.LIGHT_GRAY);
         lblFooter.setBorder(new EmptyBorder(10, 0, 10, 0));
