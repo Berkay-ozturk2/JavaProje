@@ -22,9 +22,11 @@ public class KodUretici {
         StringBuilder sb = new StringBuilder();
         String chars = "0123456789";
 
-        for (int i = 0; i < 4; i++) {
+        int i = 0;
+        do {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
-        }
+            i++;
+        } while (i < 4);
 
         return prefix + "-" + sb.toString();
     }

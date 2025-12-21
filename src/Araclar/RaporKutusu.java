@@ -22,8 +22,10 @@ public class RaporKutusu<T> {
             return;
         }
         System.out.println("--- Rapor Kutusu İçeriği ---");
-        for (T eleman : veriListesi) {
-            System.out.println(eleman.toString());
+
+        // Standart for döngüsü (int i = 0; ...)
+        for (int i = 0; i < veriListesi.size(); i++) {
+            System.out.println("[" + (i + 1) + "] " + veriListesi.get(i).toString());
         }
     }
 
