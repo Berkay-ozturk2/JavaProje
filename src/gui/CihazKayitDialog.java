@@ -287,8 +287,12 @@ public class CihazKayitDialog extends JDialog {
             String mSoyad = txtMusteriSoyad.getText().trim();
             String mTelefon = txtMusteriTelefon.getText().trim();
 
-            if (mAd.isEmpty() || mSoyad.isEmpty() || mTelefon.isEmpty()) {
+            if (mAd.isEmpty() || mSoyad.isEmpty()) {
                 throw new GecersizDegerException("Müşteri bilgileri boş bırakılamaz!");
+            }
+
+            if (mTelefon.isEmpty() || mTelefon.equals("+90") || mTelefon.length() < 14) {
+                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz.");
             }
 
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
