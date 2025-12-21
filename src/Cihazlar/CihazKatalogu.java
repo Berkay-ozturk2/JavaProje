@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CihazKatalogu {
+    //HashMap kullanımı
+    //Bu değerler değişmeyeceği için final olarak tanımlandı
     private static final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
     private static final Map<String, Double> MODEL_FIYATLARI = new HashMap<>();
 
@@ -11,8 +13,9 @@ public class CihazKatalogu {
         initData();
     }
 
+    //Cihazlara değer atama metodu (initializeData -> verilere değer atamak)
     private static void initData() {
-        // TELEFON
+        // Telefon cihazlarını oluşturma ve fiyat atama
         Map<String, String[]> telefonModelleri = new HashMap<>();
         telefonModelleri.put("Samsung", new String[]{"Galaxy S24 Ultra", "Galaxy A55", "Galaxy Flip 5", "Galaxy S23 FE"});
         MODEL_FIYATLARI.put("Galaxy S24 Ultra", 70000.0);
@@ -35,9 +38,10 @@ public class CihazKatalogu {
         MODEL_FIYATLARI.put("Pura 70 Ultra", 60000.0);
         MODEL_FIYATLARI.put("Mate 60 RS", 75000.0);
 
+        //TUM_MODELLER değişkenine telefon modellerini atama
         TUM_MODELLER.put("Telefon", telefonModelleri);
 
-        // TABLET
+        // Tablet cihazlarını oluşturma ve fiyat atama
         Map<String, String[]> tabletModelleri = new HashMap<>();
         tabletModelleri.put("Apple", new String[]{"iPad Pro (M4)", "iPad Air", "iPad Mini"});
         MODEL_FIYATLARI.put("iPad Pro (M4)", 45000.0);
@@ -57,9 +61,10 @@ public class CihazKatalogu {
         MODEL_FIYATLARI.put("MatePad Pro 13.2", 30000.0);
         MODEL_FIYATLARI.put("MatePad Air", 18000.0);
 
+        //TUM_MODELLER değişkenine tablet modellerini atama
         TUM_MODELLER.put("Tablet", tabletModelleri);
 
-        // LAPTOP
+        // Lapto cihazlarını oluşturma ve fiyat atama
         Map<String, String[]> laptopModelleri = new HashMap<>();
         laptopModelleri.put("Dell", new String[]{"XPS 15", "Latitude 5000", "G15 Gaming"});
         MODEL_FIYATLARI.put("XPS 15", 90000.0);
@@ -90,11 +95,15 @@ public class CihazKatalogu {
         MODEL_FIYATLARI.put("Titan GT77", 150000.0);
         MODEL_FIYATLARI.put("Katana 17", 55000.0);
 
+        //TUM_MODELLER değişkenine Laptop modellerini atama
         TUM_MODELLER.put("Laptop", laptopModelleri);
     }
 
+    //Markaları çağıran getter metodu
     public static String[] getMarkalar(String tur) {
+        //Eğer key içinde telefon,tablet veya laptop varsa çalışır
         if (TUM_MODELLER.containsKey(tur)) {
+            //Cihaza göre modellerini alır ve stringe çevirir.
             return TUM_MODELLER.get(tur).keySet().toArray(new String[0]);
         }
         return new String[0];

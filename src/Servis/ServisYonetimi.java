@@ -1,7 +1,7 @@
 package Servis;
 
 import Cihazlar.Cihaz;
-import Arayuzler.VeriIslemleri;
+import Arayuzler.IVeriIslemleri;
 import Araclar.Formatlayici; // YENİ IMPORT
 
 import java.io.*;
@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ServisYonetimi implements VeriIslemleri {
+public class ServisYonetimi implements IVeriIslemleri {
     private List<ServisKaydi> kayitlar;
     private List<Cihaz> cihazListesiRef;
 

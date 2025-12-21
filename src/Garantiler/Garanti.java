@@ -38,7 +38,7 @@ public abstract class Garanti {
     }
 
     // Garanti devam ediyor mu kontrolü
-    public boolean isDevamEdiyor() {
+    public boolean devamEdiyorMu() {
         return LocalDate.now().isBefore(bitisTarihi) || LocalDate.now().isEqual(bitisTarihi);
     }
 

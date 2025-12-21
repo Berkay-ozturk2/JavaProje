@@ -1,11 +1,11 @@
 package Servis;
 
-import Arayuzler.Raporlanabilir;
+import Arayuzler.IRaporIslemleri;
 import Cihazlar.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class ServisKaydi implements Raporlanabilir {
+public class ServisKaydi implements IRaporIslemleri {
 
     private Cihaz cihaz;
     private String sorunAciklamasi;

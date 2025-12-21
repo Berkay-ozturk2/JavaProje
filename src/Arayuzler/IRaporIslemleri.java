@@ -1,6 +1,6 @@
 package Arayuzler;
 
-public interface Raporlanabilir {
+public interface IRaporIslemleri {
     //Detaylı Rapor oluşturmak için metot
     String detayliRaporVer();
     //Hangi cihazın raporlandığını yazan metot

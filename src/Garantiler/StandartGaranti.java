@@ -10,7 +10,7 @@ public class StandartGaranti extends Garanti {
 
     @Override
     public double sonMaliyetHesapla(double hamUcret) {
-        if (isDevamEdiyor()) {
+        if (devamEdiyorMu()) {
             return 0.0; // Garanti kapsamındaysa ücretsiz
         } else {
             return hamUcret; // Süre bittiyse tam ücret

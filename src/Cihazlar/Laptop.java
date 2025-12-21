@@ -2,10 +2,10 @@ package Cihazlar;
 
 import java.time.LocalDate;
 import Musteri.Musteri;
-import Arayuzler.Raporlanabilir;
+import Arayuzler.IRaporIslemleri;
 import Istisnalar.GecersizDegerException; // Eklendi
 
-public class Laptop extends Cihaz implements Raporlanabilir {
+public class Laptop extends Cihaz implements IRaporIslemleri {
 
     // throws GecersizDegerException eklendi
     public Laptop(String seriNo, String marka, String model, double fiyat,
@@ -28,7 +28,7 @@ public class Laptop extends Cihaz implements Raporlanabilir {
         return "=== LAPTOP TEKNİK RAPORU ===\n" +
                 "Marka/Model: " + getMarka() + " " + getModel() + "\n" +
                 "Seri Numarası: " + getSeriNo() + "\n" +
-                "Garanti Durumu: " + (isGarantiAktif() ? "Aktif" : "Süresi Dolmuş");
+                "Garanti Durumu: " + (garantiAktifMi() ? "Aktif" : "Süresi Dolmuş");
     }
 
     @Override

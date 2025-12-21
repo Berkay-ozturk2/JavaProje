@@ -7,11 +7,9 @@ import java.util.Random;
  */
 public class KodUretici {
 
-    /**
-     * Belirtilen cihaz türüne göre (Örn: TEL-1234) rastgele bir seri numarası üretir.
-     */
+    // Belirtilen cihaz türüne göre rastgele bir seri numarası üretir.
     public static String rastgeleSeriNoUret(String tur) {
-        String prefix = switch (tur) {
+        String cihaz = switch (tur) {
             case "Telefon" -> "TEL";
             case "Tablet" -> "TAB";
             case "Laptop" -> "LAP";
@@ -19,15 +17,19 @@ public class KodUretici {
         };
 
         Random rnd = new Random();
+        //StringBuilder sürekli değişen metinler için kullanılır
         StringBuilder sb = new StringBuilder();
         String chars = "0123456789";
 
+        //4 Tane random sayı üreten do-while döngüsü
         int i = 0;
         do {
+            //append() sona ekleme yapar
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
             i++;
         } while (i < 4);
 
-        return prefix + "-" + sb.toString();
+        //cihaz türünü ve random 4 sayıyı birleştirir
+        return cihaz + "-" + sb.toString();
     }
 }

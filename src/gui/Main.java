@@ -263,7 +263,7 @@ public class Main extends JFrame implements CihazEkleListener {
             JOptionPane.showMessageDialog(this, "Lütfen işlem yapılacak cihazı seçin.", "Uyarı", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String garantiDurumu = selectedCihaz.isGarantiAktif() ? "Aktif" : "BİTMİŞ";
+        String garantiDurumu = selectedCihaz.garantiAktifMi() ? "Aktif" : "BİTMİŞ";
         String vipBilgi = selectedCihaz.getSahip().isVip() ? " [VIP Müşteri]" : "";
         JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
         String mesaj = String.format("Cihaz: %s\nSahibi: %s%s\nGaranti: %s (%s)\n\nSorunu Seçin: ",

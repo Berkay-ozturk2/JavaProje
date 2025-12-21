@@ -12,7 +12,7 @@ public class UzatilmisGaranti extends Garanti {
 
     @Override
     public double sonMaliyetHesapla(double hamUcret) {
-        if (isDevamEdiyor()) {
+        if (devamEdiyorMu()) {
             return 0.0;
         } else {
             // JEST: Uzatılmış garanti alan müşteri, süresi bitse bile %10 indirim alır.

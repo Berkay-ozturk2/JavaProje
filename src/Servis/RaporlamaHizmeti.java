@@ -4,7 +4,7 @@ import Araclar.DosyaIslemleri;
 import Araclar.RaporKutusu;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
-import Arayuzler.Raporlanabilir;
+import Arayuzler.IRaporIslemleri;
 import Istisnalar.KayitBulunamadiException;
 
 import java.time.LocalDate;
@@ -66,9 +66,9 @@ public class RaporlamaHizmeti {
         boolean raporlanabilirCihazVarMi = false;
 
         for (Cihaz c : cihazListesi) {
-            if (c instanceof Raporlanabilir) {
+            if (c instanceof IRaporIslemleri) {
                 raporlanabilirCihazVarMi = true;
-                Raporlanabilir raporlanan = (Raporlanabilir) c;
+                IRaporIslemleri raporlanan = (IRaporIslemleri) c;
                 System.out.println("\n>>> ÖZEL RAPOR (" + raporlanan.getRaporBasligi() + ") <<<");
                 System.out.println(raporlanan.detayliRaporVer());
                 System.out.println("--------------------------------------------------");
@@ -106,13 +106,13 @@ public class RaporlamaHizmeti {
                 .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append("\n");
         rapor.append("Cihaz: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
 
-        String garantiDurumu = bulunanCihaz.isGarantiAktif() ? "AKTİF" : "BİTMİŞ";
+        String garantiDurumu = bulunanCihaz.garantiAktifMi() ? "AKTİF" : "BİTMİŞ";
         rapor.append("Garanti: ").append(garantiDurumu).append("\n\n");
 
-        if (bulunanCihaz instanceof Raporlanabilir) {
+        if (bulunanCihaz instanceof IRaporIslemleri) {
             // Burada da arayüzün getOzetBilgi metodunu rapora ekleyebiliriz
-            rapor.append("Özet: ").append(((Raporlanabilir) bulunanCihaz).getOzetBilgi()).append("\n\n");
-            rapor.append(((Raporlanabilir) bulunanCihaz).detayliRaporVer()).append("\n\n");
+            rapor.append("Özet: ").append(((IRaporIslemleri) bulunanCihaz).getOzetBilgi()).append("\n\n");
+            rapor.append(((IRaporIslemleri) bulunanCihaz).detayliRaporVer()).append("\n\n");
         }
 
         // Servis Kayıtlarını Bul
