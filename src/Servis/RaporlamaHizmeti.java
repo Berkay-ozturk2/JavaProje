@@ -4,13 +4,14 @@ import Araclar.DosyaIslemleri;
 import Araclar.RaporKutusu;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
-import Arayuzler.Raporlanabilir; // YENİ EKLENDİ
+import Arayuzler.Raporlanabilir;
 import Istisnalar.KayitBulunamadiException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator; // Sıralama için eklendi
 import java.util.List;
 
 public class RaporlamaHizmeti {
@@ -18,48 +19,56 @@ public class RaporlamaHizmeti {
     public static void konsolRaporuOlustur(List<Cihaz> cihazListesi) {
         System.out.println("\n========== SİSTEM RAPORU BAŞLATILIYOR ==========");
 
+        // Generic sınıfın oluşturulması
         RaporKutusu<Cihaz> cihazRaporKutusu = new RaporKutusu<>(cihazListesi);
 
         System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
         cihazRaporKutusu.listeyiKonsolaYazdir();
 
-        System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu Testi):");
+        System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu):");
         Cihaz ilkCihaz = cihazRaporKutusu.getIlkEleman();
 
         if (ilkCihaz != null) {
-            System.out.println("-> Listedeki ilk cihaz bulundu.");
-            System.out.println("-> Seri No: " + ilkCihaz.getSeriNo());
-            System.out.println("-> Model: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel());
-        } else {
-            System.out.println("-> Liste boş, ilk eleman getirilemedi.");
+            System.out.println("-> Listedeki ilk cihaz: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel());
         }
 
-        System.out.println("\n[2] SİSTEM MESAJI:");
-        cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi başarıyla başlatıldı.");
+        System.out.println("\n[2] SİSTEM MESAJI (Generic Metot 1):");
+        cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi aktiftir.");
         cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
+        // --- Wildcard Test Verileri ---
         List<Double> fiyatListesi = new ArrayList<>();
         for (Cihaz c : cihazListesi) {
             fiyatListesi.add(c.getFiyat());
         }
-
         List<Integer> servisSureleri = new ArrayList<>();
         servisSureleri.add(20);
 
         System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
         cihazRaporKutusu.wildcardTest(fiyatListesi);
-        cihazRaporKutusu.wildcardTest(servisSureleri);
 
-        // --- YENİ EKLENEN BÖLÜM: INTERFACE KULLANIMI ---
-        System.out.println("\n[4] DETAYLI CİHAZ RAPORLARI (Interface & Polymorphism):");
+        // --- YENİ EKLENEN BÖLÜM: Generic Metot 2 ve Sıralama ---
+        System.out.println("\n[4] FİYAT SIRALAMASI (Generic Metot 2 & Collections.sort):");
+        System.out.println("Sıralama Öncesi İlk Cihaz: " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
+
+        // Generic metot kullanılarak sıralama yapılıyor (Fiyata göre artan)
+        cihazRaporKutusu.genericSirala(cihazListesi, new Comparator<Cihaz>() {
+            @Override
+            public int compare(Cihaz c1, Cihaz c2) {
+                return Double.compare(c1.getFiyat(), c2.getFiyat());
+            }
+        });
+
+        System.out.println("Sıralama Sonrası İlk Cihaz (En Ucuz): " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
+
+
+        System.out.println("\n[5] DETAYLI CİHAZ RAPORLARI (Interface & Polymorphism):");
         boolean raporlanabilirCihazVarMi = false;
 
         for (Cihaz c : cihazListesi) {
-            // Eğer cihaz "Raporlanabilir" interface'ini implemente etmişse (Örn: Laptop)
             if (c instanceof Raporlanabilir) {
                 raporlanabilirCihazVarMi = true;
                 Raporlanabilir raporlanan = (Raporlanabilir) c;
-
                 System.out.println("\n>>> ÖZEL RAPOR (" + raporlanan.getRaporBasligi() + ") <<<");
                 System.out.println(raporlanan.detayliRaporVer());
                 System.out.println("--------------------------------------------------");
@@ -67,13 +76,12 @@ public class RaporlamaHizmeti {
         }
 
         if (!raporlanabilirCihazVarMi) {
-            System.out.println("Listede 'Raporlanabilir' arayüzünü uygulayan özel bir cihaz bulunamadı.");
+            System.out.println("Raporlanabilir cihaz bulunamadı.");
         }
     }
 
     /**
-     * GUI için kullanılan metot.
-     * Müşteri takip ekranı için detaylı durum raporu üretir.
+     * GUI (Müşteri Takip Ekranı) için kullanılan metot.
      */
     public static String musteriCihazDurumRaporuOlustur(String seriNo) throws KayitBulunamadiException {
         StringBuilder rapor = new StringBuilder();
@@ -82,7 +90,6 @@ public class RaporlamaHizmeti {
         List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
 
         Cihaz bulunanCihaz = null;
-
         for (Cihaz c : cihazlar) {
             if (c.getSeriNo().equalsIgnoreCase(seriNo)) {
                 bulunanCihaz = c;
@@ -91,27 +98,22 @@ public class RaporlamaHizmeti {
         }
 
         if (bulunanCihaz == null) {
-            throw new KayitBulunamadiException("HATA: Bu seri numarasına ait bir cihaz bulunamadı.\nLütfen numarayı kontrol ediniz.");
+            throw new KayitBulunamadiException("HATA: Bu seri numarasına ait bir cihaz bulunamadı.");
         }
 
-        // Cihaz Bilgileri
         rapor.append("=== CİHAZ BİLGİLERİ ===\n");
-        rapor.append("Sayın ").append(bulunanCihaz.getSahip().getAd())
-                .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append(",\n");
-        rapor.append("Marka/Model: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
-        rapor.append("Tür: ").append(bulunanCihaz.getCihazTuru()).append("\n");
+        rapor.append("Müşteri: ").append(bulunanCihaz.getSahip().getAd())
+                .append(" ").append(bulunanCihaz.getSahip().getSoyad()).append("\n");
+        rapor.append("Cihaz: ").append(bulunanCihaz.getMarka()).append(" ").append(bulunanCihaz.getModel()).append("\n");
 
         String garantiDurumu = bulunanCihaz.isGarantiAktif() ? "AKTİF" : "BİTMİŞ";
-        rapor.append("Garanti Durumu: ").append(garantiDurumu).append("\n");
-        rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
+        rapor.append("Garanti: ").append(garantiDurumu).append("\n\n");
 
-        // --- YENİ EKLENEN KISIM: CİHAZ ÖZEL RAPORU ---
         if (bulunanCihaz instanceof Raporlanabilir) {
-            rapor.append(">>> CİHAZ ÖZEL TEKNİK DÖKÜMÜ <<<\n");
             rapor.append(((Raporlanabilir) bulunanCihaz).detayliRaporVer()).append("\n\n");
         }
 
-        // Servis Kayıtları
+        // Servis Kayıtlarını Bul
         ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
         ServisKaydi bulunanKayit = null;
         for (ServisKaydi k : servisYonetimi.getKayitlar()) {
@@ -123,15 +125,11 @@ public class RaporlamaHizmeti {
 
         if (bulunanKayit != null) {
             rapor.append(bulunanKayit.detayliRaporVer());
-            LocalDate giris = bulunanKayit.getGirisTarihi();
-            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(giris, 20);
-
+            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(bulunanKayit.getGirisTarihi(), 20);
             rapor.append("\n----------------------------------\n");
-            rapor.append("TAHMİNİ TESLİM TARİHİ: ").append(tahminiTeslim).append("\n");
-            rapor.append("(İşlem süresi standart 20 iş günüdür.)\n");
+            rapor.append("TAHMİNİ TESLİM: ").append(tahminiTeslim).append("\n");
         } else {
-            rapor.append("=== SERVİS DURUMU ===\n");
-            rapor.append("Bu cihaz için aktif bir servis kaydı bulunmamaktadır.\n");
+            rapor.append("=== SERVİS DURUMU ===\nAktif bir servis kaydı bulunmamaktadır.\n");
         }
 
         return rapor.toString();

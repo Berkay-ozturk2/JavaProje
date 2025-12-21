@@ -11,4 +11,3 @@ Tablet;;TAB-9543;;Apple;;iPad Air;;25000,00;;2023-07-01;;0;;DAMLA;;AKSU;;+905568
 Laptop;;LAP-9742;;HP;;Victus 16;;10000,00;;2025-12-20;;0;;MAL;;ÇAĞATAY;;+905515518309;;false
 Laptop;;LAP-0849;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2023-03-20;;0;;ALİ;;KAMİL;;+901234567891;;true
 Tablet;;TAB-1372;;Apple;;iPad Pro (M4);;45000,00;;2025-06-10;;0;;AEA;;TRE;;+905514479933;;true;;false
-Telefon;;TEL-2691;;Apple;;iPhone 15 Pro Max;;-41200,00;;2025-12-21;;0;;İSO;;KMNJ;;+905555555555;;false
