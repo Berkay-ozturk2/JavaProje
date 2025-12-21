@@ -110,6 +110,8 @@ public class RaporlamaHizmeti {
         rapor.append("Garanti: ").append(garantiDurumu).append("\n\n");
 
         if (bulunanCihaz instanceof Raporlanabilir) {
+            // Burada da arayüzün getOzetBilgi metodunu rapora ekleyebiliriz
+            rapor.append("Özet: ").append(((Raporlanabilir) bulunanCihaz).getOzetBilgi()).append("\n\n");
             rapor.append(((Raporlanabilir) bulunanCihaz).detayliRaporVer()).append("\n\n");
         }
 

@@ -1,9 +1,9 @@
 package Arayuzler;
 
 public interface Raporlanabilir {
+    //Detaylı Rapor oluşturmak için metot
     String detayliRaporVer();
-
-    // GEREKSİNİM: Interface'te en az 3 metot olmalı.
+    //Hangi cihazın raporlandığını yazan metot
     String getRaporBasligi();
     String getOzetBilgi();
 }
