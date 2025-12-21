@@ -2,12 +2,14 @@ package Cihazlar;
 
 import java.time.LocalDate;
 import Musteri.Musteri;
+import Istisnalar.GecersizDegerException; // Eklendi
 
 public class Tablet extends Cihaz {
     private boolean kalemDestegi;
 
+    // throws GecersizDegerException eklendi
     public Tablet(String seriNo, String marka, String model, double fiyat,
-                  LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) {
+                  LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) throws GecersizDegerException {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
         this.kalemDestegi = kalemDestegi;
     }
@@ -15,8 +17,6 @@ public class Tablet extends Cihaz {
     public boolean getKalemDestegi() {
         return kalemDestegi;
     }
-
-    // toTxtFormat kaldırıldı -> Araclar.Formatlayici kullanılıyor.
 
     @Override
     public int getGarantiSuresiYil() {

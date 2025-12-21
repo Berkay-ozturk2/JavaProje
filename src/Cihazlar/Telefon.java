@@ -2,15 +2,15 @@ package Cihazlar;
 
 import java.time.LocalDate;
 import Musteri.Musteri;
+import Istisnalar.GecersizDegerException; // Eklendi
 
 public class Telefon extends Cihaz {
 
+    // throws GecersizDegerException eklendi
     public Telefon(String seriNo, String marka, String model, double fiyat,
-                   LocalDate garantiBaslangic, Musteri sahip) {
+                   LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
-
-    // toTxtFormat kaldırıldı -> Araclar.Formatlayici kullanılıyor.
 
     @Override
     public int getGarantiSuresiYil() {

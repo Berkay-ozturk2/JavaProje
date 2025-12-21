@@ -14,11 +14,16 @@ public abstract class Cihaz {
 
     protected Garanti garanti;
 
-    public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) {
+    // DEĞİŞİKLİK: Constructor artık GecersizDegerException fırlatabiliyor
+    public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
         this.seriNo = seriNo;
-        this.marka = marka;
-        this.model = model;
-        this.fiyat = fiyat;
+        // setMarka ve setModel de kullanılabilir ancak şimdilik sadece fiyatı kapsüllüyoruz
+        setMarka(marka);
+        setModel(model);
+
+        // DEĞİŞİKLİK: Doğrudan atama yerine setter kullanılarak kontrol mekanizması devreye sokuldu.
+        setFiyat(fiyat);
+
         this.sahip = sahip;
 
         LocalDate baslangic;
@@ -29,10 +34,6 @@ public abstract class Cihaz {
         }
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
-
-    // --- KALDIRILAN METOTLAR ---
-    // rastgeleSeriNoUret -> Araclar.KodUretici sınıfına taşındı.
-    // toTxtFormat ve fromTxtFormat -> Araclar.Formatlayici sınıfına taşındı.
 
     // Getter & Setter
     public String getSeriNo() { return seriNo; }
@@ -46,6 +47,7 @@ public abstract class Cihaz {
     public boolean isGarantiAktif() { return garanti.isDevamEdiyor(); }
 
     public void setFiyat(double fiyat) throws GecersizDegerException {
+        // Kontrol mantığı burada çalışacak
         if (fiyat < 0) throw new GecersizDegerException("Fiyat negatif olamaz!");
         this.fiyat = fiyat;
     }

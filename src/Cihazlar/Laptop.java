@@ -2,13 +2,14 @@ package Cihazlar;
 
 import java.time.LocalDate;
 import Musteri.Musteri;
-import Arayuzler.Raporlanabilir; // Mevcut interface import edildi
+import Arayuzler.Raporlanabilir;
+import Istisnalar.GecersizDegerException; // Eklendi
 
-// GEREKSİNİM: Hem kalıtım (extends) hem arayüz (implements) bir arada kullanıldı
 public class Laptop extends Cihaz implements Raporlanabilir {
 
+    // throws GecersizDegerException eklendi
     public Laptop(String seriNo, String marka, String model, double fiyat,
-                  LocalDate garantiBaslangic, Musteri sahip) {
+                  LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
 
@@ -21,8 +22,6 @@ public class Laptop extends Cihaz implements Raporlanabilir {
     public String getCihazTuru() {
         return "Laptop";
     }
-
-    // --- Raporlanabilir Arayüzünden Gelen Metotlar ---
 
     @Override
     public String detayliRaporVer() {
