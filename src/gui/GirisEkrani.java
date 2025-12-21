@@ -12,9 +12,9 @@ import java.awt.event.MouseEvent;
 public class GirisEkrani extends JFrame {
 
     // Personel butonu rengi (Kurumsal Lacivert)
-    private static final Color COLOR_PERSONEL = new Color(44, 62, 80);
+    private static final Color PERSONEL_RENGI = new Color(44, 62, 80);
     // Müşteri butonu rengi (Açık Mavi)
-    private static final Color COLOR_MUSTERI = new Color(52, 152, 219);
+    private static final Color MUSTERI_RENGI = new Color(52, 152, 219);
 
     public GirisEkrani() {
         initUI();
@@ -37,7 +37,7 @@ public class GirisEkrani extends JFrame {
 
         JLabel lblTitle = new JLabel("Teknik Servis Yönetimi", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        lblTitle.setForeground(COLOR_PERSONEL);
+        lblTitle.setForeground(PERSONEL_RENGI);
 
         JLabel lblSubtitle = new JLabel("Lütfen işlem yapmak istediğiniz paneli seçiniz", SwingConstants.CENTER);
         lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -56,13 +56,13 @@ public class GirisEkrani extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Müşteri Butonu
-        JButton btnMusteri = createModernButton("Müşteri Girişi", "👤", COLOR_MUSTERI);
+        JButton btnMusteri = createModernButton("Müşteri Girişi", "👤", MUSTERI_RENGI);
         btnMusteri.addActionListener(e -> {
             new MusteriTakipEkrani().setVisible(true);
         });
 
         // Personel Butonu
-        JButton btnPersonel = createModernButton("Personel Girişi", "🛡️", COLOR_PERSONEL);
+        JButton btnPersonel = createModernButton("Personel Girişi", "🛡️", PERSONEL_RENGI);
         btnPersonel.addActionListener(e -> {
             // Standart JOptionPane yerine özel dialog çağırıyoruz
             showCustomSecurityDialog();
@@ -95,7 +95,7 @@ public class GirisEkrani extends JFrame {
 
         // --- Dialog Başlık (Koyu Lacivert Alan) ---
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
-        titlePanel.setBackground(COLOR_PERSONEL);
+        titlePanel.setBackground(PERSONEL_RENGI);
         JLabel lblDialogTitle = new JLabel("Yetkili Girişi 🔒");
         lblDialogTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblDialogTitle.setForeground(Color.WHITE);
@@ -135,7 +135,7 @@ public class GirisEkrani extends JFrame {
         btnPanel.setBackground(Color.WHITE);
 
         JButton btnGiris = new JButton("Giriş Yap");
-        btnGiris.setBackground(COLOR_PERSONEL);
+        btnGiris.setBackground(PERSONEL_RENGI);
         btnGiris.setForeground(Color.WHITE);
         btnGiris.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnGiris.setFocusPainted(false);
