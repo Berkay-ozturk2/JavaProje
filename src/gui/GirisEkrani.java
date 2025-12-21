@@ -64,7 +64,7 @@ public class GirisEkrani extends JFrame {
         JButton btnPersonel = createModernButton("Personel Girişi", "🛡️", PERSONEL_RENGI); // Personel butonunu oluşturduk
         btnPersonel.addActionListener(e -> {
             // Standart JOptionPane yerine özel dialog çağırıyoruz
-            showCustomSecurityDialog(); // Şifre soran özel pencereyi açtık
+            guvenlikPenceresi(); // Şifre soran özel pencereyi açtık
         });
 
         gbc.gridx = 0; gbc.gridy = 0;
@@ -86,7 +86,7 @@ public class GirisEkrani extends JFrame {
     /**
      * Özel Güvenlik Penceresini (Dialog) Oluşturan ve Gösteren Metot
      */
-    private void showCustomSecurityDialog() {
+    private void guvenlikPenceresi() {
         JDialog dialog = new JDialog(this, "Güvenlik Kontrolü", true); // Arkadaki pencereye tıklanmasını engelleyen (modal) bir pencere açtık
         dialog.setSize(400, 280);
         dialog.setLocationRelativeTo(this);
