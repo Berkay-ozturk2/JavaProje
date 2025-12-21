@@ -24,7 +24,7 @@ public class Musteri {
 
     // --- VIP Getter ve Setter ---
     // Müşterinin VIP olup olmadığını döndüren metod
-    public boolean isVip() { return vip; }
+    public boolean vipMi() { return vip; }
 
     // Müşterinin VIP durumunu değiştiren metod
     public void setVip(boolean vip) { this.vip = vip; }

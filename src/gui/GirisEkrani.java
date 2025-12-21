@@ -95,7 +95,7 @@ public class GirisEkrani extends JFrame {
         // --- Dialog Başlık (Koyu Lacivert Alan) ---
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
         titlePanel.setBackground(PERSONEL_RENGI);
-        JLabel lblDialogTitle = new JLabel("Yetkili Girişi 🔒");
+        JLabel lblDialogTitle = new JLabel("Yetkili Girişi");
         lblDialogTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblDialogTitle.setForeground(Color.WHITE);
         titlePanel.add(lblDialogTitle);
@@ -103,7 +103,7 @@ public class GirisEkrani extends JFrame {
         // --- Dialog İçerik (Şifre Alanı) ---
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
-        contentPanel.setBorder(new EmptyBorder(20, 40, 10, 40));
+        contentPanel.setBorder(new EmptyBorder(10, 30, 5, 30));
 
         JLabel lblPass = new JLabel("Personel Şifresi:");
         lblPass.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -150,9 +150,9 @@ public class GirisEkrani extends JFrame {
         // Buton Aksiyonları
         btnGiris.addActionListener(ev -> {
             String password = new String(txtPass.getPassword()); // Girilen şifreyi aldık
-            if ("a".equals(password)) { // Şifre doğruysa (test için 'a' yaptık)
+            if ("a".equalsIgnoreCase(password)) { // Şifre doğruysa (test için 'a' yaptık)
                 dialog.dispose(); // Küçük pencereyi kapat
-                new Main().setVisible(true); // Ana yönetim ekranını aç
+                new AnaMenu().setVisible(true); // Ana yönetim ekranını aç
                 this.dispose(); // Giriş ekranını kapat
             } else {
                 lblError.setText("Hatalı şifre! Tekrar deneyiniz."); // Hata mesajını göster

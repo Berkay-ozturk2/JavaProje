@@ -16,7 +16,7 @@ interface CihazEkleListener {
     void cihazEklendi(Cihaz cihaz);
 }
 
-public class CihazKayitDialog extends JDialog {
+public class CihazKayit extends JDialog {
 
     private final CihazEkleListener listener; // Ana pencere ile iletişim kuracak nesne
 
@@ -39,7 +39,7 @@ public class CihazKayitDialog extends JDialog {
     private JCheckBox chkKalemDestegi;
     private JCheckBox chkSsd;
 
-    public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
+    public CihazKayit(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı", true); // Pencere başlığını ve modal özelliğini ayarladık
         this.listener = listener;
         initUI(); // Görsel bileşenleri yükleyen metodu çağırdık

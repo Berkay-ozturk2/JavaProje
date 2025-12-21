@@ -5,6 +5,7 @@ import Musteri.Musteri;
 import Garantiler.*;
 import Istisnalar.GecersizDegerException;
 
+// Tüm cihaz türleri (Telefon, Laptop vb.) için ortak özellikleri tanımlayan soyut (abstract) ana sınıf.
 public abstract class Cihaz {
 
     //Alanlar
@@ -14,13 +15,14 @@ public abstract class Cihaz {
     private double fiyat;
     private Musteri sahip;
 
-    protected Garanti garanti;// Garanti sınıfından bir garanti nesnesi oluşturma
+    // Her cihazın bir garanti nesnesine sahip olmasını sağlayan kompozisyon yapısı.
+    protected Garanti garanti;
 
     // Cihaz Constructor (GecersizDegerException sınıfını kullanır)
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
         this.seriNo = seriNo;
 
-        //setMarka, setModel ve setFiyat metotlarının çalışması için set olarak değer alıyor.
+        // Veri bütünlüğünü korumak için değerleri doğrudan atamak yerine kontrol mekanizması olan setter'ları kullanır.
         setMarka(marka);
         setModel(model);
         setFiyat(fiyat);
@@ -28,14 +30,14 @@ public abstract class Cihaz {
         this.sahip = sahip;
 
         LocalDate baslangic;
+        // Eğer garanti başlangıç tarihi verilmediyse, simülasyon amaçlı rastgele bir tarih üretir.
         if (garantiBaslangic == null) {
-            //garantiBaslangic boşsa ratsgele bir tarih üretir
             baslangic = Garanti.rastgeleBaslangicOlustur(getGarantiSuresiYil());
         } else {
-            //Eğer bir tarih varsa direkt o tarihi alır
+            // Eğer geçerli bir tarih verildiyse onu başlangıç kabul eder.
             baslangic = garantiBaslangic;
         }
-        //garanti nesnesine garanti başlangıç değerini atar
+        // Cihaz oluşturulduğunda varsayılan olarak Standart Garanti başlatır.
         this.garanti = new StandartGaranti(baslangic, getGarantiSuresiYil());
     }
 
@@ -46,37 +48,49 @@ public abstract class Cihaz {
     public double getFiyat() { return fiyat; }
     public Musteri getSahip() { return sahip; }
     public Garanti getGaranti() { return garanti; }
-    public LocalDate getGarantiBaslangic() { return garanti.getBaslangicTarihi(); }
-    public LocalDate getGarantiBitisTarihi() { return garanti.getBitisTarihi(); }
-    public boolean garantiAktifMi() { return garanti.devamEdiyorMu(); } //Garanti Devam ediyor mu
 
-    //Fiyat değeri atama setterı
+    // Garanti nesnesi üzerinden başlangıç tarihine erişen yönlendirici (delegation) metot.
+    public LocalDate getGarantiBaslangic() { return garanti.getBaslangicTarihi(); }
+
+    // Garanti nesnesi üzerinden bitiş tarihini hesaplayıp döndüren metot.
+    public LocalDate getGarantiBitisTarihi() { return garanti.getBitisTarihi(); }
+
+    // Garantinin şu anki tarihe göre geçerli olup olmadığını kontrol eder.
+    public boolean garantiAktifMi() { return garanti.devamEdiyorMu(); }
+
+    // Fiyat değeri atama setterı
     public void setFiyat(double fiyat) throws GecersizDegerException {
+        // Fiyatın negatif girilmesini engelleyerek mantıksal hatayı önler.
         if (fiyat < 0) throw new GecersizDegerException("Fiyat negatif olamaz!");
         this.fiyat = fiyat;
     }
 
-    //Marka bilgisi setterı
+    // Marka bilgisi setterı
     public void setMarka(String marka) throws GecersizDegerException {
+        // Marka alanının boş bırakılmasını engelleyen doğrulama kontrolü.
         if (marka == null || marka.trim().isEmpty()) throw new GecersizDegerException("Marka alanı boş bırakılamaz.");
         this.marka = marka;
     }
 
-    //Model bilgisi setterı
+    // Model bilgisi setterı
     public void setModel(String model) throws GecersizDegerException {
+        // Model alanının boş bırakılmasını engelleyen doğrulama kontrolü.
         if (model == null || model.trim().isEmpty()) throw new GecersizDegerException("Model alanı boş bırakılamaz.");
         this.model = model;
     }
 
-    //Ekstra garanti süresi ekleme metodunu çağıran getter
+    // Ekstra garanti süresi ekleme metodunu çağıran getter
     public int getEkstraGarantiSuresiAy() {
+        // Toplam süreden standart süreyi çıkararak sadece eklenen ayı hesaplar.
         return garanti.hesaplaEkstraSureAy(getGarantiSuresiYil());
     }
 
-    //Aylık garanti uzatma metodu
+    // Aylık garanti uzatma metodu
     public void garantiUzat(int ay) {
+        // Mevcut garanti süresine belirtilen ayı ekler.
         this.garanti.sureUzat(ay);
-        // garantin nesnesinin StandartGaranti sınıfına ait olup olmadığını kontrol eder
+
+        // Eğer garanti tipi hala Standart ise, uzatma işlemi yapıldığı için onu Uzatılmış Garanti sınıfına yükseltir.
         if (this.garanti instanceof StandartGaranti) {
             int toplamEkstraSure = getEkstraGarantiSuresiAy();
             this.garanti = new UzatilmisGaranti(
@@ -87,17 +101,22 @@ public abstract class Cihaz {
         }
     }
 
+    // Alt sınıfların kendi garanti sürelerini (Telefon: 2 yıl vb.) belirtmesi için zorunlu metot.
     public abstract int getGarantiSuresiYil();
+
+    // Alt sınıfların kendi tür isimlerini döndürmesi için zorunlu metot.
     public abstract String getCihazTuru();
 
 
     @Override
     public String toString() {
-        //Garantinin aktif olup oladığını test eder.
+        // Garantinin aktif olup olmadığını kontrol ederek kullanıcı dostu bir metin hazırlar.
         String garantiDurumu = garantiAktifMi() ? "Aktif" : "Sona Ermiş";
-        //Garanti süresi uzatıldıysa kaç ay uzatıldığını yazar.
+
+        // Eğer süre uzatılmışsa, ne kadar uzatıldığını parantez içinde belirtir.
         String ekstraBilgi = getEkstraGarantiSuresiAy() > 0 ? " (+" + getEkstraGarantiSuresiAy() + " Ay Uzatıldı)" : "";
-        //Cihaz hakkındaki bilgileri verir.
+
+        // Cihazın marka, model, seri no ve garanti durumunu tek satırda özetleyen çıktıyı oluşturur.
         return String.format("%s [%s - %s] (Seri No: %s) - Garanti: %s%s",
                 getCihazTuru(), marka, model, seriNo, garantiDurumu, ekstraBilgi);
     }

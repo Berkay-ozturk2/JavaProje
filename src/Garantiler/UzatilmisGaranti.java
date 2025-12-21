@@ -2,31 +2,29 @@ package Garantiler;
 
 import java.time.LocalDate;
 
-
+// Standart garantiye ek süre ve avantajlar (indirim vb.) sağlayan gelişmiş garanti sınıfı.
 public class UzatilmisGaranti extends Garanti {
 
-
-      //Uzatılmış Garanti kurucu metodu.
-      //Standart süreye ek olarak belirlenen ekstra ay süresiyle başlatılır.
+    // Uzatılmış Garanti kurucu metodu; standart süreye eklenen ayları da hesaba katarak nesneyi oluşturur.
     public UzatilmisGaranti(LocalDate baslangicTarihi, int sureYil, int ekstraAy) {
-        // Üst sınıfın constructor'ına tüm parametreleri gönderiyoruz.
+        // Üst sınıfın yapıcısını çağırarak hem standart yılı hem de ekstra ayları işler.
         super(baslangicTarihi, sureYil, ekstraAy);
     }
 
-
     @Override
-    //Servis maliyetini hesaplar.
+    // Servis maliyetini hesaplar; uzatılmış garanti sahiplerine özel indirim mantığı içerir.
     public double sonMaliyetHesapla(double hamUcret) {
+        // Garanti süresi devam ediyorsa tamir tamamen ücretsizdir.
         if (devamEdiyorMu()) {
-            return 0.0; // Garanti kapsamındaysa ücret alınmaz
+            return 0.0;
         } else {
-            // Uzatılmış garanti alan müşteri, süresi bitse bile %10 indirim alır.
-            // hamUcret * 0.90 -> %10 indirimli fiyat
+            // Süre bitmiş olsa dahi, uzatılmış garanti alan müşteriye %10 sadakat indirimi uygulanır.
             return hamUcret * 0.90;
         }
     }
 
     @Override
+    // Sistemin diğer bölümlerinde (Raporlar vb.) görünmesi için bu garantinin özel adını döndürür.
     public String garantiTuru() {
         return "Uzatılmış Garanti Paketi";
     }

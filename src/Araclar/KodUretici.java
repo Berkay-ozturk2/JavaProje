@@ -2,9 +2,7 @@ package Araclar;
 
 import java.util.Random;
 
-/**
- * Sistemdeki benzersiz kodları ve seri numaralarını üretmekten sorumlu yardımcı sınıf.
- */
+//Sistemdeki benzersiz kodları ve seri numaralarını üretmekten sorumlu yardımcı sınıf.
 public class KodUretici {
 
     // Belirtilen cihaz türüne göre rastgele bir seri numarası üretir.

@@ -10,64 +10,64 @@ import java.util.Random;
  */
 public abstract class Garanti {
 
-    // Garantinin başladığı ve biteceği tarihleri tutan alanlar
+    // Garantinin başladığı ve biteceği tarihleri tutan alanlar.
     protected LocalDate baslangicTarihi;
     protected LocalDate bitisTarihi;
 
-    //Garanti constructor
+    // Garanti constructor
     public Garanti(LocalDate baslangicTarihi, int sureYil, int ekstraAy) {
         this.baslangicTarihi = baslangicTarihi;
-        // Bitiş tarihi hesaplaması: Başlangıç + Yıl + Ekstra Ay
+        // Verilen standart yıl ve ekstra ay bilgisini toplayarak kesin bitiş tarihini hesaplar.
         this.bitisTarihi = baslangicTarihi.plusYears(sureYil).plusMonths(ekstraAy);
     }
 
-    //Test verisi oluşturmak için geçmişe dönük rastgele bir başlangıç tarihi üretir.
+    // Test verisi oluşturmak için geçmişe dönük rastgele bir başlangıç tarihi üretir.
     public static LocalDate rastgeleBaslangicOlustur(int sureYil) {
         Random rand = new Random();
-        // Verilen yıl kadar günü hesaplar
+
+        // Garanti süresinin biraz fazlası kadar gün aralığı belirler.
         int maxRandomDays = (sureYil + 1) * 365;
-        // 0 ile maxRandomDays arasında rastgele bir gün sayısı seçer
+
+        // Belirlenen aralıkta rastgele bir gün sayısı seçer.
         int randomDays = rand.nextInt(maxRandomDays + 1);
 
-        // Bugünden o kadar gün geriye giderek tarihi döndürür
+        // Simülasyon gereği bugünden geçmişe giderek başlangıç tarihini döndürür.
         return LocalDate.now().minusDays(randomDays);
     }
 
-    /* Mevcut garantinin, standart bir garanti süresine göre ne kadar uzatıldığını hesaplar.
-    (Örn: Standart 2 yıl ise ama garanti 2 yıl 6 ay sürüyorsa, 6 döner).
-    Epoch = 1 Ocak 1970 tarihinden bugüne kadar sayar*/
+    /* Mevcut garantinin, standart bir garanti süresine göre ne kadar uzatıldığını hesaplar. */
     public int hesaplaEkstraSureAy(int standartSureYil) {
-        // Standart sürenin biteceği tarihi epoch (gün sayısı) cinsinden bulur
+        // Standart sürenin bitiş tarihini gün (epoch) cinsinden hesaplar.
         long standartBitisEpoch = baslangicTarihi.plusYears(standartSureYil).toEpochDay();
-        // Mevcut garantinin biteceği tarihi epoch cinsinden bulur
+
+        // Mevcut (uzatılmış olabilir) bitiş tarihini gün cinsinden hesaplar.
         long guncelBitisEpoch = bitisTarihi.toEpochDay();
 
-        // Eğer mevcut garanti, standart süreden daha uzunsa farkı hesapla
+        // Eğer güncel tarih standart tarihi geçiyorsa aradaki farkı aya çevirir.
         if (guncelBitisEpoch > standartBitisEpoch) {
             long farkGun = guncelBitisEpoch - standartBitisEpoch;
-            // Gün farkını aya çevir
             return (int) (farkGun / 30);
         }
-        return 0; // Ekstra süre yoksa 0 döner
+        // Ekstra süre yoksa 0 döndürür.
+        return 0;
     }
 
-    //Garantinin şu anki tarih itibarıyla geçerli olup olmadığını kontrol eder.
+    // Garantinin şu anki tarih itibarıyla geçerli olup olmadığını kontrol eder.
     public boolean devamEdiyorMu() {
-        // Şu anki tarih, bitiş tarihinden önceyse veya eşitse garanti devam ediyordur.
+        // Bugünün tarihi, bitiş tarihinden önceyse veya ona eşitse garanti aktiftir.
         return LocalDate.now().isBefore(bitisTarihi) || LocalDate.now().isEqual(bitisTarihi);
     }
 
     // --- SOYUT METOTLAR (Alt sınıflar bunları ezmek/implement etmek zorundadır) ---
 
-
-    //Garantinin türüne göre son maliyeti hesaplar.
+    // Garantinin türüne göre (Standart/Uzatılmış) indirimli veya tam maliyeti hesaplar.
     public abstract double sonMaliyetHesapla(double hamUcret);
 
-    //Garantinin türünü metin olarak döndürür (Örn: "Standart", "Ekstra").
+    // Garantinin türünü ayırt etmek için metin etiketi döndürür.
     public abstract String garantiTuru();
 
 
-    //GETTER VE YARDIMCI METOTLAR
+    // GETTER VE YARDIMCI METOTLAR
     public LocalDate getBaslangicTarihi() {
         return baslangicTarihi;
     }
@@ -76,15 +76,15 @@ public abstract class Garanti {
         return bitisTarihi;
     }
 
-
-    //Garantinin bitmesine kaç gün kaldığını hesaplar.
+    // Garantinin bitmesine tam olarak kaç gün kaldığını hesaplar.
     public long getKalanGunSayisi() {
+        // İki tarih arasındaki gün farkını (ChronoUnit.DAYS) kullanarak bulur.
         return ChronoUnit.DAYS.between(LocalDate.now(), bitisTarihi);
     }
 
-
-    //Garantinin bitiş tarihini belirtilen ay kadar ileri atar.
+    // Garantinin bitiş tarihini belirtilen ay kadar ileri atar.
     public void sureUzat(int ay) {
+        // Mevcut bitiş tarihine ay ekleyerek tarihi günceller.
         this.bitisTarihi = this.bitisTarihi.plusMonths(ay);
     }
 }

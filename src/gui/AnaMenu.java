@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 // Ana ekranımız burası, hem tabloyu hem butonları yönetiyor ve Cihaz Ekleme olaylarını dinliyor
-public class Main extends JFrame implements CihazEkleListener {
+public class AnaMenu extends JFrame implements CihazEkleListener {
 
     private JTabbedPane tabbedPane; // Sekmeli yapı (Telefon, Tablet vs. ayrımı için)
     private Map<String, DefaultTableModel> tableModels = new HashMap<>(); // Tablo modellerini isme göre tutuyoruz
@@ -45,7 +45,7 @@ public class Main extends JFrame implements CihazEkleListener {
     private static final Color COLOR_DANGER = new Color(231, 76, 60);          // Kırmızı (Silme)
     private static final Color COLOR_NEUTRAL = new Color(149, 165, 166);       // Gri (Çıkış)
 
-    public Main() {
+    public AnaMenu() {
         // Program açılırken verileri dosyadan yüklüyoruz
         cihazListesi = DosyaIslemleri.cihazlariYukle(CIHAZ_DOSYA_ADI);
         servisYonetimi = new ServisYonetimi(cihazListesi);
@@ -111,7 +111,7 @@ public class Main extends JFrame implements CihazEkleListener {
 
         JButton btnEkle = createStyledButton("Yeni Cihaz", COLOR_ACTION_PRIMARY);
         btnEkle.addActionListener(e -> {
-            CihazKayitDialog dialog = new CihazKayitDialog(this, this); // Kayıt penceresini açıyoruz
+            CihazKayit dialog = new CihazKayit(this, this); // Kayıt penceresini açıyoruz
             dialog.setVisible(true);
         });
 
@@ -130,7 +130,7 @@ public class Main extends JFrame implements CihazEkleListener {
         centerActions.setOpaque(false);
 
         JButton btnTakip = createStyledButton("Servis Takip Ekranı", COLOR_ACTION_SECONDARY);
-        btnTakip.addActionListener(e -> new ServisTakipFrame(servisYonetimi).setVisible(true)); // Takip ekranını açıyoruz
+        btnTakip.addActionListener(e -> new ServisTakipEkrani(servisYonetimi).setVisible(true)); // Takip ekranını açıyoruz
 
         JButton btnRapor = createStyledButton("Rapor Al", COLOR_ACTION_SECONDARY);
         btnRapor.addActionListener(e -> konsolRaporuOlustur()); // Raporu konsola basıyoruz
@@ -237,7 +237,7 @@ public class Main extends JFrame implements CihazEkleListener {
         }
         for (Cihaz c : liste) {
             String musteriBilgisi = c.getSahip().toString().toUpperCase();
-            if (c.getSahip().isVip()) musteriBilgisi += " [VIP]"; // VIP müşteriyi belirtiyoruz
+            if (c.getSahip().vipMi()) musteriBilgisi += " [VIP]"; // VIP müşteriyi belirtiyoruz
 
             Object[] rowData = new Object[]{
                     c.getCihazTuru(), c.getMarka(), c.getModel(), c.getSeriNo(),
@@ -269,7 +269,7 @@ public class Main extends JFrame implements CihazEkleListener {
         }
         // Kullanıcıya bilgi göstermek için metinleri hazırlıyoruz
         String garantiDurumu = selectedCihaz.garantiAktifMi() ? "Aktif" : "BİTMİŞ";
-        String vipBilgi = selectedCihaz.getSahip().isVip() ? " [VIP Müşteri]" : "";
+        String vipBilgi = selectedCihaz.getSahip().vipMi() ? " [VIP Müşteri]" : "";
         JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
         String mesaj = String.format("Cihaz: %s\nSahibi: %s%s\nGaranti: %s (%s)\n\nSorunu Seçin: ",
                 selectedCihaz.getModel(), selectedCihaz.getSahip().getAd() + " " + selectedCihaz.getSahip().getSoyad(),

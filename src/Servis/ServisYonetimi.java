@@ -39,7 +39,7 @@ public class ServisYonetimi implements IVeriIslemleri {
         double hamUcret = FiyatlandirmaHizmeti.tamirUcretiHesapla(
                 hamSorunMetni,
                 cihaz.getFiyat(),
-                cihaz.getSahip().isVip()
+                cihaz.getSahip().vipMi()
         );
 
         // Garantiyi devreye sokarak müşterinin ödeyeceği son tutarı buluyoruz

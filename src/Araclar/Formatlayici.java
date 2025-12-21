@@ -24,7 +24,7 @@ public class Formatlayici {
      * Bir Cihaz nesnesini dosya formatına uygun String haline getirir.
      */
     public static String cihazMetneDonustur(Cihaz cihaz) {
-        // Ortak alanlar
+        // Tüm cihazlarda ortak olan temel bilgileri (marka, fiyat, müşteri vb.) formatlar.
         String temel = String.format("%s;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
                 cihaz.getCihazTuru(),
                 cihaz.getSeriNo(),
@@ -36,9 +36,9 @@ public class Formatlayici {
                 cihaz.getSahip().getAd(),
                 cihaz.getSahip().getSoyad(),
                 cihaz.getSahip().getTelefon(),
-                cihaz.getSahip().isVip());
+                cihaz.getSahip().vipMi());
 
-        // Türüne göre özel alanları ekle
+        // Cihaz Tablet ise kalem desteği bilgisini de metnin sonuna ekler.
         if (cihaz instanceof Tablet) {
             return temel + ";;" + ((Tablet) cihaz).getKalemDestegi();
         }
@@ -52,9 +52,13 @@ public class Formatlayici {
      */
     public static Cihaz metniCihazaDonustur(String satir) {
         try {
+            // Satırı ';;' ayracına göre parçalayarak veri dizisine dönüştürür.
             String[] parcalar = satir.split(";;");
+
+            // Eksik veri varsa işlem yapmadan null döndürür.
             if (parcalar.length < 10) return null;
 
+            // Temel veri alanlarını (String, double, int, tarih) ayrıştırır.
             String tur = parcalar[0].trim();
             String seriNo = parcalar[1].trim();
             String marka = parcalar[2].trim();
@@ -63,18 +67,20 @@ public class Formatlayici {
             LocalDate tarih = LocalDate.parse(parcalar[5].trim());
             int ekstraSure = Integer.parseInt(parcalar[6].trim());
 
+            // Cihazın sahibini temsil eden müşteri nesnesini oluşturur.
             Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
 
             boolean isVip = false;
             boolean kalem = false;
 
-            // Parça sayısına göre opsiyonel alanları kontrol et
+            // Cihaz türüne göre (Tablet mi diğerleri mi) opsiyonel alanları kontrol eder.
             if (tur.equalsIgnoreCase("Tablet")) {
                 if (parcalar.length > 11) {
+                    // Hem VIP hem Kalem bilgisi varsa ikisini de okur.
                     isVip = Boolean.parseBoolean(parcalar[10].trim());
                     kalem = Boolean.parseBoolean(parcalar[11].trim());
                 } else if (parcalar.length == 11) {
-                    // Eski format uyumluluğu
+                    // Eski kayıt formatıyla uyumluluk sağlamak için hata yönetimiyle okur.
                     try {
                         isVip = Boolean.parseBoolean(parcalar[10].trim());
                     } catch (Exception e) {
@@ -82,14 +88,17 @@ public class Formatlayici {
                     }
                 }
             } else {
+                // Tablet değilse sadece VIP bilgisini kontrol eder.
                 if (parcalar.length > 10) {
                     isVip = Boolean.parseBoolean(parcalar[10].trim());
                 }
             }
 
+            // Müşterinin VIP durumunu günceller.
             musteri.setVip(isVip);
 
             Cihaz cihaz = null;
+            // Okunan türe göre ilgili alt sınıftan (Telefon, Laptop, Tablet) nesne üretir.
             if (tur.equalsIgnoreCase("Telefon")) {
                 cihaz = new Telefon(seriNo, marka, model, fiyat, tarih, musteri);
             } else if (tur.equalsIgnoreCase("Laptop")) {
@@ -98,12 +107,14 @@ public class Formatlayici {
                 cihaz = new Tablet(seriNo, marka, model, fiyat, tarih, kalem, musteri);
             }
 
+            // Cihaz başarıyla oluşturulduysa ve ekstra garanti süresi varsa ekler.
             if (cihaz != null && ekstraSure > 0) {
                 cihaz.garantiUzat(ekstraSure);
             }
             return cihaz;
 
         } catch (Exception e) {
+            // Herhangi bir ayrıştırma hatasında konsola bilgi basar ve null döndürür.
             System.err.println("Cihaz ayrıştırma hatası (" + satir + "): " + e.getMessage());
             return null;
         }
@@ -112,10 +123,12 @@ public class Formatlayici {
     // --- SERVİS KAYDI İŞLEMLERİ ---
 
     public static String servisKaydiMetneDonustur(ServisKaydi kayit) {
+        // Teknisyen veya tarih bilgisi null ise "Yok" yazarak hatayı önler.
         String tekAd = (kayit.getAtananTeknisyen() != null) ? kayit.getAtananTeknisyen().getAd() : "Yok";
         String tekUzmanlik = (kayit.getAtananTeknisyen() != null) ? kayit.getAtananTeknisyen().getUzmanlikAlani() : "Yok";
         String bitisTarihiStr = (kayit.getTamamlamaTarihi() != null) ? kayit.getTamamlamaTarihi().toString() : "Yok";
 
+        // Tüm servis bilgilerini sıralı bir şekilde birleştirip döndürür.
         return String.format("%s;;%s;;%s;;%s;;%s;;%s;;%s;;%s;;%s;;%.2f;;%s",
                 kayit.getCihaz().getSeriNo(),
                 kayit.getCihaz().getCihazTuru(),
@@ -132,12 +145,13 @@ public class Formatlayici {
 
     public static ServisKaydi metniServisKaydinaDonustur(String satir, List<Cihaz> guncelCihazListesi) {
         try {
+            // Satırı parçalayıp en az veri uzunluğunu kontrol eder.
             String[] p = satir.split(";;");
             if(p.length < 10) return null;
 
             String seriNo = p[0].trim();
 
-            // Cihazı listeden bul
+            // Seri numarasını kullanarak listedeki gerçek cihaz nesnesini arar.
             Cihaz gercekCihaz = null;
             if (guncelCihazListesi != null) {
                 for (Cihaz c : guncelCihazListesi) {
@@ -148,7 +162,7 @@ public class Formatlayici {
                 }
             }
 
-            // Cihaz silinmişse veya bulunamazsa "Hayalet" (Dummy) cihaz oluştur
+            // Cihaz silinmişse veya bulunamazsa kaydın bozulmaması için "Hayalet" (Dummy) cihaz oluşturur.
             if (gercekCihaz == null) {
                 Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
                 LocalDate gecmisTarih = LocalDate.now().minusYears(10);
@@ -156,6 +170,7 @@ public class Formatlayici {
                 String marka = p[2].trim();
                 String model = p[3].trim();
 
+                // Türüne göre geçici bir cihaz nesnesi yaratır.
                 if(tur.equalsIgnoreCase("Telefon"))
                     gercekCihaz = new Telefon(seriNo, marka, model, 0, gecmisTarih, dummyMusteri);
                 else if(tur.equalsIgnoreCase("Laptop"))
@@ -164,10 +179,11 @@ public class Formatlayici {
                     gercekCihaz = new Tablet(seriNo, marka, model, 0, gecmisTarih, false, dummyMusteri);
             }
 
+            // Bulunan veya oluşturulan cihaz ile servis kaydını başlatır.
             ServisKaydi kayit = new ServisKaydi(gercekCihaz, p[4].trim());
             kayit.setGirisTarihi(LocalDate.parse(p[5].trim()));
 
-            // Durumu bul ve ata
+            // Metin olarak gelen servis durumunu Enum yapısına (ServisDurumu) çevirir.
             for(ServisDurumu d : ServisDurumu.values()) {
                 if(d.toString().equalsIgnoreCase(p[6].trim())) {
                     kayit.setDurum(d);
@@ -175,27 +191,25 @@ public class Formatlayici {
                 }
             }
 
-            // Teknisyeni ata
+            // Teknisyen bilgisi varsa ilgili teknisyeni bulur veya oluşturur.
             String tekAd = p[7].trim();
             String tekUzmanlik = p[8].trim();
             if(!tekAd.equals("Yok")) {
                 kayit.setAtananTeknisyen(TeknisyenDeposu.teknisyenBulVeyaOlustur(tekAd, tekUzmanlik));
             }
 
+            // Tamir ücretini sayısal veriye çevirir.
             kayit.setTahminiTamirUcreti(Double.parseDouble(p[9].replace(",", ".").trim()));
 
+            // Varsa tamamlama tarihini okur ve kayda işler.
             if (p.length > 10 && !p[10].trim().equals("Yok")) {
-                // Burada protected alana erişemeyebiliriz, bu yüzden setter kullanılması gerekir
-                // Ancak ServisKaydi içinde tamamlama tarihi için public bir setter yoksa,
-                // Durumu TAMAMLANDI yaparak set edebiliriz, ama tarih "bugün" olur.
-                // İdeal çözüm ServisKaydi'na "setTamamlamaTarihi" eklemektir.
-                // Şimdilik durumu manuel yönetelim veya bu detayı ServisKaydi'na ekleyelim.
-                // Çözüm: ServisKaydi sınıfına setTamamlamaTarihi ekleyeceğiz.
+                // Not: ServisKaydi sınıfında setTamamlamaTarihi metodu olduğu varsayılmıştır.
                 kayit.setTamamlamaTarihi(LocalDate.parse(p[10].trim()));
             }
 
             return kayit;
         } catch (Exception e) {
+            // Hata durumunda konsola bilgi verip null döndürür.
             System.err.println("Servis kaydı okuma hatası: " + e.getMessage());
             return null;
         }

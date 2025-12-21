@@ -3,31 +3,32 @@ package Cihazlar;
 import java.time.LocalDate;
 import Musteri.Musteri;
 import Arayuzler.IRaporIslemleri;
-import Istisnalar.GecersizDegerException; // Eklendi
+import Istisnalar.GecersizDegerException;
 
+// Cihaz sınıfından türetilen ve raporlama yeteneği kazandıran arayüzü uygulayan Laptop sınıfı.
 public class Laptop extends Cihaz implements IRaporIslemleri {
 
-    //Laptop constructor
+    // Laptop Constructor
     public Laptop(String seriNo, String marka, String model, double fiyat,
                   LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
-        //Bilgileri Cihaz Ata sınıfına gönderir
+        // Üst sınıfın (Cihaz) yapıcısını çağırarak ortak özellikleri başlatır.
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
     }
 
     @Override
-    //Laptop garanti süresi 3 yıl
+    // Laptop cihazları için özel olarak belirlenen garanti süresini (3 yıl) döndürür.
     public int getGarantiSuresiYil() {
         return 3;
     }
 
     @Override
+    // Polimorfizm işlemlerinde bu nesnenin "Laptop" olduğunu belirten metni döndürür.
     public String getCihazTuru() {
         return "Laptop";
     }
 
     @Override
-    //IRaporIslemlerini implement ettiği için detayliRaporVer metodunu override eder.
-    //Listedeki Laptoplar için detaylı rapor oluşturur
+    // IRaporIslemleri arayüzü gereği, cihazın teknik durumunu içeren detaylı bir rapor metni oluşturur.
     public String detayliRaporVer() {
         return "=== LAPTOP TEKNİK RAPORU ===\n" +
                 "Marka/Model: " + getMarka() + " " + getModel() + "\n" +
@@ -36,13 +37,13 @@ public class Laptop extends Cihaz implements IRaporIslemleri {
     }
 
     @Override
-    //SeriNo'ya göre Cihaz Raporu başlığını koyar
+    // Rapor çıktılarında kullanılmak üzere seri numarasını içeren standart bir başlık sağlar.
     public String getRaporBasligi() {
         return "Cihaz Raporu: " + getSeriNo();
     }
 
     @Override
-    //Laptop için tek satırlık özet rapor bilgisi oluşturur.
+    // Listelerde gösterilmek üzere cihazın marka, model ve türünü içeren kısa bir özet döndürür.
     public String getOzetBilgi() {
         return getMarka() + " " + getModel() + " (" + getCihazTuru() + ")";
     }

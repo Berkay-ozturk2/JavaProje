@@ -10,7 +10,7 @@ public class Tablet extends Cihaz {
     // Tablet constructor
     public Tablet(String seriNo, String marka, String model, double fiyat,
                   LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) throws GecersizDegerException {
-        //Bilgileri Cihaz Ata sınıfına gönderir
+        // Üst sınıfın (Cihaz) yapıcısını çağırarak ortak özellikleri başlatır.
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
         this.kalemDestegi = kalemDestegi;
     }

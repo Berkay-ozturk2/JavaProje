@@ -1,6 +1,5 @@
 package gui;
 
-import Cihazlar.Cihaz;
 import Servis.ServisDurumu;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
@@ -14,11 +13,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 // Servis kayıtlarının listelendiği ve durumlarının yönetildiği ana pencere sınıfıdır.
-public class ServisTakipFrame extends JFrame {
+public class ServisTakipEkrani extends JFrame {
 
     // Servis mantığı işlemlerini yürüten yönetici nesne.
     private final ServisYonetimi servisYonetimi;
@@ -29,7 +27,7 @@ public class ServisTakipFrame extends JFrame {
     private Map<String, JTable> tables = new HashMap<>();
 
     // Yapıcı metot, arayüzü başlatır ve verileri tabloya yükler.
-    public ServisTakipFrame(ServisYonetimi yonetim) {
+    public ServisTakipEkrani(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         initUI();
         kayitlariTabloyaDoldur();
