@@ -99,7 +99,7 @@ public class CihazKatalogu {
         TUM_MODELLER.put("Laptop", laptopModelleri);
     }
 
-    //Markaları çağıran getter metodu
+    //Belirtilen cihaz türüne göre markaları çağıran getter metodu
     public static String[] getMarkalar(String tur) {
         //Eğer key içinde telefon,tablet veya laptop varsa çalışır
         if (TUM_MODELLER.containsKey(tur)) {
@@ -109,6 +109,7 @@ public class CihazKatalogu {
         return new String[0];
     }
 
+    //Belirtilen cihaz türüne ve markasına göre modelleri çağırır
     public static String[] getModeller(String tur, String marka) {
         if (TUM_MODELLER.containsKey(tur) && TUM_MODELLER.get(tur).containsKey(marka)) {
             return TUM_MODELLER.get(tur).get(marka);
@@ -116,11 +117,16 @@ public class CihazKatalogu {
         return new String[0];
     }
 
+    //Modele göre fiyatları çeğıran getter
     public static double getFiyat(String model) {
         return MODEL_FIYATLARI.getOrDefault(model, 0.0);
     }
 
+
+    // Verilen model isminin fiyat listesinde kayıtlı olup olmadığını kontrol eden metot.
     public static boolean fiyatMevcutMu(String model) {
+        // MODEL_FIYATLARI haritasında bu modelin anahtar olarak bulunup bulunmadığını sorgular.
+        // Eğer model listede varsa 'true', yoksa 'false' değerini döndürür.
         return MODEL_FIYATLARI.containsKey(model);
     }
 }

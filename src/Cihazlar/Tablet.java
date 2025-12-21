@@ -7,9 +7,10 @@ import Istisnalar.GecersizDegerException; // Eklendi
 public class Tablet extends Cihaz {
     private boolean kalemDestegi;
 
-    // throws GecersizDegerException eklendi
+    // Tablet constructor
     public Tablet(String seriNo, String marka, String model, double fiyat,
                   LocalDate garantiBaslangic, boolean kalemDestegi, Musteri sahip) throws GecersizDegerException {
+        //Bilgileri Cihaz Ata sınıfına gönderir
         super(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
         this.kalemDestegi = kalemDestegi;
     }
@@ -19,6 +20,7 @@ public class Tablet extends Cihaz {
     }
 
     @Override
+    //Tablet garanti süresi 2 yıl
     public int getGarantiSuresiYil() {
         return 2;
     }
