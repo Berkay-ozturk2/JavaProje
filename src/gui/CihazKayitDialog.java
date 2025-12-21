@@ -4,12 +4,14 @@ import Cihazlar.*;
 import Musteri.Musteri;
 import Istisnalar.GecersizDegerException;
 import Araclar.KodUretici;
+import com.formdev.flatlaf.FlatClientProperties;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
 
-// Listener arayüzünü aynı dosya içinde tutuyoruz
+// Listener arayüzü
 interface CihazEkleListener {
     void cihazEklendi(Cihaz cihaz);
 }
@@ -18,6 +20,7 @@ public class CihazKayitDialog extends JDialog {
 
     private final CihazEkleListener listener;
 
+    // UI Bileşenleri
     private JComboBox<String> cmbTur;
     private JTextField txtSeriNo;
     private JComboBox<String> cmbMarka;
@@ -28,10 +31,10 @@ public class CihazKayitDialog extends JDialog {
     private JTextField txtMusteriTelefon;
     private JCheckBox chkVip;
     private JCheckBox chkEskiTarih;
+
+    // Dinamik Alanlar
     private JPanel specificPanel;
     private CardLayout cardLayout;
-
-    // Türlere özel bileşenler
     private JCheckBox chkCiftSim;
     private JCheckBox chkKalemDestegi;
     private JCheckBox chkSsd;
@@ -39,163 +42,247 @@ public class CihazKayitDialog extends JDialog {
     public CihazKayitDialog(JFrame parent, CihazEkleListener listener) {
         super(parent, "Yeni Cihaz Kaydı", true);
         this.listener = listener;
-        setSize(500, 700);
-        setLocationRelativeTo(parent);
-
-        // Eski initModelData() metodunu kaldırdık çünkü veriler artık CihazKatalogu'ndan geliyor.
         initUI();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout(10, 10));
-        JPanel generalPanel = new JPanel(new GridLayout(12, 2, 5, 5));
+        setSize(500, 750);
+        setLocationRelativeTo(getParent());
+        setLayout(new BorderLayout());
 
-        // --- Müşteri Bilgileri ---
-        txtMusteriAd = new JTextField();
-        generalPanel.add(new JLabel("Müşteri Adı:"));
-        generalPanel.add(txtMusteriAd);
+        // --- 1. BAŞLIK (HEADER) ---
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
+        headerPanel.setBackground(new Color(52, 152, 219)); // Mavi Başlık
 
-        txtMusteriSoyad = new JTextField();
-        generalPanel.add(new JLabel("Müşteri Soyadı:"));
-        generalPanel.add(txtMusteriSoyad);
+        JLabel lblTitle = new JLabel("Cihaz Kayıt Formu");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTitle.setForeground(Color.WHITE);
+        headerPanel.add(lblTitle);
 
-        txtMusteriTelefon = new JTextField("+90");
-        generalPanel.add(new JLabel("Telefon ((+90)5..):"));
-        generalPanel.add(txtMusteriTelefon);
+        add(headerPanel, BorderLayout.NORTH);
+
+        // --- 2. FORM ALANI (CENTER) ---
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 0, 8, 0); // Satır boşlukları
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        // Müşteri Bölümü
+        addSectionTitle(formPanel, gbc, "Müşteri Bilgileri");
+
+        txtMusteriAd = addFormField(formPanel, gbc, "Ad:", false);
+        txtMusteriSoyad = addFormField(formPanel, gbc, "Soyad:", false);
+        txtMusteriTelefon = addFormField(formPanel, gbc, "Telefon ((+90)5..):", false);
+        txtMusteriTelefon.setText("+90");
 
         chkVip = new JCheckBox("VIP Müşteri (%20 İndirim)");
-        generalPanel.add(new JLabel("Müşteri Statüsü:"));
-        generalPanel.add(chkVip);
+        chkVip.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkVip.setBackground(Color.WHITE);
+        gbc.gridy++;
+        formPanel.add(chkVip, gbc);
 
-        // --- Cihaz Bilgileri ---
-        generalPanel.add(new JLabel("Cihaz Türü:"));
+        // Cihaz Bölümü
+        addSeparator(formPanel, gbc);
+        addSectionTitle(formPanel, gbc, "Cihaz Detayları");
+
+        formPanel.add(createLabel("Cihaz Türü:"), gbc);
+        gbc.gridy++;
         String[] turler = {"Telefon", "Tablet", "Laptop"};
         cmbTur = new JComboBox<>(turler);
-        generalPanel.add(cmbTur);
+        styleComboBox(cmbTur);
+        formPanel.add(cmbTur, gbc);
+        gbc.gridy++;
 
-        // Seri No alanı (Otomatik üretilir)
-        txtSeriNo = new JTextField(KodUretici.rastgeleSeriNoUret((String) cmbTur.getSelectedItem()));
-        txtSeriNo.setEditable(false);
-        generalPanel.add(new JLabel("Seri No: (Otomatik)"));
-        generalPanel.add(txtSeriNo);
+        txtSeriNo = addFormField(formPanel, gbc, "Seri No (Otomatik):", true);
+        txtSeriNo.setText(KodUretici.rastgeleSeriNoUret((String) cmbTur.getSelectedItem()));
 
-        // Marka ve Model ComboBox'ları
+        formPanel.add(createLabel("Marka:"), gbc);
+        gbc.gridy++;
         cmbMarka = new JComboBox<>();
-        generalPanel.add(new JLabel("Marka:"));
-        generalPanel.add(cmbMarka);
+        styleComboBox(cmbMarka);
+        formPanel.add(cmbMarka, gbc);
+        gbc.gridy++;
 
+        formPanel.add(createLabel("Model:"), gbc);
+        gbc.gridy++;
         cmbModel = new JComboBox<>();
-        generalPanel.add(new JLabel("Model:"));
-        generalPanel.add(cmbModel);
+        styleComboBox(cmbModel);
+        formPanel.add(cmbModel, gbc);
+        gbc.gridy++;
 
-        // Cihaz Türü Değişince Çalışacak Listener
+        txtFiyat = addFormField(formPanel, gbc, "Fiyat (TL):", false);
+
+        chkEskiTarih = new JCheckBox("Geçmiş Tarihli Kayıt (Test Amaçlı)");
+        chkEskiTarih.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        chkEskiTarih.setForeground(Color.GRAY);
+        chkEskiTarih.setBackground(Color.WHITE);
+        gbc.gridy++;
+        formPanel.add(chkEskiTarih, gbc);
+
+        // --- Dinamik Alanlar (CardLayout) ---
+        gbc.gridy++;
+        cardLayout = new CardLayout();
+        specificPanel = new JPanel(cardLayout);
+        specificPanel.setBackground(Color.WHITE);
+        specificPanel.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        // Panelleri Oluştur
+        JPanel pTelefon = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pTelefon.setBackground(Color.WHITE);
+        chkCiftSim = new JCheckBox("Çift Sim Desteği");
+        chkCiftSim.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkCiftSim.setBackground(Color.WHITE);
+        pTelefon.add(chkCiftSim);
+
+        JPanel pTablet = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pTablet.setBackground(Color.WHITE);
+        chkKalemDestegi = new JCheckBox("Kalem Desteği Var");
+        chkKalemDestegi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkKalemDestegi.setBackground(Color.WHITE);
+        pTablet.add(chkKalemDestegi);
+
+        JPanel pLaptop = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pLaptop.setBackground(Color.WHITE);
+        chkSsd = new JCheckBox("Harici Ekran Kartı");
+        chkSsd.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkSsd.setBackground(Color.WHITE);
+        pLaptop.add(chkSsd);
+
+        specificPanel.add(pTelefon, "Telefon");
+        specificPanel.add(pTablet, "Tablet");
+        specificPanel.add(pLaptop, "Laptop");
+
+        formPanel.add(specificPanel, gbc);
+
+        // --- Scroll Pane (Form uzun olabilir) ---
+        JScrollPane scrollPane = new JScrollPane(formPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // --- 3. ALT BUTON (FOOTER) ---
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        footerPanel.setBackground(new Color(245, 248, 250));
+
+        JButton btnKaydet = new JButton("Kaydı Tamamla");
+        btnKaydet.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnKaydet.setBackground(new Color(46, 204, 113)); // Yeşil Buton
+        btnKaydet.setForeground(Color.WHITE);
+        btnKaydet.setPreferredSize(new Dimension(150, 40));
+        btnKaydet.setFocusPainted(false);
+        btnKaydet.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
+
+        btnKaydet.addActionListener(e -> kaydet());
+        footerPanel.add(btnKaydet);
+        add(footerPanel, BorderLayout.SOUTH);
+
+        // --- LISTENERS ---
+        setupListeners();
+    }
+
+    // --- YARDIMCI METOTLAR (UI) ---
+
+    private void addSectionTitle(JPanel panel, GridBagConstraints gbc, String title) {
+        JLabel label = new JLabel(title);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        label.setForeground(new Color(44, 62, 80));
+        label.setBorder(new EmptyBorder(10, 0, 5, 0));
+        gbc.gridy++;
+        panel.add(label, gbc);
+        gbc.gridy++;
+    }
+
+    private void addSeparator(JPanel panel, GridBagConstraints gbc) {
+        gbc.gridy++;
+        JSeparator sep = new JSeparator();
+        sep.setForeground(Color.LIGHT_GRAY);
+        panel.add(sep, gbc);
+        gbc.gridy++;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lbl.setForeground(Color.GRAY);
+        return lbl;
+    }
+
+    private JTextField addFormField(JPanel panel, GridBagConstraints gbc, String labelText, boolean readOnly) {
+        panel.add(createLabel(labelText), gbc);
+        gbc.gridy++;
+        JTextField txt = new JTextField();
+        txt.setPreferredSize(new Dimension(100, 35)); // Yükseklik artırıldı
+        txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        if (readOnly) {
+            txt.setEditable(false);
+            txt.setBackground(new Color(240, 240, 240));
+        }
+        // Köşeleri yuvarlat
+        txt.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
+
+        panel.add(txt, gbc);
+        gbc.gridy++;
+        return txt;
+    }
+
+    private void styleComboBox(JComboBox<?> box) {
+        box.setPreferredSize(new Dimension(100, 35));
+        box.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        box.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
+    }
+
+    // --- MANTIK METOTLARI (Eskisiyle aynı) ---
+
+    private void setupListeners() {
         cmbTur.addActionListener(e -> {
             String secilenTur = (String) cmbTur.getSelectedItem();
-
-            // Marka listesini kataloğa göre güncelle
             guncelMarkaListesiniDoldur(secilenTur);
-
-            // İlgili özel paneli göster (örn: Tablet için kalem desteği)
             cardLayout.show(specificPanel, secilenTur);
-
-            // Yeni türe uygun seri numarası üret
             txtSeriNo.setText(KodUretici.rastgeleSeriNoUret(secilenTur));
         });
 
-        // Marka Değişince Modelleri Güncelle
         cmbMarka.addActionListener(e -> {
-            String secilenTur = (String) cmbTur.getSelectedItem();
-            String secilenMarka = (String) cmbMarka.getSelectedItem();
-            guncelModelListesiniDoldur(secilenTur, secilenMarka);
+            String tur = (String) cmbTur.getSelectedItem();
+            String marka = (String) cmbMarka.getSelectedItem();
+            guncelModelListesiniDoldur(tur, marka);
         });
 
-        txtFiyat = new JTextField();
-        generalPanel.add(new JLabel("Fiyat (TL):"));
-        generalPanel.add(txtFiyat);
-
-        // Model Seçilince Fiyatı Otomatik Getir
         cmbModel.addActionListener(e -> {
-            String secilenModel = (String) cmbModel.getSelectedItem();
-            // CihazKatalogu üzerinden fiyatı çekiyoruz
-            if (secilenModel != null && CihazKatalogu.fiyatMevcutMu(secilenModel)) {
-                txtFiyat.setText(String.valueOf(CihazKatalogu.getFiyat(secilenModel)));
+            String model = (String) cmbModel.getSelectedItem();
+            if (model != null && CihazKatalogu.fiyatMevcutMu(model)) {
+                txtFiyat.setText(String.valueOf(CihazKatalogu.getFiyat(model)));
             }
         });
 
-        chkEskiTarih = new JCheckBox("Geçmiş Tarihli Kayıt (Test Amaçlı)");
-        generalPanel.add(new JLabel("Garanti Durumu:"));
-        generalPanel.add(chkEskiTarih);
-
-        // --- Dinamik Paneller (CardLayout) ---
-        cardLayout = new CardLayout();
-        specificPanel = new JPanel(cardLayout);
-
-        // Telefon Paneli
-        JPanel telefonPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
-        chkCiftSim = new JCheckBox("Çift Sim Mi?");
-        telefonPanel.add(chkCiftSim);
-        specificPanel.add(telefonPanel, "Telefon");
-
-        // Tablet Paneli
-        JPanel tabletPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
-        chkKalemDestegi = new JCheckBox("Kalem Desteği Var Mı?");
-        tabletPanel.add(chkKalemDestegi);
-        specificPanel.add(tabletPanel, "Tablet");
-
-        // Laptop Paneli
-        JPanel laptopPanel = new JPanel (new FlowLayout(FlowLayout.LEFT));
-        chkSsd = new JCheckBox("Harici Ekran Kartı Var Mı?");
-        laptopPanel.add(chkSsd);
-        specificPanel.add(laptopPanel, "Laptop");
-
-        // Açılışta varsayılan verileri doldur
+        // Başlangıç verileri
         guncelMarkaListesiniDoldur((String) cmbTur.getSelectedItem());
         cardLayout.show(specificPanel, (String) cmbTur.getSelectedItem());
-
-        // --- Kaydet Butonu ---
-        JButton btnKaydet = new JButton("Cihazı Kaydet");
-        btnKaydet.addActionListener(e -> kaydet());
-
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPanel.add(generalPanel, BorderLayout.NORTH);
-        contentPanel.add(specificPanel, BorderLayout.CENTER);
-
-        add(contentPanel, BorderLayout.CENTER);
-        add(btnKaydet, BorderLayout.SOUTH);
     }
-
-    // --- GÜNCELLENEN METOTLAR (CihazKatalogu Kullanımı) ---
 
     private void guncelMarkaListesiniDoldur(String tur) {
         cmbMarka.removeAllItems();
-        // Verileri merkezi katalogdan çekiyoruz
         String[] markalar = CihazKatalogu.getMarkalar(tur);
-
-        for (String marka : markalar) {
-            cmbMarka.addItem(marka);
-        }
-
+        for (String m : markalar) cmbMarka.addItem(m);
         if (cmbMarka.getItemCount() > 0) cmbMarka.setSelectedIndex(0);
-
-        // Marka değiştiği için modelleri de tetikle
         guncelModelListesiniDoldur(tur, (String) cmbMarka.getSelectedItem());
     }
 
     private void guncelModelListesiniDoldur(String tur, String marka) {
         cmbModel.removeAllItems();
-        // Verileri merkezi katalogdan çekiyoruz
         if (tur != null && marka != null) {
             String[] modeller = CihazKatalogu.getModeller(tur, marka);
-            for (String model : modeller) {
-                cmbModel.addItem(model);
-            }
+            for (String m : modeller) cmbModel.addItem(m);
         }
     }
 
     private void kaydet() {
         try {
-            // Validasyonlar
             String mAd = txtMusteriAd.getText().trim();
             String mSoyad = txtMusteriSoyad.getText().trim();
             String mTelefon = txtMusteriTelefon.getText().trim();
@@ -210,36 +297,24 @@ public class CihazKayitDialog extends JDialog {
             String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
             String model = (String) cmbModel.getSelectedItem();
-
-            if (marka == null || model == null) throw new GecersizDegerException("Marka/Model seçilmeli.");
-
             double fiyat = Double.parseDouble(txtFiyat.getText().trim());
-
             String tur = (String) cmbTur.getSelectedItem();
-            // Test amaçlı geçmiş tarihli kayıt (garantisi bitmiş cihaz simülasyonu)
             LocalDate garantiBaslangic = chkEskiTarih.isSelected() ? null : LocalDate.now();
 
             Cihaz yeniCihaz;
             switch (tur) {
-                case "Telefon":
-                    yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
-                    break;
-                case "Tablet":
-                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip);
-                    break;
-                case "Laptop":
-                    yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
-                    break;
-                default:
-                    throw new GecersizDegerException("Geçersiz tür.");
+                case "Telefon": yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip); break;
+                case "Tablet": yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip); break;
+                case "Laptop": yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip); break;
+                default: throw new GecersizDegerException("Geçersiz tür.");
             }
 
             listener.cihazEklendi(yeniCihaz);
-            JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "Başarılı", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // Pencereyi kapat
+            JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "İşlem Başarılı", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Hata: " + ex.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Hata: " + ex.getMessage(), "Giriş Hatası", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
