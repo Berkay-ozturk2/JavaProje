@@ -17,37 +17,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Servis kayıtlarının listelendiği ve durumlarının yönetildiği ana pencere sınıfıdır.
 public class ServisTakipFrame extends JFrame {
 
+    // Servis mantığı işlemlerini yürüten yönetici nesne.
     private final ServisYonetimi servisYonetimi;
+    // Kategorilere ayrılmış sekmeleri tutan panel.
     private JTabbedPane tabbedPane;
+    // Her sekme için tablo modelini ve tabloyu saklayan haritalar.
     private Map<String, DefaultTableModel> tableModels = new HashMap<>();
     private Map<String, JTable> tables = new HashMap<>();
 
+    // Yapıcı metot, arayüzü başlatır ve verileri tabloya yükler.
     public ServisTakipFrame(ServisYonetimi yonetim) {
         this.servisYonetimi = yonetim;
         initUI();
         kayitlariTabloyaDoldur();
     }
 
+    // Pencere boyutunu, başlıkları ve yerleşimi ayarlayan ana metottur.
     private void initUI() {
         setTitle("Servis Takip Ekranı");
         setSize(1100, 650);
         setLocationRelativeTo(null);
 
-        // Ana Panel
+        // Ana paneli oluşturur ve kenar boşluklarını ayarlar.
         JPanel mainPanel = new JPanel(new BorderLayout(0, 10));
         mainPanel.setBackground(new Color(245, 248, 250));
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         setContentPane(mainPanel);
 
         // --- 1. HEADER ---
+        // Sayfanın üst kısmındaki başlık etiketini oluşturur.
         JLabel lblHeader = new JLabel("Servis Kayıtları ve Takibi");
         lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblHeader.setForeground(new Color(44, 62, 80));
         mainPanel.add(lblHeader, BorderLayout.NORTH);
 
         // --- 2. SEKMELER VE TABLO ---
+        // Sekmeli paneli oluşturur ve kategorileri ekler.
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabbedPane.putClientProperty(FlatClientProperties.STYLE, "tabSeparators: true");
@@ -60,19 +68,20 @@ public class ServisTakipFrame extends JFrame {
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
         // --- 3. AKSİYON BUTONLARI ---
+        // Alt kısımdaki işlem butonlarını içeren paneli hazırlar.
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        // Mavi Buton
+        // Durum güncelleme butonunu oluşturur ve işlevini atar.
         JButton btnDurumGuncelle = createStyledButton("Durum Güncelle (Tamamla)", new Color(52, 152, 219));
         btnDurumGuncelle.addActionListener(e -> durumGuncelleIslemi());
 
-        // Kırmızı Buton
+        // Kayıt silme butonunu oluşturur ve işlevini atar.
         JButton btnSil = createStyledButton("Kaydı Sil", new Color(231, 76, 60));
         btnSil.addActionListener(e -> kayitSilIslemi());
 
-        // Koyu Buton
+        // Tüm geçmişi temizleme butonunu oluşturur ve işlevini atar.
         JButton btnTumunuSil = createStyledButton("Tüm Geçmişi Temizle", new Color(44, 62, 80));
         btnTumunuSil.addActionListener(e -> tumunuTemizleIslemi());
 
@@ -84,6 +93,7 @@ public class ServisTakipFrame extends JFrame {
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    // Belirtilen başlık altında yeni bir sekme ve tablo oluşturur.
     private void createTab(String title) {
         DefaultTableModel model = new DefaultTableModel(
                 new Object[]{"Seri No", "Cihaz", "Müşteri İletişim", "Sorun", "Giriş Tarihi", "Durum", "Teknisyen", "Ücret (TL)", "Bitiş Tarihi"}, 0
@@ -94,7 +104,7 @@ public class ServisTakipFrame extends JFrame {
 
         JTable table = new JTable(model);
 
-        // Modern Tablo Ayarları (Main ile aynı)
+        // Tablo görünümü için modern stil ayarlarını yapar.
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setShowVerticalLines(false);
@@ -118,6 +128,7 @@ public class ServisTakipFrame extends JFrame {
         tabbedPane.addTab(title, scrollPane);
     }
 
+    // Belirtilen renk ve metinle modern görünümlü bir buton oluşturur.
     private JButton createStyledButton(String text, Color bg) {
         JButton btn = new JButton(text);
         btn.setBackground(bg);
@@ -132,6 +143,7 @@ public class ServisTakipFrame extends JFrame {
 
     // --- İŞ MANTIĞI ---
 
+    // Aktif sekmedeki seçili satıra ait servis kaydını bulup döndürür.
     private ServisKaydi getSeciliKayit() {
         String activeTitle = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
         JTable activeTable = tables.get(activeTitle);
@@ -148,6 +160,7 @@ public class ServisTakipFrame extends JFrame {
         return null;
     }
 
+    // Seçili kaydın durumunu 'Tamamlandı' olarak günceller ve listeyi yeniler.
     private void durumGuncelleIslemi() {
         ServisKaydi kayit = getSeciliKayit();
         if (kayit != null) {
@@ -164,6 +177,7 @@ public class ServisTakipFrame extends JFrame {
         }
     }
 
+    // Kullanıcı onayı ile seçili servis kaydını listeden siler.
     private void kayitSilIslemi() {
         ServisKaydi silinecekKayit = getSeciliKayit();
         if (silinecekKayit != null) {
@@ -180,6 +194,7 @@ public class ServisTakipFrame extends JFrame {
         }
     }
 
+    // Kullanıcı onayı ile tüm servis geçmişini kalıcı olarak temizler.
     private void tumunuTemizleIslemi() {
         int secim = JOptionPane.showConfirmDialog(this,
                 "DİKKAT: Tüm servis geçmişi silinecek!\nDevam etmek istiyor musunuz?",
@@ -191,6 +206,7 @@ public class ServisTakipFrame extends JFrame {
         }
     }
 
+    // Güncel servis kayıtlarını ilgili tablolara doldurur ve görünümleri yeniler.
     private void kayitlariTabloyaDoldur() {
         for (DefaultTableModel model : tableModels.values()) model.setRowCount(0);
 

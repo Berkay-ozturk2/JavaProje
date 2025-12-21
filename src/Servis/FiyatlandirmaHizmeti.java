@@ -2,17 +2,20 @@ package Servis;
 
 public class FiyatlandirmaHizmeti {
 
+    // Vergi oranı, en düşük ücret ve para birimi gibi değişmeyen sabitleri burada tanımladık
     public static final byte KDV_ORANI_YUZDE = 20;
     public static final short MIN_SERVIS_UCRETI = 200;
     public static final char PARA_BIRIMI = '₺';
     public static final float INDIRIM_ORANI = 0.15f;
 
+    // Normal ve VIP müşteriler için farklı fiyat çarpanlarını iki boyutlu dizide tuttuk
     // Satır 0: Normal Müşteri, Satır 1: VIP Müşteri
     private static final double[][] FIYAT_KATSAYILARI = {
             {1.0, 1.2}, // Standart Müşteri (Normal, Acil - Acil şu an kullanılmıyor ama yapı hazır)
             {0.8, 1.0}  // VIP Müşteri (%20 İndirimli)
     };
 
+    // Ekranda gösterilecek arıza seçeneklerini bir liste olarak geri döndürüyoruz
     public static String[] getSorunListesi() {
         return new String[]{
                 "Ekran Kırık (Cihaz Fiyatının %20'si)",
@@ -29,7 +32,7 @@ public class FiyatlandirmaHizmeti {
     }
 
     // --- EKLENEN METOT (Refactoring Sonrası Buraya Taşındı) ---
-    // Garanti paketi fiyat hesaplaması artık Fiyatlandırma Hizmeti'nin sorumluluğunda.
+    // Seçilen garanti süresine göre cihaz fiyatı üzerinden ek paket ücretini hesaplıyoruz
     public static double paketFiyatiHesapla(double cihazFiyati, int ay) {
         switch (ay) {
             case 6: return cihazFiyati * 0.05;
@@ -41,11 +44,13 @@ public class FiyatlandirmaHizmeti {
     }
 
     // İmzayı değiştirdik: boolean isVip parametresi eklendi
+    // Sorunun türüne ve müşterinin VIP olup olmadığına bakarak tamir ücretini hesaplıyoruz
     public static double tamirUcretiHesapla(String secilenSorun, double cihazFiyati, boolean isVip) {
         if (secilenSorun == null) return 0.0;
 
         double ucret;
 
+        // Seçilen sorunun içinde geçen kelimeye göre fiyatlandırma mantığını çalıştırıyoruz
         if (secilenSorun.contains("Ekran Kırık")) {
             ucret = cihazFiyati * 0.20;
         } else if (secilenSorun.contains("Batarya/Pil")) {
@@ -71,13 +76,14 @@ public class FiyatlandirmaHizmeti {
         }
 
         // DİNAMİK KATSAYI SEÇİMİ
-        // VIP ise 1. satır (indirimli), değilse 0. satır (standart)
+        // Müşteri VIP ise 1. satır (indirimli), değilse 0. satır (standart) bilgilerini seçiyoruz
         int musteriTipiIndex = isVip ? 1 : 0;
 
-        // Çok boyutlu diziden katsayıyı çekiyoruz
+        // İki boyutlu diziden belirlediğimiz katsayı ile ücreti çarpıp sonucu döndürüyoruz
         return ucret * FIYAT_KATSAYILARI[musteriTipiIndex][0];
     }
 
+    // Her 5. servise özel kampanya yapmak için mod alma işlemi kullandık
     public static boolean kampanyaVarMi(int servisId) {
         return (servisId % 5) == 0;
     }

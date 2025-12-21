@@ -1,17 +1,18 @@
-// src/Servis/ServisDurumu.java
 package Servis;
 
-// Durumları standartlaştırmak için Enum kullanımı
+// Durumları standartlaştırmak için Enum kullandık (Sadece belirli seçenekler olsun diye)
 public enum ServisDurumu {
-    KABUL_EDILDI("Kabul Edildi"),
-    TAMAMLANDI("Tamamlandı");
+    KABUL_EDILDI("Kabul Edildi"), // Cihaz servise ilk geldiğinde bu durumu alacak
+    TAMAMLANDI("Tamamlandı");     // Tamir bitince bu duruma geçecek
 
-    private final String gorunurAd;
+    private final String gorunurAd; // Ekranda kullanıcıya göstereceğimiz Türkçe isim
 
+    // Enum oluşturulurken parantez içindeki ismi bu değişkene atayan kurucu metot
     ServisDurumu(String gorunurAd) {
         this.gorunurAd = gorunurAd;
     }
 
+    // Ekrana yazdırınca BÜYÜK_HARFLİ kod adı yerine, parantez içindeki güzel ismi yazsın
     @Override
     public String toString() {
         return gorunurAd;
