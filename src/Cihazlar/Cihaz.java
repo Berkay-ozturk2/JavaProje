@@ -14,7 +14,7 @@ public abstract class Cihaz {
 
     protected Garanti garanti;
 
-    // DEĞİŞİKLİK: Constructor artık GecersizDegerException fırlatabiliyor
+    // Cihaz Constructor
     public Cihaz(String seriNo, String marka, String model, double fiyat, LocalDate garantiBaslangic, Musteri sahip) throws GecersizDegerException {
         this.seriNo = seriNo;
         // setMarka ve setModel de kullanılabilir ancak şimdilik sadece fiyatı kapsüllüyoruz

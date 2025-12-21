@@ -1,10 +1,11 @@
 package Arayuzler;
 
 public interface VeriIslemleri {
+    //Cihazların kaydını listeler
     void Yukle();
+    //Cihazları listeye kaydeder.
     void Kaydet();
 
-    // GEREKSİNİM: Interface'te en az 3 metot olmalı.
-    // Bu metot dosya içeriğini temizlemek veya önbelleği boşaltmak için kullanılabilir.
+    // Bu metot dosya içeriğini temizlemek veya önbelleği boşaltmak için kullanılır.
     void verileriTemizle();
 }
