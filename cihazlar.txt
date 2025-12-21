@@ -1,11 +1,10 @@
-Laptop;;LAP-1023;;Dell;;XPS 15;;90000,00;;2023-05-10;;0;;Ahmet;;Yılmaz;;+905551234567;;true
-Telefon;;TEL-2045;;Apple;;iPhone 15 Pro Max;;85000,00;;2024-01-15;;12;;Ayşe;;Demir;;+905329876543;;false
-Tablet;;TAB-3012;;Samsung;;Galaxy Tab S9 FE;;12000,00;;2023-11-20;;0;;Mehmet;;Kaya;;+905051112233;;false;;true
-Laptop;;LAP-4056;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-08-01;;0;;Zeynep;;Çelik;;+905423334455;;true
-Telefon;;TEL-5078;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-02-28;;0;;Can;;Öztürk;;+905335556677;;true
-Tablet;;TAB-6091;;Apple;;iPad Pro (M4);;45000,00;;2024-03-10;;6;;Elif;;Yıldız;;+905307778899;;true;;false
-Laptop;;LAP-7102;;Msi;;Titan GT77;;150000,00;;2023-12-05;;24;;Burak;;Şahin;;+905510001122;;true
-Telefon;;TEL-8123;;Xiaomi;;Redmi Note 13 Pro;;18000,00;;2023-06-15;;0;;Selin;;Arslan;;+905442223344;;false
-Laptop;;LAP-9134;;Apple;;MacBook Air M3;;45000,00;;2024-01-05;;0;;Cem;;Polat;;+905358889900;;false
-Tablet;;TAB-1542;;Huawei;;MatePad Pro 13.2;;30000,00;;2023-09-01;;0;;Deniz;;Aksoy;;+905364445566;;false;;true
-Telefon;;TEL-3869;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-21;;0;;AS;;DS;;+90;;true
+Laptop;;LAP-1023;;Dell;;XPS 15;;90000,00;;2023-05-10;;0;;AHMET;;YILMAZ;;+905551234567;;true
+Telefon;;TEL-2045;;Apple;;iPhone 15 Pro Max;;85000,00;;2024-01-15;;12;;AYŞE;;DEMİR;;+905329876543;;false
+Tablet;;TAB-3012;;Samsung;;Galaxy Tab S9 FE;;12000,00;;2023-11-20;;0;;MEHMET;;KAYA;;+905051112233;;false;;true
+Laptop;;LAP-4056;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-08-01;;0;;ZEYNEP;;ÇELİK;;+905423334455;;true
+Telefon;;TEL-5078;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-02-28;;0;;CAN;;ÖZTÜRK;;+905335556677;;true
+Tablet;;TAB-6091;;Apple;;iPad Pro (M4);;45000,00;;2024-03-10;;6;;ELİF;;YILDIZ;;+905307778899;;true;;false
+Laptop;;LAP-7102;;Msi;;Titan GT77;;150000,00;;2023-12-05;;24;;BURAK;;ŞAHİN;;+905510001122;;true
+Telefon;;TEL-8123;;Xiaomi;;Redmi Note 13 Pro;;18000,00;;2023-06-15;;0;;SELİN;;ARSLAN;;+905442223344;;false
+Laptop;;LAP-9134;;Apple;;MacBook Air M3;;45000,00;;2024-01-05;;0;;CEM;;POLAT;;+905358889900;;false
+Tablet;;TAB-1542;;Huawei;;MatePad Pro 13.2;;30000,00;;2023-09-01;;0;;DENİZ;;AKSOY;;+905364445566;;false;;true

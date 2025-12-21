@@ -345,6 +345,6 @@ public class Main extends JFrame implements CihazEkleListener {
 
     private void konsolRaporuOlustur() {
         RaporlamaHizmeti.konsolRaporuOlustur(cihazListesi);
-        JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!\n(IDE çıktısını kontrol ediniz.)");
+        JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!");
     }
 }

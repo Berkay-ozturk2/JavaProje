@@ -283,6 +283,25 @@ public class CihazKayitDialog extends JDialog {
 
     private void kaydet() {
         try {
+            // --- 1. ÖNCE FİYAT KONTROLÜ (En başa alındı) ---
+            String fiyatMetni = txtFiyat.getText().trim();
+            if (fiyatMetni.isEmpty()) {
+                throw new GecersizDegerException("Fiyat alanı boş bırakılamaz.");
+            }
+
+            double fiyat;
+            try {
+                fiyat = Double.parseDouble(fiyatMetni);
+            } catch (NumberFormatException e) {
+                throw new GecersizDegerException("Fiyat alanına geçerli bir sayı giriniz.");
+            }
+
+            // Negatiflik Kontrolü Burada Yapılıyor
+            if (fiyat < 0) {
+                throw new GecersizDegerException("Fiyat bilgisi negatif olamaz!");
+            }
+
+            // --- 2. SONRA MÜŞTERİ BİLGİLERİ KONTROLÜ ---
             String mAd = txtMusteriAd.getText().trim();
             String mSoyad = txtMusteriSoyad.getText().trim();
             String mTelefon = txtMusteriTelefon.getText().trim();
@@ -291,34 +310,45 @@ public class CihazKayitDialog extends JDialog {
                 throw new GecersizDegerException("Müşteri bilgileri boş bırakılamaz!");
             }
 
-            if (mTelefon.isEmpty() || mTelefon.equals("+90") || mTelefon.length() < 14) {
-                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz.");
+            if (mTelefon.isEmpty() || mTelefon.length() < 14) {
+                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz ((+90) dahil).");
             }
 
+            // --- 3. NESNE OLUŞTURMA VE KAYIT ---
             Musteri sahip = new Musteri(mAd, mSoyad, mTelefon);
             sahip.setVip(chkVip.isSelected());
 
             String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
             String model = (String) cmbModel.getSelectedItem();
-            double fiyat = Double.parseDouble(txtFiyat.getText().trim());
             String tur = (String) cmbTur.getSelectedItem();
             LocalDate garantiBaslangic = chkEskiTarih.isSelected() ? null : LocalDate.now();
 
             Cihaz yeniCihaz;
             switch (tur) {
-                case "Telefon": yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip); break;
-                case "Tablet": yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip); break;
-                case "Laptop": yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip); break;
-                default: throw new GecersizDegerException("Geçersiz tür.");
+                case "Telefon":
+                    yeniCihaz = new Telefon(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
+                    break;
+                case "Tablet":
+                    yeniCihaz = new Tablet(seriNo, marka, model, fiyat, garantiBaslangic, chkKalemDestegi.isSelected(), sahip);
+                    break;
+                case "Laptop":
+                    yeniCihaz = new Laptop(seriNo, marka, model, fiyat, garantiBaslangic, sahip);
+                    break;
+                default:
+                    throw new GecersizDegerException("Geçersiz tür.");
             }
 
             listener.cihazEklendi(yeniCihaz);
             JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "İşlem Başarılı", JOptionPane.INFORMATION_MESSAGE);
             dispose();
 
+        } catch (GecersizDegerException ex) {
+            // Hata mesajını göster
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Uyarı", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Hata: " + ex.getMessage(), "Giriş Hatası", JOptionPane.ERROR_MESSAGE);
+            // Beklenmeyen sistem hataları
+            JOptionPane.showMessageDialog(this, "Hata: " + ex.getMessage(), "Sistem Hatası", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
