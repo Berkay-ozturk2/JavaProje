@@ -1,9 +1,10 @@
 package Servis;
 
-import Araclar.DosyaIslemleri; // YENİ IMPORT
+import Araclar.DosyaIslemleri;
 import Araclar.RaporKutusu;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
+import Arayuzler.Raporlanabilir; // YENİ EKLENDİ
 import Istisnalar.KayitBulunamadiException;
 
 import java.time.LocalDate;
@@ -48,19 +49,36 @@ public class RaporlamaHizmeti {
         System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
         cihazRaporKutusu.wildcardTest(fiyatListesi);
         cihazRaporKutusu.wildcardTest(servisSureleri);
+
+        // --- YENİ EKLENEN BÖLÜM: INTERFACE KULLANIMI ---
+        System.out.println("\n[4] DETAYLI CİHAZ RAPORLARI (Interface & Polymorphism):");
+        boolean raporlanabilirCihazVarMi = false;
+
+        for (Cihaz c : cihazListesi) {
+            // Eğer cihaz "Raporlanabilir" interface'ini implemente etmişse (Örn: Laptop)
+            if (c instanceof Raporlanabilir) {
+                raporlanabilirCihazVarMi = true;
+                Raporlanabilir raporlanan = (Raporlanabilir) c;
+
+                System.out.println("\n>>> ÖZEL RAPOR (" + raporlanan.getRaporBasligi() + ") <<<");
+                System.out.println(raporlanan.detayliRaporVer());
+                System.out.println("--------------------------------------------------");
+            }
+        }
+
+        if (!raporlanabilirCihazVarMi) {
+            System.out.println("Listede 'Raporlanabilir' arayüzünü uygulayan özel bir cihaz bulunamadı.");
+        }
     }
 
     /**
-     * GUI'den taşınan metot.
+     * GUI için kullanılan metot.
      * Müşteri takip ekranı için detaylı durum raporu üretir.
      */
     public static String musteriCihazDurumRaporuOlustur(String seriNo) throws KayitBulunamadiException {
         StringBuilder rapor = new StringBuilder();
 
-        // Veri Yükleme
         String dosyaYolu = System.getProperty("user.dir") + System.getProperty("file.separator") + "cihazlar.txt";
-
-        // DEĞİŞİKLİK: DosyaIslemleri üzerinden yükleniyor
         List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
 
         Cihaz bulunanCihaz = null;
@@ -86,6 +104,12 @@ public class RaporlamaHizmeti {
         String garantiDurumu = bulunanCihaz.isGarantiAktif() ? "AKTİF" : "BİTMİŞ";
         rapor.append("Garanti Durumu: ").append(garantiDurumu).append("\n");
         rapor.append("Garanti Bitiş: ").append(bulunanCihaz.getGarantiBitisTarihi()).append("\n\n");
+
+        // --- YENİ EKLENEN KISIM: CİHAZ ÖZEL RAPORU ---
+        if (bulunanCihaz instanceof Raporlanabilir) {
+            rapor.append(">>> CİHAZ ÖZEL TEKNİK DÖKÜMÜ <<<\n");
+            rapor.append(((Raporlanabilir) bulunanCihaz).detayliRaporVer()).append("\n\n");
+        }
 
         // Servis Kayıtları
         ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
