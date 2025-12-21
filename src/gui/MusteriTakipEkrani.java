@@ -60,7 +60,7 @@ public class MusteriTakipEkrani extends JFrame {
         // Placeholder metni (FlatLaf destekliyorsa görünür)
         txtSeriNo.putClientProperty("JTextField.placeholderText", "Örn: TEL-1234");
 
-        JButton btnSorgula = new JButton("Sorgula 🔍");
+        JButton btnSorgula = new JButton("Sorgula");
         btnSorgula.setBackground(new Color(52, 152, 219)); // Mavi Buton
         btnSorgula.setForeground(Color.WHITE);
         btnSorgula.setFont(new Font("Segoe UI", Font.BOLD, 14));
