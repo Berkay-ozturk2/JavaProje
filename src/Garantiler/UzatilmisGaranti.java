@@ -2,7 +2,7 @@ package Garantiler;
 
 import java.time.LocalDate;
 
-// Standart garantiye ek süre ve avantajlar (indirim vb.) sağlayan gelişmiş garanti sınıfı.
+// Standart garantiye ek süre ve indirim sağlayan gelişmiş garanti sınıfı.
 public class UzatilmisGaranti extends Garanti {
 
     // Uzatılmış Garanti kurucu metodu; standart süreye eklenen ayları da hesaba katarak nesneyi oluşturur.
@@ -18,7 +18,7 @@ public class UzatilmisGaranti extends Garanti {
         if (devamEdiyorMu()) {
             return 0.0;
         } else {
-            // Süre bitmiş olsa dahi, uzatılmış garanti alan müşteriye %10 sadakat indirimi uygulanır.
+            // Süre bitmiş olsa dahi, uzatılmış garanti alan müşteriye %10 indirim uygulanır.
             return hamUcret * 0.90;
         }
     }

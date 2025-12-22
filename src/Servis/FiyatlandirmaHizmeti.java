@@ -11,7 +11,7 @@ public class FiyatlandirmaHizmeti {
     // Normal ve VIP müşteriler için farklı fiyat çarpanlarını iki boyutlu dizide tuttuk
     // Satır 0: Normal Müşteri, Satır 1: VIP Müşteri
     private static final double[][] FIYAT_KATSAYILARI = {
-            {1.0, 1.2}, // Standart Müşteri (Normal, Acil - Acil şu an kullanılmıyor ama yapı hazır)
+            {1.0, 1.2}, // Standart Müşteri
             {0.8, 1.0}  // VIP Müşteri (%20 İndirimli)
     };
 
@@ -27,8 +27,7 @@ public class FiyatlandirmaHizmeti {
                 "Yazılım/Format (Sabit 500 TL)",
                 "Dokunmatik Arızası (Cihaz Fiyatının %10'u)",
                 "Hoparlör/Mikrofon Sorunu (Sabit 800 TL)",
-                "Genel Bakım ve Temizlik (Sabit 750 TL)"
-        };
+                "Genel Bakım ve Temizlik (Sabit 750 TL)" };
     }
 
     // --- EKLENEN METOT (Refactoring Sonrası Buraya Taşındı) ---

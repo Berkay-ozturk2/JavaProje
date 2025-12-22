@@ -20,7 +20,7 @@ public class DosyaIslemleri {
         // Eğer dosya fiziksel olarak diskte yoksa boş listeyi döndürür.
         if (!dosya.exists()) return liste;
 
-        // Dosyayı UTF-8 karakter kodlamasıyla güvenli bir şekilde okumak için akışı açar.
+        // Dosyayı UTF-8 karakter kodlamasıyla okur
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(dosya), "UTF-8"))) {
 

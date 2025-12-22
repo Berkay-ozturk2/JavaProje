@@ -11,7 +11,6 @@ public class TarihYardimcisi {
         // Hesaplama sırasında başlangıç tarihini değiştirmemek için yeni bir değişkene atar.
         LocalDate tarih = baslangic;
 
-        // Eklenen geçerli iş günü sayısını takip etmek için sayaç başlatır.
         int sayac = 0;
 
         // Hedeflenen iş günü sayısına ulaşana kadar döngüyü çalıştırır.
@@ -25,7 +24,7 @@ public class TarihYardimcisi {
                 sayac++;
             }
         }
-        // Hesaplanan nihai tarihi (tahmini bitiş tarihi) döndürür.
+        // Hesaplanan tahmini bitiş tarihini döndürür.
         return tarih;
     }
 }

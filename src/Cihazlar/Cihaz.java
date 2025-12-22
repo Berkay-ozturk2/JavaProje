@@ -5,7 +5,7 @@ import Musteri.Musteri;
 import Garantiler.*;
 import Istisnalar.GecersizDegerException;
 
-// Tüm cihaz türleri (Telefon, Laptop vb.) için ortak özellikleri tanımlayan soyut (abstract) ana sınıf.
+// Tüm cihaz türleri için ortak özellikleri tanımlayan soyut ana sınıf.
 public abstract class Cihaz {
 
     //Alanlar
@@ -30,7 +30,7 @@ public abstract class Cihaz {
         this.sahip = sahip;
 
         LocalDate baslangic;
-        // Eğer garanti başlangıç tarihi verilmediyse, simülasyon amaçlı rastgele bir tarih üretir.
+        // Eğer garanti başlangıç tarihi verilmediyse, rastgele bir tarih üretir.
         if (garantiBaslangic == null) {
             baslangic = Garanti.rastgeleBaslangicOlustur(getGarantiSuresiYil());
         } else {
@@ -49,7 +49,7 @@ public abstract class Cihaz {
     public Musteri getSahip() { return sahip; }
     public Garanti getGaranti() { return garanti; }
 
-    // Garanti nesnesi üzerinden başlangıç tarihine erişen yönlendirici (delegation) metot.
+    // Garanti nesnesi üzerinden başlangıç tarihine erişen yönlendirici metot.
     public LocalDate getGarantiBaslangic() { return garanti.getBaslangicTarihi(); }
 
     // Garanti nesnesi üzerinden bitiş tarihini hesaplayıp döndüren metot.
@@ -60,7 +60,7 @@ public abstract class Cihaz {
 
     // Fiyat değeri atama setterı
     public void setFiyat(double fiyat) throws GecersizDegerException {
-        // Fiyatın negatif girilmesini engelleyerek mantıksal hatayı önler.
+        // Fiyatın negatif girilmesini engeller
         if (fiyat < 0) throw new GecersizDegerException("Fiyat negatif olamaz!");
         this.fiyat = fiyat;
     }
@@ -90,7 +90,7 @@ public abstract class Cihaz {
         // Mevcut garanti süresine belirtilen ayı ekler.
         this.garanti.sureUzat(ay);
 
-        // Eğer garanti tipi hala Standart ise, uzatma işlemi yapıldığı için onu Uzatılmış Garanti sınıfına yükseltir.
+        // Eğer garanti nesnesi StandartGaranti sınıfı içinde ise, uzatma işlemi yapıldığı için onu Uzatılmış Garanti sınıfına yükseltir.
         if (this.garanti instanceof StandartGaranti) {
             int toplamEkstraSure = getEkstraGarantiSuresiAy();
             this.garanti = new UzatilmisGaranti(
@@ -101,7 +101,7 @@ public abstract class Cihaz {
         }
     }
 
-    // Alt sınıfların kendi garanti sürelerini (Telefon: 2 yıl vb.) belirtmesi için zorunlu metot.
+    // Alt sınıfların kendi garanti sürelerini belirtmesi için zorunlu metot.
     public abstract int getGarantiSuresiYil();
 
     // Alt sınıfların kendi tür isimlerini döndürmesi için zorunlu metot.
@@ -110,7 +110,7 @@ public abstract class Cihaz {
 
     @Override
     public String toString() {
-        // Garantinin aktif olup olmadığını kontrol ederek kullanıcı dostu bir metin hazırlar.
+        // Garantinin aktif olup olmadığını kontrol ederek yazdırır.
         String garantiDurumu = garantiAktifMi() ? "Aktif" : "Sona Ermiş";
 
         // Eğer süre uzatılmışsa, ne kadar uzatıldığını parantez içinde belirtir.

@@ -311,8 +311,8 @@ public class CihazKayit extends JDialog {
                 throw new GecersizDegerException("Müşteri bilgileri boş bırakılamaz!"); // İsim soyisim kontrolü
             }
 
-            if (mTelefon.isEmpty() || mTelefon.length() < 14) {
-                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz ((+90) dahil).");
+            if (mTelefon.isEmpty() || mTelefon.length() != 13) {
+                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz (+90) dahil).");
             }
 
             // --- 3. NESNE OLUŞTURMA VE KAYIT ---

@@ -12,7 +12,7 @@ public enum ServisDurumu {
         this.gorunurAd = gorunurAd;
     }
 
-    // Ekrana yazdırınca BÜYÜK_HARFLİ kod adı yerine, parantez içindeki güzel ismi yazsın
+    // Ekrana yazdırınca BÜYÜK_HARFLİ kod adı yerine, parantez içindeki ismi yazsın
     @Override
     public String toString() {
         return gorunurAd;

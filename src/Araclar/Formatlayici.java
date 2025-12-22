@@ -9,22 +9,15 @@ import Servis.TeknisyenDeposu;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Dosya okuma ve yazma işlemleri için metin formatlama ve ayrıştırma (parsing)
- * işlemlerini yürüten yardımcı sınıftır.
- *
- * SRP (Single Responsibility Principle) gereği, nesnelerin kendilerini metne çevirmesi
- * yerine bu işi bu sınıf üstlenir.
- */
+/* Dosya okuma ve yazma işlemleri için metin formatlama ve ayrıştırma
+ işlemlerini yürüten yardımcı sınıftır.*/
 public class Formatlayici {
 
     // --- CİHAZ İŞLEMLERİ ---
 
-    /**
-     * Bir Cihaz nesnesini dosya formatına uygun String haline getirir.
-     */
+    //Bir Cihaz nesnesini dosya formatına uygun String haline getirir.
     public static String cihazMetneDonustur(Cihaz cihaz) {
-        // Tüm cihazlarda ortak olan temel bilgileri (marka, fiyat, müşteri vb.) formatlar.
+        // Tüm cihazlarda ortak olan temel bilgileri formatlar.
         String temel = String.format("%s;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
                 cihaz.getCihazTuru(),
                 cihaz.getSeriNo(),
@@ -47,9 +40,8 @@ public class Formatlayici {
         return temel;
     }
 
-    /**
-     * Dosyadan okunan satırı Cihaz nesnesine çevirir.
-     */
+
+    // Dosyadan okunan satırı Cihaz nesnesine çevirir.
     public static Cihaz metniCihazaDonustur(String satir) {
         try {
             // Satırı ';;' ayracına göre parçalayarak veri dizisine dönüştürür.
@@ -58,7 +50,7 @@ public class Formatlayici {
             // Eksik veri varsa işlem yapmadan null döndürür.
             if (parcalar.length < 10) return null;
 
-            // Temel veri alanlarını (String, double, int, tarih) ayrıştırır.
+            // Temel veri alanlarını ayrıştırır.
             String tur = parcalar[0].trim();
             String seriNo = parcalar[1].trim();
             String marka = parcalar[2].trim();
@@ -162,7 +154,7 @@ public class Formatlayici {
                 }
             }
 
-            // Cihaz silinmişse veya bulunamazsa kaydın bozulmaması için "Hayalet" (Dummy) cihaz oluşturur.
+            // Cihaz silinmişse veya bulunamazsa kaydın bozulmaması için "Hayalet" cihaz oluşturur.
             if (gercekCihaz == null) {
                 Musteri dummyMusteri = new Musteri("Bilinmiyor", "", "");
                 LocalDate gecmisTarih = LocalDate.now().minusYears(10);

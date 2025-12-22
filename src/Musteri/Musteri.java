@@ -7,14 +7,14 @@ public class Musteri {
     private String ad;
     private String soyad;
     private String telefon;
-    private boolean vip; // YENİ EKLENEN ALAN
+    private boolean vip;
 
     // Kurucu metod ile müşterinin tüm bilgilerini alarak nesneyi başlatıyoruz
     public Musteri(String ad, String soyad, String telefon) {
         this.ad = ad;
         this.soyad = soyad;
         this.telefon = telefon;
-        this.vip = false; // Varsayılan olarak standart müşteri olsun
+        this.vip = false;
     }
 
     // Eğer telefon girilmezse varsayılan değer atayan diğer kurucu metod (Overloading)

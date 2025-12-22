@@ -3,10 +3,10 @@ package Cihazlar;
 import java.util.HashMap;
 import java.util.Map;
 
-// Cihaz türleri, markaları, modelleri ve fiyatlarını içeren statik bir veri kataloğu sınıfı.
+// Cihaz türleri, markaları, modelleri ve fiyatlarını içeren sabit bir veri kataloğu sınıfı.
 public class CihazKatalogu {
 
-    // Tüm cihaz hiyerarşisini (Tür -> Marka -> Modeller) tutan iç içe geçmiş (Nested Map) harita yapısı.
+    // Tüm cihaz hiyerarşisini (Tür -> Marka -> Modeller) tutan iç içe geçmiş yapı.
     private static final Map<String, Map<String, String[]>> TUM_MODELLER = new HashMap<>();
 
     // Her bir modelin baz fiyatını tutan harita yapısı.
@@ -17,7 +17,7 @@ public class CihazKatalogu {
         initData();
     }
 
-    // Veri yapılarını (Map) hardcoded (sabit) verilerle dolduran hazırlık metodu.
+    // Veri yapılarını sabit verilerle dolduran hazırlık metodu.
     private static void initData() {
         // --- TELEFON VERİLERİ ---
         Map<String, String[]> telefonModelleri = new HashMap<>();
@@ -120,11 +120,11 @@ public class CihazKatalogu {
         TUM_MODELLER.put("Laptop", laptopModelleri);
     }
 
-    // Belirtilen cihaz türüne (Örn: Telefon) ait markaların listesini döndürür.
+    // Belirtilen cihaz türüne ait markaların listesini döndürür.
     public static String[] getMarkalar(String tur) {
         // İstenen türün katalogda olup olmadığını kontrol eder.
         if (TUM_MODELLER.containsKey(tur)) {
-            // O türe ait markaları (Map key'lerini) bir diziye çevirip döndürür.
+            // O türe ait markaları bir diziye çevirip döndürür.
             return TUM_MODELLER.get(tur).keySet().toArray(new String[0]);
         }
         // Tür bulunamazsa boş bir dizi döndürür.

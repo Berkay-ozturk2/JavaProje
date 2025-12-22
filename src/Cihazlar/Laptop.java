@@ -16,7 +16,7 @@ public class Laptop extends Cihaz implements IRaporIslemleri {
     }
 
     @Override
-    // Laptop cihazları için özel olarak belirlenen garanti süresini (3 yıl) döndürür.
+    // Laptop cihazları için özel olarak belirlenen garanti süresini döndürür.
     public int getGarantiSuresiYil() {
         return 3;
     }

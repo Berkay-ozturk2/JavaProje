@@ -13,7 +13,7 @@ public class RaporKutusu<T> {
 
     // RaporKutusu Constructor
     public RaporKutusu(List<T> veriListesi) {
-        // Sınıf oluşturulurken raporlanacak veri listesini alıp dâhili değişkene atar.
+        // Sınıf oluşturulurken raporlanacak veri listesini alıp dahili değişkene atar.
         this.veriListesi = veriListesi;
     }
 

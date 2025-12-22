@@ -4,10 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
-/**
- * Tüm garanti türleri (Standart, Ekstra vb.) için temel (base) soyut sınıf.
- * Garanti süreleri, tarih hesaplamaları ve maliyet şablonlarını yönetir.
- */
+
 public abstract class Garanti {
 
     // Garantinin başladığı ve biteceği tarihleri tutan alanlar.
@@ -31,16 +28,16 @@ public abstract class Garanti {
         // Belirlenen aralıkta rastgele bir gün sayısı seçer.
         int randomDays = rand.nextInt(maxRandomDays + 1);
 
-        // Simülasyon gereği bugünden geçmişe giderek başlangıç tarihini döndürür.
+        // Bugünden geçmişe giderek başlangıç tarihini döndürür.
         return LocalDate.now().minusDays(randomDays);
     }
 
-    /* Mevcut garantinin, standart bir garanti süresine göre ne kadar uzatıldığını hesaplar. */
+    // Mevcut garantinin, standart bir garanti süresine göre ne kadar uzatıldığını hesaplar.
     public int hesaplaEkstraSureAy(int standartSureYil) {
         // Standart sürenin bitiş tarihini gün (epoch) cinsinden hesaplar.
         long standartBitisEpoch = baslangicTarihi.plusYears(standartSureYil).toEpochDay();
 
-        // Mevcut (uzatılmış olabilir) bitiş tarihini gün cinsinden hesaplar.
+        // Mevcut bitiş tarihini gün cinsinden hesaplar.
         long guncelBitisEpoch = bitisTarihi.toEpochDay();
 
         // Eğer güncel tarih standart tarihi geçiyorsa aradaki farkı aya çevirir.
@@ -58,7 +55,7 @@ public abstract class Garanti {
         return LocalDate.now().isBefore(bitisTarihi) || LocalDate.now().isEqual(bitisTarihi);
     }
 
-    // --- SOYUT METOTLAR (Alt sınıflar bunları ezmek/implement etmek zorundadır) ---
+    // SOYUT METOTLAR
 
     // Garantinin türüne göre (Standart/Uzatılmış) indirimli veya tam maliyeti hesaplar.
     public abstract double sonMaliyetHesapla(double hamUcret);
