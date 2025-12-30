@@ -1,5 +1,7 @@
 package gui;
 
+import Guvenlik.Kullanici;
+import Guvenlik.KullaniciRol;
 import Servis.ServisDurumu;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
@@ -20,22 +22,30 @@ public class ServisTakipEkrani extends JFrame {
 
     // Servis mantığı işlemlerini yürüten yönetici nesne.
     private final ServisYonetimi servisYonetimi;
+    private final Kullanici aktifKullanici; // Yetki kontrolü için eklendi
+
     // Kategorilere ayrılmış sekmeleri tutan panel.
     private JTabbedPane tabbedPane;
     // Her sekme için tablo modelini ve tabloyu saklayan haritalar.
     private Map<String, DefaultTableModel> tableModels = new HashMap<>();
     private Map<String, JTable> tables = new HashMap<>();
 
-    // Yapıcı metot, arayüzü başlatır ve verileri tabloya yükler.
-    public ServisTakipEkrani(ServisYonetimi yonetim) {
+    // GÜNCELLENEN CONSTRUCTOR: Kullanıcı bilgisini alır
+    public ServisTakipEkrani(ServisYonetimi yonetim, Kullanici kullanici) {
         this.servisYonetimi = yonetim;
+        this.aktifKullanici = kullanici;
         initUI();
         kayitlariTabloyaDoldur();
     }
 
+    // Eski kodlarla uyumluluk için (Test amaçlı - Varsayılan Teknisyen olarak açar)
+    public ServisTakipEkrani(ServisYonetimi yonetim) {
+        this(yonetim, new Kullanici("Test", "", KullaniciRol.TEKNISYEN));
+    }
+
     // Pencere boyutunu, başlıkları ve yerleşimi ayarlayan ana metottur.
     private void initUI() {
-        setTitle("Servis Takip Ekranı");
+        setTitle("Servis Takip Ekranı - " + aktifKullanici.getKullaniciAdi()); // Başlığa kullanıcı adı eklendi
         setSize(1100, 650);
         setLocationRelativeTo(null);
 
@@ -82,6 +92,16 @@ public class ServisTakipEkrani extends JFrame {
         // Tüm geçmişi temizleme butonunu oluşturur ve işlevini atar.
         JButton btnTumunuSil = createStyledButton("Tüm Geçmişi Temizle", new Color(44, 62, 80));
         btnTumunuSil.addActionListener(e -> tumunuTemizleIslemi());
+
+        // --- YETKİ KONTROLÜ ---
+        // Eğer giriş yapan kullanıcı TEKNISYEN ise, silme butonlarını gizle/devre dışı bırak
+        if (aktifKullanici.getRol() == KullaniciRol.TEKNISYEN) {
+            btnSil.setEnabled(false);
+            btnSil.setVisible(false); // Görünmez yap
+
+            btnTumunuSil.setEnabled(false);
+            btnTumunuSil.setVisible(false); // Görünmez yap
+        }
 
         buttonPanel.add(btnDurumGuncelle);
         buttonPanel.add(btnSil);

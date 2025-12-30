@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RaporlamaHizmeti {
 
@@ -26,60 +27,55 @@ public class RaporlamaHizmeti {
         System.out.println("\n[1] CİHAZ LİSTESİ DÖKÜMÜ:");
         cihazRaporKutusu.listeyiKonsolaYazdir(); // Kutunun yeteneğini kullanarak listeyi yazdırdık
 
-        System.out.println("\n[1.1] LİSTE ÖZETİ (Generic Get Metodu):");
-        Cihaz ilkCihaz = cihazRaporKutusu.getIlkEleman(); // Generic get metodunu test etmek için ilk elemanı çektik
+        System.out.println("\n[1.1] LİSTE ÖZETİ (Stream findFirst):");
+        // STREAM API KULLANIMI: Listenin ilk elemanını güvenli bir şekilde alma
+        cihazListesi.stream()
+                .findFirst()
+                .ifPresent(ilkCihaz -> System.out.println("-> Listedeki ilk cihaz: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel()));
 
-        if (ilkCihaz != null) {
-            System.out.println("-> Listedeki ilk cihaz: " + ilkCihaz.getMarka() + " " + ilkCihaz.getModel());
-        }
 
         System.out.println("\n[2] SİSTEM MESAJI (Generic Metot 1):");
-        // Generic metodu test etmek için ekrana string türünde mesajlar bastık
         cihazRaporKutusu.tekElemanYazdir("Raporlama işlemi aktiftir.");
         cihazRaporKutusu.tekElemanYazdir(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
         // --- Wildcard Test Verileri ---
-        // Wildcard (?) yapısını test etmek için sayısal verileri ayrı bir listeye topladık
-        List<Double> fiyatListesi = new ArrayList<>();
-        for (Cihaz c : cihazListesi) {
-            fiyatListesi.add(c.getFiyat());
-        }
-        List<Integer> servisSureleri = new ArrayList<>();
-        servisSureleri.add(20);
+        // STREAM API KULLANIMI: Fiyat listesini stream ile oluşturma
+        List<Double> fiyatListesi = cihazListesi.stream()
+                .map(Cihaz::getFiyat)
+                .collect(Collectors.toList());
 
         System.out.println("\n[3] FİYAT VE İSTATİSTİK ANALİZİ (Wildcard):");
-        cihazRaporKutusu.wildcardTest(fiyatListesi); // Sadece sayı kabul eden wildcard metodunu çağırdık
+        cihazRaporKutusu.wildcardTest(fiyatListesi);
 
         // --- YENİ EKLENEN BÖLÜM: Generic Metot 2 ve Sıralama ---
         System.out.println("\n[4] FİYAT SIRALAMASI (Generic Metot 2 & Collections.sort):");
-        System.out.println("Sıralama Öncesi İlk Cihaz: " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
+        // Stream ile sıralama yapmak da mümkündür ancak mevcut generic metodumuzu test ediyoruz.
+        if(!cihazListesi.isEmpty()) {
+            System.out.println("Sıralama Öncesi İlk Cihaz: " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
 
-        // Generic metot ve Comparator kullanarak cihazları fiyatına göre (ucuzdan pahalıya) sıraladık
-        cihazRaporKutusu.genericSirala(cihazListesi, new Comparator<Cihaz>() {
-            @Override
-            public int compare(Cihaz c1, Cihaz c2) {
-                return Double.compare(c1.getFiyat(), c2.getFiyat());
-            }
-        });
+            // Generic metot ve Comparator kullanarak cihazları fiyatına göre (ucuzdan pahalıya) sıraladık
+            cihazRaporKutusu.genericSirala(cihazListesi, Comparator.comparingDouble(Cihaz::getFiyat));
 
-        System.out.println("Sıralama Sonrası İlk Cihaz (En Ucuz): " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
-
-
-        System.out.println("\n[5] DETAYLI CİHAZ RAPORLARI (Interface & Polymorphism):");
-        boolean raporlanabilirCihazVarMi = false;
-
-        // Polymorphism kullanarak listeyi geziyoruz ve sadece rapor özelliği olan cihazları buluyoruz
-        for (Cihaz c : cihazListesi) {
-            if (c instanceof IRaporIslemleri) { // Cihaz bu arayüzü (interface) kullanıyor mu?
-                raporlanabilirCihazVarMi = true;
-                IRaporIslemleri raporlanan = (IRaporIslemleri) c;
-                System.out.println("\n>>> ÖZEL RAPOR (" + raporlanan.getRaporBasligi() + ") <<<");
-                System.out.println(raporlanan.detayliRaporVer()); // Özel rapor metodunu çalıştırdık
-                System.out.println("--------------------------------------------------");
-            }
+            System.out.println("Sıralama Sonrası İlk Cihaz (En Ucuz): " + cihazListesi.get(0).getModel() + " (" + cihazListesi.get(0).getFiyat() + " TL)");
         }
 
-        if (!raporlanabilirCihazVarMi) {
+
+        System.out.println("\n[5] DETAYLI CİHAZ RAPORLARI (Interface & Polymorphism & Stream API):");
+
+        // STREAM API KULLANIMI: Filtreleme ve döngüyü stream ile yapıyoruz
+        boolean raporVar = cihazListesi.stream()
+                .anyMatch(c -> c instanceof IRaporIslemleri); // Hiç raporlanabilir cihaz var mı kontrolü
+
+        if (raporVar) {
+            cihazListesi.stream()
+                    .filter(c -> c instanceof IRaporIslemleri) // Sadece interface'i uygulayanları filtrele
+                    .map(c -> (IRaporIslemleri) c) // Tür dönüşümü yap
+                    .forEach(raporlanan -> {
+                        System.out.println("\n>>> ÖZEL RAPOR (" + raporlanan.getRaporBasligi() + ") <<<");
+                        System.out.println(raporlanan.detayliRaporVer());
+                        System.out.println("--------------------------------------------------");
+                    });
+        } else {
             System.out.println("Raporlanabilir cihaz bulunamadı.");
         }
     }
@@ -88,24 +84,17 @@ public class RaporlamaHizmeti {
      * GUI (Müşteri Takip Ekranı) için kullanılan metot.
      */
     public static String musteriCihazDurumRaporuOlustur(String seriNo) throws KayitBulunamadiException {
-        StringBuilder rapor = new StringBuilder(); // Metinleri birleştirmek için StringBuilder kullandık
+        StringBuilder rapor = new StringBuilder();
 
         String dosyaYolu = System.getProperty("user.dir") + System.getProperty("file.separator") + "cihazlar.txt";
-        List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu); // Verileri dosyadan taze taze yüklüyoruz
+        List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
 
-        Cihaz bulunanCihaz = null;
-        // Girilen seri numarasını listede arıyoruz
-        for (Cihaz c : cihazlar) {
-            if (c.getSeriNo().equalsIgnoreCase(seriNo)) {
-                bulunanCihaz = c;
-                break;
-            }
-        }
+        // STREAM API KULLANIMI: Seri numarasına göre cihazı bulma
+        Cihaz bulunanCihaz = cihazlar.stream()
+                .filter(c -> c.getSeriNo().equalsIgnoreCase(seriNo))
+                .findFirst()
+                .orElseThrow(() -> new KayitBulunamadiException("HATA: Bu seri numarasına ait bir cihaz bulunamadı."));
 
-        // Cihaz yoksa hata fırlatarak arayüzü uyarıyoruz
-        if (bulunanCihaz == null) {
-            throw new KayitBulunamadiException("HATA: Bu seri numarasına ait bir cihaz bulunamadı.");
-        }
 
         // Rapor metnini oluşturmaya başlıyoruz
         rapor.append("=== CİHAZ BİLGİLERİ ===\n");
@@ -124,13 +113,12 @@ public class RaporlamaHizmeti {
 
         // Servis Kayıtlarını Kontrol Et
         ServisYonetimi servisYonetimi = new ServisYonetimi(cihazlar);
-        ServisKaydi bulunanKayit = null;
-        for (ServisKaydi k : servisYonetimi.getKayitlar()) {
-            if (k.getCihaz().getSeriNo().equalsIgnoreCase(seriNo)) {
-                bulunanKayit = k;
-                break;
-            }
-        }
+
+        // STREAM API KULLANIMI: Servis kayıtlarında arama yapma
+        ServisKaydi bulunanKayit = servisYonetimi.getKayitlar().stream()
+                .filter(k -> k.getCihaz().getSeriNo().equalsIgnoreCase(seriNo))
+                .findFirst()
+                .orElse(null);
 
         // Eğer serviste kaydı varsa durumunu ve tahmini teslim tarihini ekliyoruz
         if (bulunanKayit != null) {
@@ -142,6 +130,6 @@ public class RaporlamaHizmeti {
             rapor.append("=== SERVİS DURUMU ===\nAktif bir servis kaydı bulunmamaktadır.\n");
         }
 
-        return rapor.toString(); // Hazırladığımız uzun metni döndürüyoruz
+        return rapor.toString();
     }
 }

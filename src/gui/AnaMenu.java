@@ -3,11 +3,13 @@ package gui;
 import Araclar.DosyaIslemleri;
 import Araclar.TarihYardimcisi;
 import Cihazlar.Cihaz;
+import Guvenlik.Kullanici;
+import Guvenlik.KullaniciRol;
 import Servis.FiyatlandirmaHizmeti;
 import Servis.RaporlamaHizmeti;
 import Servis.ServisKaydi;
 import Servis.ServisYonetimi;
-import com.formdev.flatlaf.FlatClientProperties; // FlatLaf özellikleri
+import com.formdev.flatlaf.FlatClientProperties;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,60 +25,66 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Ana ekranımız burası, hem tabloyu hem butonları yönetiyor ve Cihaz Ekleme olaylarını dinliyor
 public class AnaMenu extends JFrame implements CihazEkleListener {
 
-    private JTabbedPane tabbedPane; // Sekmeli yapı (Telefon, Tablet vs. ayrımı için)
-    private Map<String, DefaultTableModel> tableModels = new HashMap<>(); // Tablo modellerini isme göre tutuyoruz
-    private Map<String, JTable> tables = new HashMap<>(); // Tabloları isme göre tutuyoruz
+    private JTabbedPane tabbedPane;
+    private Map<String, DefaultTableModel> tableModels = new HashMap<>();
+    private Map<String, JTable> tables = new HashMap<>();
 
-    private List<Cihaz> cihazListesi = new ArrayList<>(); // Tüm cihazların tutulduğu ana liste
-    // Dosya yolunu dinamik olarak alıyoruz ki her bilgisayarda çalışsın
+    private List<Cihaz> cihazListesi = new ArrayList<>();
     private static final String CIHAZ_DOSYA_ADI = System.getProperty("user.dir") +
             System.getProperty("file.separator") +
             "cihazlar.txt";
 
-    private ServisYonetimi servisYonetimi; // Servis işlemlerini yapan sınıf
+    private ServisYonetimi servisYonetimi;
+    private Kullanici aktifKullanici; // Giriş yapan kullanıcı bilgisi
 
-    // --- RENK PALETİ (TUTARLI TASARIM İÇİN) ---
-    // Renkleri burada sabitliyorum ki her yerde aynı tonu kullanabileyim
-    private static final Color COLOR_ACTION_PRIMARY = new Color(52, 152, 219); // Açık Mavi (İşlemler)
-    private static final Color COLOR_ACTION_SECONDARY = new Color(52, 73, 94); // Koyu Lacivert (Rapor/Takip)
-    private static final Color COLOR_DANGER = new Color(231, 76, 60);          // Kırmızı (Silme)
-    private static final Color COLOR_NEUTRAL = new Color(149, 165, 166);       // Gri (Çıkış)
+    private static final Color COLOR_ACTION_PRIMARY = new Color(52, 152, 219);
+    private static final Color COLOR_ACTION_SECONDARY = new Color(52, 73, 94);
+    private static final Color COLOR_DANGER = new Color(231, 76, 60);
+    private static final Color COLOR_NEUTRAL = new Color(149, 165, 166);
 
+    // Default constructor kaldırıldı veya parametreli olana yönlendirilebilir.
+    // Biz burada parametresiz olanı test için admin olarak başlatıyoruz ama normalde GirisEkrani'ndan gelinmeli.
     public AnaMenu() {
-        // Program açılırken verileri dosyadan yüklüyoruz
+        this(new Kullanici("TestAdmin", "", KullaniciRol.ADMIN));
+    }
+
+    // YENİ: Kullanıcı alan Constructor
+    public AnaMenu(Kullanici kullanici) {
+        this.aktifKullanici = kullanici;
+
         cihazListesi = DosyaIslemleri.cihazlariYukle(CIHAZ_DOSYA_ADI);
         servisYonetimi = new ServisYonetimi(cihazListesi);
 
-        initUI(); // Ekran tasarımını başlatıyoruz
-        cihazListesiniTabloyaDoldur(cihazListesi); // Tabloları verilerle dolduruyoruz
+        initUI();
+        cihazListesiniTabloyaDoldur(cihazListesi);
 
-        System.out.println("Sistem başlatıldı. Cihaz sayısı: " + cihazListesi.size());
+        System.out.println("Sistem başlatıldı. Kullanıcı: " + kullanici.getKullaniciAdi() + " [" + kullanici.getRol() + "]");
     }
 
     private void initUI() {
-        setTitle("Teknik Servis Yönetim Paneli"); // Pencere başlığı
-        setSize(1280, 800); // Pencere boyutu
-        setLocationRelativeTo(null); // Ortada açılması için
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // Kapatınca program dursun
+        setTitle("Teknik Servis Yönetim Paneli - " + aktifKullanici.getKullaniciAdi());
+        setSize(1280, 800);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Ana Panel
         JPanel mainPanel = new JPanel(new BorderLayout(0, 10));
-        mainPanel.setBackground(new Color(245, 248, 250)); // Arka planı açık gri yaptık
-        mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15)); // Kenar boşlukları verdik
+        mainPanel.setBackground(new Color(245, 248, 250));
+        mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         setContentPane(mainPanel);
 
-        // --- 1. ÜST BAŞLIK (HEADER) ---
+        // --- 1. HEADER ---
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setOpaque(false); // Arka planı şeffaf yaptık
+        headerPanel.setOpaque(false);
 
         JLabel lblTitle = new JLabel("Cihaz ve Servis Yönetimi");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(new Color(44, 62, 80));
 
-        JLabel lblSub = new JLabel("Aktif Cihazlar ve Servis İşlemleri Listesi (Detay için çift tıklayın)");
+        // Rol bilgisini başlığa ekledik
+        String yetki = aktifKullanici.getRol() == KullaniciRol.ADMIN ? "Yönetici" : "Teknisyen";
+        JLabel lblSub = new JLabel("Hoşgeldiniz, Sayın " + aktifKullanici.getKullaniciAdi() + " (" + yetki + ")");
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblSub.setForeground(Color.GRAY);
 
@@ -85,11 +93,11 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         textPanel.add(lblTitle);
         textPanel.add(lblSub);
 
-        headerPanel.add(textPanel, BorderLayout.WEST); // Yazıları sola yasladık
+        headerPanel.add(textPanel, BorderLayout.WEST);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // --- 2. ORTA BÖLÜM (TABLOLAR) ---
-        tabbedPane = new JTabbedPane(); // Sekmeleri oluşturduk
+        // --- 2. ORTA BÖLÜM ---
+        tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabbedPane.putClientProperty(FlatClientProperties.STYLE, "tabSeparators: true");
 
@@ -98,57 +106,78 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         createTab("Tablet");
         createTab("Laptop");
 
-        mainPanel.add(tabbedPane, BorderLayout.CENTER); // Tabloları ortaya yerleştirdik
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        // --- 3. ALT BÖLÜM (BUTON PANELİ) ---
+        // --- 3. ALT BÖLÜM (YETKİLENDİRME BURADA YAPILIYOR) ---
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        // GRUP 1: Operasyonel İşlemler (Hepsi Mavi)
+        // GRUP 1: Operasyonel İşlemler
         JPanel leftActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftActions.setOpaque(false);
 
         JButton btnEkle = createStyledButton("Yeni Cihaz", COLOR_ACTION_PRIMARY);
         btnEkle.addActionListener(e -> {
-            CihazKayit dialog = new CihazKayit(this, this); // Kayıt penceresini açıyoruz
+            CihazKayit dialog = new CihazKayit(this, this);
             dialog.setVisible(true);
         });
 
         JButton btnServis = createStyledButton("Servis Kaydı", COLOR_ACTION_PRIMARY);
-        btnServis.addActionListener(e -> servisKaydiOlusturIslemi()); // Servis işlemini başlatıyoruz
+        btnServis.addActionListener(e -> servisKaydiOlusturIslemi());
 
         JButton btnGaranti = createStyledButton("Garanti Uzat", COLOR_ACTION_PRIMARY);
-        btnGaranti.addActionListener(e -> garantiUzatmaIslemi()); // Garanti uzatma işlemini başlatıyoruz
+        btnGaranti.addActionListener(e -> garantiUzatmaIslemi());
+
+        // YETKİ KONTROLÜ: Teknisyenler yeni cihaz ekleyemez ve garanti uzatamaz, sadece servis kaydı açabilir (Varsayım)
+        // Veya teknisyen sadece tamir eder, kayıt açamaz diyorsak onu da kapatabiliriz.
+        // Bizim senaryoda Teknisyen bu butonları göremesin.
+        if (aktifKullanici.getRol() == KullaniciRol.TEKNISYEN) {
+            btnEkle.setEnabled(false);
+            btnEkle.setToolTipText("Yetkiniz Yok");
+
+            btnGaranti.setEnabled(false);
+            btnGaranti.setToolTipText("Yetkiniz Yok");
+
+            // Servis kaydı açmayı da admin'e bırakalım
+            btnServis.setEnabled(false);
+            btnServis.setToolTipText("Yetkiniz Yok");
+        }
 
         leftActions.add(btnEkle);
         leftActions.add(btnServis);
         leftActions.add(btnGaranti);
 
-        // GRUP 2: İzleme ve Raporlama (Hepsi Koyu Gri-Mavi)
+        // GRUP 2: İzleme ve Raporlama
         JPanel centerActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         centerActions.setOpaque(false);
 
         JButton btnTakip = createStyledButton("Servis Takip Ekranı", COLOR_ACTION_SECONDARY);
-        btnTakip.addActionListener(e -> new ServisTakipEkrani(servisYonetimi).setVisible(true)); // Takip ekranını açıyoruz
+        // Takip ekranına da kullanıcıyı gönderiyoruz
+        btnTakip.addActionListener(e -> new ServisTakipEkrani(servisYonetimi, aktifKullanici).setVisible(true));
 
         JButton btnRapor = createStyledButton("Rapor Al", COLOR_ACTION_SECONDARY);
-        btnRapor.addActionListener(e -> konsolRaporuOlustur()); // Raporu konsola basıyoruz
+        btnRapor.addActionListener(e -> konsolRaporuOlustur());
 
         centerActions.add(btnTakip);
         centerActions.add(btnRapor);
 
-        // GRUP 3: Sistem ve Silme (Kırmızı ve Gri)
+        // GRUP 3: Silme ve Çıkış
         JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightActions.setOpaque(false);
 
         JButton btnSil = createStyledButton("Cihazı Sil", COLOR_DANGER);
-        btnSil.addActionListener(e -> cihazSilIslemi()); // Silme işlemini başlatıyoruz
+        btnSil.addActionListener(e -> cihazSilIslemi());
+
+        // YETKİ KONTROLÜ: Teknisyen cihaz silemez
+        if (aktifKullanici.getRol() != KullaniciRol.ADMIN) {
+            btnSil.setVisible(false); // Direkt gizledik
+        }
 
         JButton btnCikis = createStyledButton("Çıkış Yap", COLOR_NEUTRAL);
         btnCikis.addActionListener(e -> {
-            new GirisEkrani().setVisible(true); // Giriş ekranına dönüyoruz
-            this.dispose(); // Bu penceryi kapatıyoruz
+            new GirisEkrani().setVisible(true);
+            this.dispose();
         });
 
         rightActions.add(btnSil);
@@ -161,10 +190,7 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // --- YARDIMCI METOTLAR ---
-
     private void createTab(String title) {
-        // Tablo modelini oluşturup başlıkları ekliyoruz ve düzenlemeyi kapatıyoruz
         DefaultTableModel model = new DefaultTableModel(
                 new Object[]{"Tür", "Marka", "Model", "Seri No", "Müşteri", "Fiyat (TL)", "Garanti Bitiş"}, 0) {
             @Override
@@ -172,32 +198,24 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         };
 
         JTable table = new JTable(model);
-
-        // Tablo Görünümü (Renkler ve boyutlar)
         table.setRowHeight(35);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setShowVerticalLines(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.setSelectionBackground(new Color(220, 230, 240)); // Seçili satır rengi
+        table.setSelectionBackground(new Color(220, 230, 240));
         table.setSelectionForeground(Color.BLACK);
 
-        JTableHeader header = table.getTableHeader(); // Tablo başlığını süslüyoruz
+        JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(Color.WHITE);
         header.setForeground(new Color(100, 100, 100));
         ((DefaultTableCellRenderer)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.LEFT);
 
-        // --- YENİ EKLENEN KISIM: ÇİFT TIKLAMA İLE DETAY AÇMA ---
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Eğer sol tuşla 2 kere tıklandıysa (Double Click)
                 if (evt.getClickCount() == 2 && table.getSelectedRow() != -1) {
-
-                    // Seçili satırdaki seri numarasını al (3. sütun)
                     String seriNo = (String) table.getValueAt(table.getSelectedRow(), 3);
-
-                    // Ana listeden bu cihazı bul
                     Cihaz seciliCihaz = null;
                     for (Cihaz c : cihazListesi) {
                         if (c.getSeriNo().equals(seriNo)) {
@@ -205,47 +223,40 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
                             break;
                         }
                     }
-
-                    // Cihaz bulunduysa detay ekranını aç
                     if (seciliCihaz != null) {
-                        // Yeni pencereyi açıyoruz, müşteriyi ve TÜM cihaz listesini gönderiyoruz
-                        // (Böylece o müşterinin diğer cihazlarını da bulabiliriz)
                         new MusteriDetayEkrani(AnaMenu.this, seciliCihaz.getSahip(), cihazListesi).setVisible(true);
                     }
                 }
             }
         });
-        // -------------------------------------------------------
 
-        tableModels.put(title, model); // Modeli map'e ekledik
-        tables.put(title, table); // Tabloyu map'e ekledik
+        tableModels.put(title, model);
+        tables.put(title, table);
 
-        JScrollPane scrollPane = new JScrollPane(table); // Kaydırma çubuğu ekledik
+        JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(new LineBorder(new Color(230, 230, 230)));
         scrollPane.getViewport().setBackground(Color.WHITE);
 
-        tabbedPane.addTab(title, scrollPane); // Sekmeyi panele ekledik
+        tabbedPane.addTab(title, scrollPane);
     }
 
     private JButton createStyledButton(String text, Color bgColor) {
-        JButton btn = new JButton(text); // Butonu oluşturduk
+        JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setBackground(bgColor); // Parametre olarak gelen rengi verdik
+        btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(145, 40));
+        btn.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
 
-        btn.putClientProperty(FlatClientProperties.STYLE, "arc: 10"); // Köşeleri yuvarlattık
-
-        // Hover (Mouse üzerine gelince renk açma efekti)
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(bgColor.brighter());
+                if(btn.isEnabled()) btn.setBackground(bgColor.brighter());
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(bgColor);
+                if(btn.isEnabled()) btn.setBackground(bgColor);
             }
         });
 
@@ -256,48 +267,47 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
 
     @Override
     public void cihazEklendi(Cihaz cihaz) {
-        cihazListesi.add(cihaz); // Listeye ekledik
-        cihazListesiniTabloyaDoldur(cihazListesi); // Tabloyu güncelledik
-        cihazKaydet(cihazListesi); // Dosyaya kaydettik
+        cihazListesi.add(cihaz);
+        cihazListesiniTabloyaDoldur(cihazListesi);
+        cihazKaydet(cihazListesi);
     }
 
     private void cihazListesiniTabloyaDoldur(List<Cihaz> liste) {
         for (DefaultTableModel model : tableModels.values()) {
-            model.setRowCount(0); // Önce tüm tabloları temizliyoruz
+            model.setRowCount(0);
         }
         for (Cihaz c : liste) {
             String musteriBilgisi = c.getSahip().toString().toUpperCase();
-            if (c.getSahip().vipMi()) musteriBilgisi += " [VIP]"; // VIP müşteriyi belirtiyoruz
+            if (c.getSahip().vipMi()) musteriBilgisi += " [VIP]";
 
             Object[] rowData = new Object[]{
                     c.getCihazTuru(), c.getMarka(), c.getModel(), c.getSeriNo(),
                     musteriBilgisi, c.getFiyat(), c.getGarantiBitisTarihi()
             };
-            tableModels.get("Tümü").addRow(rowData); // 'Tümü' sekmesine ekle
+            tableModels.get("Tümü").addRow(rowData);
             String tur = c.getCihazTuru();
-            if (tableModels.containsKey(tur)) tableModels.get(tur).addRow(rowData); // İlgili türe (Telefon vb.) ekle
+            if (tableModels.containsKey(tur)) tableModels.get(tur).addRow(rowData);
         }
     }
 
     private Cihaz getSeciliCihaz() {
-        String activeTitle = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()); // Hangi sekmedeyiz?
-        JTable activeTable = tables.get(activeTitle); // O sekmenin tablosunu al
+        String activeTitle = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+        JTable activeTable = tables.get(activeTitle);
         int selectedRow = activeTable.getSelectedRow();
-        if (selectedRow < 0) return null; // Seçim yoksa null dön
-        String seriNo = (String) activeTable.getValueAt(selectedRow, 3); // Seri numarasını al
+        if (selectedRow < 0) return null;
+        String seriNo = (String) activeTable.getValueAt(selectedRow, 3);
         for (Cihaz c : cihazListesi) {
-            if (c.getSeriNo().equals(seriNo)) return c; // Listeden cihazı bul ve döndür
+            if (c.getSeriNo().equals(seriNo)) return c;
         }
         return null;
     }
 
     private void servisKaydiOlusturIslemi() {
-        Cihaz selectedCihaz = getSeciliCihaz(); // Seçili cihazı alıyoruz
+        Cihaz selectedCihaz = getSeciliCihaz();
         if (selectedCihaz == null) {
             JOptionPane.showMessageDialog(this, "Lütfen işlem yapılacak cihazı seçin.", "Uyarı", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        // Kullanıcıya bilgi göstermek için metinleri hazırlıyoruz
         String garantiDurumu = selectedCihaz.garantiAktifMi() ? "Aktif" : "BİTMİŞ";
         String vipBilgi = selectedCihaz.getSahip().vipMi() ? " [VIP Müşteri]" : "";
         JComboBox<String> sorunComboBox = new JComboBox<>(FiyatlandirmaHizmeti.getSorunListesi());
@@ -305,11 +315,11 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
                 selectedCihaz.getModel(), selectedCihaz.getSahip().getAd() + " " + selectedCihaz.getSahip().getSoyad(),
                 vipBilgi, garantiDurumu, selectedCihaz.getGaranti().garantiTuru());
 
-        int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION); // Kutucuğu göster
+        int option = JOptionPane.showConfirmDialog(this, sorunComboBox, mesaj, JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION && sorunComboBox.getSelectedItem() != null) {
             String secilenSorun = (String) sorunComboBox.getSelectedItem();
-            ServisKaydi yeniKayit = servisYonetimi.yeniServisKaydiOlustur(selectedCihaz, secilenSorun); // Kaydı oluştur
-            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), 20); // 20 iş günü sonrasını hesapla
+            ServisKaydi yeniKayit = servisYonetimi.yeniServisKaydiOlustur(selectedCihaz, secilenSorun);
+            LocalDate tahminiTeslim = TarihYardimcisi.isGunuEkle(LocalDate.now(), 20);
             JOptionPane.showMessageDialog(this,
                     String.format("Kayıt Başarılı!\nSorun: %s\nÖdenecek Tutar: %.2f TL\nTeknisyen: %s\nTahmini Teslim: %s",
                             yeniKayit.getSorunAciklamasi(), yeniKayit.getOdenecekTamirUcreti(), yeniKayit.getAtananTeknisyen().getAd(), tahminiTeslim));
@@ -326,7 +336,6 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
             JOptionPane.showMessageDialog(this, "Bu cihazın garantisi zaten uzatılmış.");
             return;
         }
-        // Fiyatları hesaplıyoruz
         double cihazFiyati = seciliCihaz.getFiyat();
         double fiyat6Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 6);
         double fiyat12Ay = FiyatlandirmaHizmeti.paketFiyatiHesapla(cihazFiyati, 12);
@@ -340,7 +349,6 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
                 String.format("36 Ay (%.2f TL)", fiyat36Ay),
                 "İptal"
         };
-        // Kullanıcıya seçenek sunuyoruz
         int n = JOptionPane.showOptionDialog(this, "Garanti Paketi Seçin:", "Garanti Uzatma",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[4]);
 
@@ -349,9 +357,9 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         else if (n == 2) uzatilacakAy = 24; else if (n == 3) uzatilacakAy = 36;
 
         if (uzatilacakAy > 0) {
-            seciliCihaz.garantiUzat(uzatilacakAy); // Garantiyi uzat
-            cihazKaydet(cihazListesi); // Kaydet
-            cihazListesiniTabloyaDoldur(cihazListesi); // Tabloyu yenile
+            seciliCihaz.garantiUzat(uzatilacakAy);
+            cihazKaydet(cihazListesi);
+            cihazListesiniTabloyaDoldur(cihazListesi);
             JOptionPane.showMessageDialog(this, "İşlem Başarılı! Garanti süresi uzatıldı.");
         }
     }
@@ -359,14 +367,13 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
     private void cihazSilIslemi() {
         Cihaz silinecekCihaz = getSeciliCihaz();
         if (silinecekCihaz != null) {
-            // Emin misin diye soruyoruz
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Bu cihazı (" + silinecekCihaz.getModel() + ") silmek istediğinize emin misiniz?",
                     "Onay", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                cihazListesi.remove(silinecekCihaz); // Listeden sil
-                cihazKaydet(cihazListesi); // Dosyayı güncelle
-                cihazListesiniTabloyaDoldur(cihazListesi); // Tabloyu güncelle
+                cihazListesi.remove(silinecekCihaz);
+                cihazKaydet(cihazListesi);
+                cihazListesiniTabloyaDoldur(cihazListesi);
             }
         } else {
             JOptionPane.showMessageDialog(this, "Silinecek cihazı seçin.");
@@ -375,14 +382,14 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
 
     private void cihazKaydet(List<Cihaz> liste) {
         try {
-            DosyaIslemleri.cihazlariKaydet(liste, CIHAZ_DOSYA_ADI); // Dosya yazma işlemi
+            DosyaIslemleri.cihazlariKaydet(liste, CIHAZ_DOSYA_ADI);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Kaydetme Hatası: " + e.getMessage());
         }
     }
 
     private void konsolRaporuOlustur() {
-        RaporlamaHizmeti.konsolRaporuOlustur(cihazListesi); // Arka planda konsola rapor basar
+        RaporlamaHizmeti.konsolRaporuOlustur(cihazListesi);
         JOptionPane.showMessageDialog(this, "Rapor konsola yazdırıldı!");
     }
 }

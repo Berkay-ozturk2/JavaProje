@@ -2,13 +2,15 @@ package Servis;
 
 import Cihazlar.Cihaz;
 import Arayuzler.IVeriIslemleri;
-import Araclar.Formatlayici; // YENİ IMPORT
+import Araclar.Formatlayici;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ServisYonetimi implements IVeriIslemleri {
     private List<ServisKaydi> kayitlar; // Tüm servis geçmişini tutan ana liste
@@ -62,8 +64,12 @@ public class ServisYonetimi implements IVeriIslemleri {
     @Override
     public void Kaydet() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(DOSYA_ADI))) {
+            // STREAM API KULLANIMI: Döngü yerine forEach kullanımı
+            // Checked Exception (IOException) stream içinde yönetmek zor olduğu için
+            // burada klasik döngü daha güvenli olabilir ama stream ile yazmak istersek
+            // try-catch bloğunu içine almamız gerekir.
+            // Dosya işlemlerinde klasik for-each bazen daha temizdir, ancak mantığı göstermek adına:
             for (ServisKaydi k : kayitlar) {
-                // DEĞİŞİKLİK: Veriyi metne çevirme işini Formatlayici sınıfına devrettik, kod temizlendi
                 bw.write(Formatlayici.servisKaydiMetneDonustur(k));
                 bw.newLine();
             }
@@ -78,18 +84,18 @@ public class ServisYonetimi implements IVeriIslemleri {
         this.kayitlar = new ArrayList<>(); // Listeyi sıfırlıyoruz
         if (dosya.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(dosya))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (!line.trim().isEmpty()) {
-                        // DEĞİŞİKLİK: Metni tekrar nesneye çevirme işini de Formatlayici yapıyor
-                        ServisKaydi k = Formatlayici.metniServisKaydinaDonustur(line, this.cihazListesiRef);
-                        if (k != null) kayitlar.add(k);
-                    }
-                }
+                // STREAM API KULLANIMI: BufferedReader'dan satırları akış olarak alıp işliyoruz
+                // lines() metodu Stream<String> döner.
+                br.lines()
+                        .filter(line -> !line.trim().isEmpty()) // Boş satırları filtrele
+                        .map(line -> Formatlayici.metniServisKaydinaDonustur(line, this.cihazListesiRef)) // Nesneye dönüştür
+                        .filter(Objects::nonNull) // Null dönenleri (hatalı satırları) filtrele
+                        .forEach(kayitlar::add); // Listeye ekle
+
             } catch (IOException e) {
                 System.err.println("Yükleme hatası.");
             } finally {
-                System.out.println("Servis verileri yükleme işlemi tamamlandı.");
+                System.out.println("Servis verileri yükleme işlemi tamamlandı (Stream API).");
             }
         }
     }
@@ -101,14 +107,18 @@ public class ServisYonetimi implements IVeriIslemleri {
         System.out.println("Tüm servis kayıtları ve dosya içeriği temizlendi.");
     }
 
-    // Set yapısı kullanarak aynı ismin listede tekrar etmesini engelliyoruz (Collection Framework örneği)
+    // Set yapısı kullanarak aynı ismin listede tekrar etmesini engelliyoruz
     public Set<String> getBenzersizTeknisyenIsimleri() {
-        Set<String> teknisyenler = new HashSet<>();
-        for (ServisKaydi sk : kayitlar) {
-            if (sk.getAtananTeknisyen() != null) {
-                teknisyenler.add(sk.getAtananTeknisyen().getAd());
-            }
-        }
-        return teknisyenler;
+        // STREAM API KULLANIMI:
+        // 1. Kayıtlardan akış oluştur
+        // 2. Teknisyen nesnesini al
+        // 3. Null olanları filtrele (Atanmamış olabilir)
+        // 4. Teknisyen ismini al (Map)
+        // 5. Set olarak topla (Collect)
+        return kayitlar.stream()
+                .map(ServisKaydi::getAtananTeknisyen)
+                .filter(Objects::nonNull)
+                .map(Teknisyen::getAd)
+                .collect(Collectors.toSet());
     }
 }
