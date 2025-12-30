@@ -6,7 +6,6 @@ import com.formdev.flatlaf.FlatClientProperties;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -61,10 +60,10 @@ public class GirisEkrani extends JFrame {
             new MusteriTakipEkrani().setVisible(true);
         });
 
-        // Personel Butonu (GÜNCELLENDİ)
+        // Personel Butonu
         JButton btnPersonel = createModernButton("Personel Girişi", "🛡️", PERSONEL_RENGI);
         btnPersonel.addActionListener(e -> {
-            personelGirisPenceresi(); // Yeni metodumuzu çağırıyoruz
+            personelGirisPenceresi();
         });
 
         gbc.gridx = 0; gbc.gridy = 0;
@@ -88,7 +87,7 @@ public class GirisEkrani extends JFrame {
      */
     private void personelGirisPenceresi() {
         JDialog dialog = new JDialog(this, "Yetkili Girişi", true);
-        dialog.setSize(400, 350); // Biraz uzattık
+        dialog.setSize(400, 350);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
 
@@ -120,7 +119,12 @@ public class GirisEkrani extends JFrame {
         JTextField txtUser = new JTextField();
         txtUser.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtUser.setPreferredSize(new Dimension(200, 30));
-        txtUser.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Kullanıcı adınızı giriniz");
+        // FlatLaf kütüphanesi yüklü değilse burası hata verebilir, try-catch ile sarılabilir ama genellikle sorun olmaz.
+        try {
+            txtUser.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Kullanıcı adınızı giriniz");
+        } catch (NoClassDefFoundError e) {
+            // FlatLaf yoksa bu özelliği atla
+        }
         contentPanel.add(txtUser, gbc);
 
         // Şifre Alanı
@@ -133,7 +137,11 @@ public class GirisEkrani extends JFrame {
         JPasswordField txtPass = new JPasswordField();
         txtPass.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtPass.setPreferredSize(new Dimension(200, 30));
-        txtPass.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "******");
+        try {
+            txtPass.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "******");
+        } catch (NoClassDefFoundError e) {
+            // FlatLaf yoksa bu özelliği atla
+        }
         contentPanel.add(txtPass, gbc);
 
         // Hata Mesajı
@@ -160,17 +168,34 @@ public class GirisEkrani extends JFrame {
 
         // Aksiyonlar
         btnGiris.addActionListener(ev -> {
-            String user = txtUser.getText().trim();
+            String user = txtUser.getText();
             String pass = new String(txtPass.getPassword());
 
             // YENİ: Kullanıcı Yönetimi üzerinden doğrulama
             Kullanici girisYapan = KullaniciYonetimi.dogrula(user, pass);
 
             if (girisYapan != null) {
-                dialog.dispose();
-                // Giriş başarılıysa kullanıcı bilgisini Ana Menü'ye iletiyoruz
-                new AnaMenu(girisYapan).setVisible(true);
-                this.dispose();
+                // HATA ÇÖZÜMÜ: AnaMenü açılışını ayrı bir thread'e alıyoruz ve Throwable yakalıyoruz
+                // Böylece FlatLaf hatası (NoClassDefFoundError) veya başka bir hata varsa program donmaz, mesaj verir.
+                dialog.dispose(); // Pencereyi hemen kapat
+
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        AnaMenu anaMenu = new AnaMenu(girisYapan);
+                        anaMenu.setVisible(true);
+                        this.dispose(); // Giriş ekranını kapat
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null,
+                                "Ana Menü açılırken kritik hata oluştu!\n" +
+                                        "Hata Detayı: " + ex.toString() + "\n\n" +
+                                        "Muhtemel Sebep: 'flatlaf' kütüphanesi eksik veya hatalı olabilir.",
+                                "Başlatma Hatası", JOptionPane.ERROR_MESSAGE);
+
+                        // Hata durumunda giriş ekranını geri gösterelim ki kullanıcı sıkışmasın
+                        dialog.setVisible(true);
+                    }
+                });
             } else {
                 lblError.setText("Kullanıcı adı veya şifre hatalı!");
                 txtPass.setText("");
@@ -178,6 +203,13 @@ public class GirisEkrani extends JFrame {
         });
 
         btnIptal.addActionListener(ev -> dialog.dispose());
+
+        // YENİ EKLENEN KISIM: Şifre alanında Enter'a basınca giriş butonuna tıkla
+        txtPass.addActionListener(e -> btnGiris.doClick());
+
+        // Kullanıcı adı alanında Enter'a basınca şifre alanına geç
+        txtUser.addActionListener(e -> txtPass.requestFocusInWindow());
+
         dialog.getRootPane().setDefaultButton(btnGiris);
 
         dialog.add(titlePanel, BorderLayout.NORTH);
@@ -196,7 +228,12 @@ public class GirisEkrani extends JFrame {
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(190, 100));
-        btn.putClientProperty(FlatClientProperties.STYLE, "arc: 20");
+
+        try {
+            btn.putClientProperty(FlatClientProperties.STYLE, "arc: 20");
+        } catch (NoClassDefFoundError e) {
+            // FlatLaf yoksa stil uygulama, devam et
+        }
 
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { btn.setBackground(bgColor.brighter()); }
@@ -209,7 +246,9 @@ public class GirisEkrani extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+            System.err.println("Tema yüklenemedi, varsayılan tema kullanılacak.");
+        }
         SwingUtilities.invokeLater(() -> new GirisEkrani().setVisible(true));
     }
 }
