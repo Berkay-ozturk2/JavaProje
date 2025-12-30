@@ -2,6 +2,7 @@ package gui;
 
 import Cihazlar.*;
 import Musteri.Musteri;
+import Musteri.MusteriDeposu; // YENİ: Depo sınıfını import ettik
 import Istisnalar.GecersizDegerException;
 import Araclar.KodUretici;
 import com.formdev.flatlaf.FlatClientProperties;
@@ -284,7 +285,7 @@ public class CihazKayit extends JDialog {
 
     private void kaydet() {
         try {
-            // --- 1. ÖNCE FİYAT KONTROLÜ (En başa alındı) ---
+            // --- 1. ÖNCE FİYAT KONTROLÜ ---
             String fiyatMetni = txtFiyat.getText().trim();
             if (fiyatMetni.isEmpty()) {
                 throw new GecersizDegerException("Fiyat alanı boş bırakılamaz."); // Boş fiyat kontrolü
@@ -297,7 +298,6 @@ public class CihazKayit extends JDialog {
                 throw new GecersizDegerException("Fiyat alanına geçerli bir sayı giriniz.");
             }
 
-            // Negatiflik Kontrolü Burada Yapılıyor
             if (fiyat < 0) {
                 throw new GecersizDegerException("Fiyat bilgisi negatif olamaz!"); // Eksi fiyat kontrolü
             }
@@ -311,13 +311,19 @@ public class CihazKayit extends JDialog {
                 throw new GecersizDegerException("Müşteri bilgileri boş bırakılamaz!"); // İsim soyisim kontrolü
             }
 
-            if (mTelefon.isEmpty() || mTelefon.length() != 13) {
-                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz!\nLütfen geçerli bir numara giriniz (+90) dahil).");
+            if (mTelefon.isEmpty() || mTelefon.length() < 10) {
+                throw new GecersizDegerException("Telefon bilgisi alanı boş bırakılamaz ve geçerli uzunlukta olmalıdır!");
             }
 
-            // --- 3. NESNE OLUŞTURMA VE KAYIT ---
-            Musteri sahip = new Musteri(mAd, mSoyad, mTelefon); // Müşteri nesnesini oluşturduk
-            sahip.setVip(chkVip.isSelected()); // VIP durumunu ayarladık
+            // --- 3. NESNE OLUŞTURMA VE KAYIT (MusteriDeposu ile) ---
+
+            // --- DEĞİŞİKLİK BAŞLANGICI ---
+            // Doğrudan 'new Musteri' yerine depoyu kullanıyoruz.
+            // Böylece telefon aynıysa eski müşteri geliyor, yoksa yeni oluşturuluyor.
+            Musteri sahip = MusteriDeposu.musteriBulVeyaOlustur(mAd, mSoyad, mTelefon);
+            // --- DEĞİŞİKLİK BİTİŞİ ---
+
+            sahip.setVip(chkVip.isSelected()); // VIP durumunu güncelle
 
             String seriNo = txtSeriNo.getText().trim();
             String marka = (String) cmbMarka.getSelectedItem();
@@ -341,7 +347,11 @@ public class CihazKayit extends JDialog {
             }
 
             listener.cihazEklendi(yeniCihaz); // Ana ekrana yeni cihazı gönderdik
-            JOptionPane.showMessageDialog(this, tur + " başarıyla kaydedildi.", "İşlem Başarılı", JOptionPane.INFORMATION_MESSAGE); // Kullanıcıya başarılı mesajı verdik
+
+            // Kullanıcıya bilgi mesajında ID'yi de gösterelim (Opsiyonel ama bilgilendirici)
+            String mesaj = tur + " başarıyla kaydedildi.\nMüşteri ID: " + sahip.getId();
+            JOptionPane.showMessageDialog(this, mesaj, "İşlem Başarılı", JOptionPane.INFORMATION_MESSAGE);
+
             dispose(); // Pencereyi kapattık
 
         } catch (GecersizDegerException ex) {

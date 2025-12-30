@@ -2,6 +2,7 @@ package Araclar;
 
 import Cihazlar.*;
 import Musteri.Musteri;
+import Musteri.MusteriDeposu; // YENİ: Depo sınıfını import ettik
 import Servis.ServisDurumu;
 import Servis.ServisKaydi;
 import Servis.TeknisyenDeposu;
@@ -15,7 +16,7 @@ public class Formatlayici {
 
     // --- CİHAZ İŞLEMLERİ ---
 
-    //Bir Cihaz nesnesini dosya formatına uygun String haline getirir.
+    // Bir Cihaz nesnesini dosya formatına uygun String haline getirir.
     public static String cihazMetneDonustur(Cihaz cihaz) {
         // Tüm cihazlarda ortak olan temel bilgileri formatlar.
         String temel = String.format("%s;;%s;;%s;;%s;;%.2f;;%s;;%d;;%s;;%s;;%s;;%b",
@@ -40,7 +41,6 @@ public class Formatlayici {
         return temel;
     }
 
-
     // Dosyadan okunan satırı Cihaz nesnesine çevirir.
     public static Cihaz metniCihazaDonustur(String satir) {
         try {
@@ -59,8 +59,16 @@ public class Formatlayici {
             LocalDate tarih = LocalDate.parse(parcalar[5].trim());
             int ekstraSure = Integer.parseInt(parcalar[6].trim());
 
-            // Cihazın sahibini temsil eden müşteri nesnesini oluşturur.
-            Musteri musteri = new Musteri(parcalar[7].trim(), parcalar[8].trim(), parcalar[9].trim());
+            // --- DEĞİŞİKLİK BAŞLANGICI ---
+            // Eskiden doğrudan 'new Musteri' diyorduk. Şimdi depoya soruyoruz.
+            // Eğer bu telefon numarasıyla kayıtlı biri varsa onu getiriyor (ID korunuyor).
+            // Yoksa yeni oluşturup ID veriyor.
+            Musteri musteri = MusteriDeposu.musteriBulVeyaOlustur(
+                    parcalar[7].trim(), // Ad
+                    parcalar[8].trim(), // Soyad
+                    parcalar[9].trim()  // Telefon
+            );
+            // --- DEĞİŞİKLİK BİTİŞİ ---
 
             boolean isVip = false;
             boolean kalem = false;
@@ -195,7 +203,6 @@ public class Formatlayici {
 
             // Varsa tamamlama tarihini okur ve kayda işler.
             if (p.length > 10 && !p[10].trim().equals("Yok")) {
-                // Not: ServisKaydi sınıfında setTamamlamaTarihi metodu olduğu varsayılmıştır.
                 kayit.setTamamlamaTarihi(LocalDate.parse(p[10].trim()));
             }
 

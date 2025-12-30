@@ -76,7 +76,7 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(new Color(44, 62, 80));
 
-        JLabel lblSub = new JLabel("Aktif Cihazlar ve Servis İşlemleri Listesi");
+        JLabel lblSub = new JLabel("Aktif Cihazlar ve Servis İşlemleri Listesi (Detay için çift tıklayın)");
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblSub.setForeground(Color.GRAY);
 
@@ -186,6 +186,36 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         header.setBackground(Color.WHITE);
         header.setForeground(new Color(100, 100, 100));
         ((DefaultTableCellRenderer)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.LEFT);
+
+        // --- YENİ EKLENEN KISIM: ÇİFT TIKLAMA İLE DETAY AÇMA ---
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // Eğer sol tuşla 2 kere tıklandıysa (Double Click)
+                if (evt.getClickCount() == 2 && table.getSelectedRow() != -1) {
+
+                    // Seçili satırdaki seri numarasını al (3. sütun)
+                    String seriNo = (String) table.getValueAt(table.getSelectedRow(), 3);
+
+                    // Ana listeden bu cihazı bul
+                    Cihaz seciliCihaz = null;
+                    for (Cihaz c : cihazListesi) {
+                        if (c.getSeriNo().equals(seriNo)) {
+                            seciliCihaz = c;
+                            break;
+                        }
+                    }
+
+                    // Cihaz bulunduysa detay ekranını aç
+                    if (seciliCihaz != null) {
+                        // Yeni pencereyi açıyoruz, müşteriyi ve TÜM cihaz listesini gönderiyoruz
+                        // (Böylece o müşterinin diğer cihazlarını da bulabiliriz)
+                        new MusteriDetayEkrani(AnaMenu.this, seciliCihaz.getSahip(), cihazListesi).setVisible(true);
+                    }
+                }
+            }
+        });
+        // -------------------------------------------------------
 
         tableModels.put(title, model); // Modeli map'e ekledik
         tables.put(title, table); // Tabloyu map'e ekledik

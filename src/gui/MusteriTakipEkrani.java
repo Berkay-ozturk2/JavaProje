@@ -1,151 +1,301 @@
 package gui;
 
+import Araclar.DosyaIslemleri;
+import Cihazlar.Cihaz;
 import Servis.RaporlamaHizmeti;
+import Servis.ServisDurumu;
+import Servis.ServisKaydi;
+import Servis.ServisYonetimi;
 import Istisnalar.KayitBulunamadiException;
-// FlatLaf özellikleri için gerekli import (Eğer proje kütüphanesinde yüklü değilse hata vermez, string olarak çalışır)
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.List;
 
 public class MusteriTakipEkrani extends JFrame {
 
-    private JTextField txtSeriNo;
+    private JTextField txtAramaGirdisi;
+    private JComboBox<String> cmbAramaTuru; // Seri No mu Telefon mu seçimi
     private JTextArea txtBilgiEkrani;
+    private JProgressBar progressBar; // Görsel durum çubuğu
+    private JLabel lblDurumMesaji;    // Çubuğun altındaki kısa mesaj
 
     public MusteriTakipEkrani() {
-        initUI(); // Ekran açılırken tasarımı yükleyen metodu çağır
+        initUI();
     }
 
-    //Kullanıcı Ara Yüzünü Başlatma metodu
     private void initUI() {
-        setTitle("Müşteri Cihaz Sorgulama Sistemi"); // Pencerenin başlığı
-        setSize(600, 550); // Pencerenin genişlik ve yüksekliği
-        setLocationRelativeTo(null); // Pencerenin ekranın tam ortasında açılmasını sağladık
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); // Pencere kapanınca uygulamayı sonlandır
+        setTitle("Müşteri Cihaz Sorgulama Sistemi");
+        setSize(700, 650); // Ekranı biraz büyüttük
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Ana Panel
         JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
-        mainPanel.setBackground(new Color(245, 248, 250)); // Arka plan rengini açık gri yaptık
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Kenarlardan boşluk bırak
-        setContentPane(mainPanel); // Bu paneli ana içerik olarak ayarla
+        mainPanel.setBackground(new Color(245, 248, 250));
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setContentPane(mainPanel);
 
-        // 1. ÜST BAŞLIK
-        JPanel headerPanel = new JPanel(new GridLayout(2, 1, 5, 0)); // Başlıkları alt alta dizmek için panel oluşturduk
-        headerPanel.setOpaque(false); // Arka planı şeffaf yap
+        // --- 1. ÜST BAŞLIK ---
+        JPanel headerPanel = new JPanel(new GridLayout(2, 1, 5, 0));
+        headerPanel.setOpaque(false);
 
-        JLabel lblTitle = new JLabel("Cihaz Durum Sorgulama", SwingConstants.CENTER); // Ana başlığı oluşturup ortala
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24)); // Yazı tipini ve boyutunu ayarladık
-        lblTitle.setForeground(new Color(44, 62, 80)); // Yazı rengini koyu mavi tonu yaptık
+        JLabel lblTitle = new JLabel("Cihaz ve Servis Durumu", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(new Color(44, 62, 80));
 
-        JLabel lblDesc = new JLabel("Cihazınızın son durumunu öğrenmek için Seri Numarasını giriniz.", SwingConstants.CENTER); // Açıklama yazısı ekledik
-        lblDesc.setFont(new Font("Segoe UI", Font.PLAIN, 13)); // Yazı tipi ve boyutu
-        lblDesc.setForeground(Color.GRAY); // Yazı rengini gri yaptık
+        JLabel lblDesc = new JLabel("Seri numarası veya Telefon numarası ile sorgulama yapabilirsiniz.", SwingConstants.CENTER);
+        lblDesc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblDesc.setForeground(Color.GRAY);
 
-        headerPanel.add(lblTitle); // Başlığı panele ekle
-        headerPanel.add(lblDesc); // Açıklamayı panele ekle
+        headerPanel.add(lblTitle);
+        headerPanel.add(lblDesc);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        mainPanel.add(headerPanel, BorderLayout.NORTH); // Başlık panelini en üste yerleştirdik
-
-        // 2. ORTA BÖLÜM (ARAMA VE SONUÇ)
-        JPanel centerPanel = new JPanel(new BorderLayout(0, 15)); // Arama ve sonuç kısmını tutacak paneli oluşturduk
+        // --- 2. ORTA BÖLÜM (ARAMA + SONUÇ + PROGRESS BAR) ---
+        JPanel centerPanel = new JPanel(new BorderLayout(0, 15));
         centerPanel.setOpaque(false);
 
         // Arama Paneli
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0)); // Butonları yan yana dizmek için panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         searchPanel.setOpaque(false);
 
-        txtSeriNo = new JTextField(15); // Yazı kutusunu oluşturma
-        txtSeriNo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtSeriNo.setPreferredSize(new Dimension(200, 35)); // Kutunun boyutunu belirledik
-        // Placeholder metni (FlatLaf destekliyorsa görünür)
-        txtSeriNo.putClientProperty("JTextField.placeholderText", "Örn: TEL-1234"); // Kutunun içinde silik yazı gösterdik
+        // Arama Türü Seçimi (YENİ ÖZELLİK)
+        cmbAramaTuru = new JComboBox<>(new String[]{"Seri No ile", "Telefon No ile"});
+        cmbAramaTuru.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        cmbAramaTuru.setPreferredSize(new Dimension(110, 35));
 
-        JButton btnSorgula = new JButton("Sorgula"); // Sorgula butonunu oluşturduk
-        btnSorgula.setBackground(new Color(52, 152, 219)); // Buton rengi mavi
-        btnSorgula.setForeground(Color.WHITE); // Yazı rengi beyaz
-        btnSorgula.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnSorgula.setFocusPainted(false); // Tıklanınca oluşan çerçeveyi kaldır
-        btnSorgula.setPreferredSize(new Dimension(120, 35));// Butonun boyutu
-        btnSorgula.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Mouse üzerine gelince el işareti çıksın
+        txtAramaGirdisi = new JTextField(15);
+        txtAramaGirdisi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtAramaGirdisi.setPreferredSize(new Dimension(200, 35));
+        txtAramaGirdisi.putClientProperty("JTextField.placeholderText", "Giriş yapınız...");
 
-        JButton btnTemizle = new JButton("Temizle"); // Temizle butonu
-        btnTemizle.setBackground(new Color(149, 165, 166)); // Buton rengi gri
-        btnTemizle.setForeground(Color.WHITE);
-        btnTemizle.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnTemizle.setFocusPainted(false);
-        btnTemizle.setPreferredSize(new Dimension(100, 35));// Butonun boyutu
+        JButton btnSorgula = createButton("Sorgula", new Color(52, 152, 219));
+        JButton btnTemizle = createButton("Temizle", new Color(149, 165, 166));
 
-        // Text alanını ve butonları arama paneline ekledik
-        searchPanel.add(txtSeriNo);
+        searchPanel.add(cmbAramaTuru);
+        searchPanel.add(txtAramaGirdisi);
         searchPanel.add(btnSorgula);
         searchPanel.add(btnTemizle);
 
         // Sonuç Ekranı
-        txtBilgiEkrani = new JTextArea(); // Sonuçların yazılacağı alanı oluşturduk
-        txtBilgiEkrani.setEditable(false); // Kullanıcının buraya yazı yazmasını engelle
-        //"Monospaced" kullanarak raporun düzgün hizalanmasını sağlıyoruz
+        txtBilgiEkrani = new JTextArea();
+        txtBilgiEkrani.setEditable(false);
         txtBilgiEkrani.setFont(new Font("Monospaced", Font.PLAIN, 13));
         txtBilgiEkrani.setBackground(Color.WHITE);
         txtBilgiEkrani.setForeground(new Color(40, 40, 40));
-        txtBilgiEkrani.setMargin(new Insets(15, 15, 15, 15)); // Yazının kenarlara yapışmaması için boşluk
-        txtBilgiEkrani.setText("\n\n      Henüz bir sorgulama yapılmadı.\n      Lütfen yukarıdan Seri No giriniz."); // Varsayılan metin
+        txtBilgiEkrani.setMargin(new Insets(15, 15, 15, 15));
+        txtBilgiEkrani.setText("\n\n      Lütfen yukarıdan arama türünü seçip bilginizi giriniz.");
 
-        JScrollPane scrollPane = new JScrollPane(txtBilgiEkrani); // Yazı uzun olursa kaydırma çubuğu çıksın diye panele koyduk
+        JScrollPane scrollPane = new JScrollPane(txtBilgiEkrani);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(200, 200, 200), 1, true), // Etrafına ince gri çizgi çektik
+                new LineBorder(new Color(200, 200, 200), 1, true),
                 new EmptyBorder(5, 5, 5, 5)
         ));
 
-        centerPanel.add(searchPanel, BorderLayout.NORTH); // Arama panelini üste koyduk
-        centerPanel.add(scrollPane, BorderLayout.CENTER); // Sonuç ekranını ortaya koyduk
+        // Progress Bar Paneli (YENİ ÖZELLİK)
+        JPanel statusPanel = new JPanel(new BorderLayout(0, 5));
+        statusPanel.setOpaque(false);
+        statusPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        mainPanel.add(centerPanel, BorderLayout.CENTER); // Orta paneli ana panele ekledik
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setStringPainted(true);
+        progressBar.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        progressBar.setForeground(new Color(46, 204, 113)); // Yeşil Renk
+        progressBar.setPreferredSize(new Dimension(100, 25));
+        progressBar.setVisible(false); // Başlangıçta gizli
 
-        // AKSİYONLAR
-        btnSorgula.addActionListener(e -> sorgulaIslemi()); // Sorgula butonuna basınca çalışacak metot
-        txtSeriNo.addActionListener(e -> sorgulaIslemi()); // Enter tuşuna basınca da çalışmasını sağla
+        lblDurumMesaji = new JLabel("İşlem Durumu Bekleniyor...", SwingConstants.CENTER);
+        lblDurumMesaji.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblDurumMesaji.setForeground(Color.GRAY);
+        lblDurumMesaji.setVisible(false);
 
-        btnTemizle.addActionListener(e -> { // Temizle butonuna basınca yapılacakları yazdık
-            txtSeriNo.setText(""); // Kutuyu temizledik
-            txtBilgiEkrani.setText("\n\n      Ekran temizlendi.\n      Yeni bir sorgulama yapabilirsiniz."); // Bilgi ekranını sıfırladık
-            txtBilgiEkrani.setForeground(Color.GRAY);
+        statusPanel.add(lblDurumMesaji, BorderLayout.NORTH);
+        statusPanel.add(progressBar, BorderLayout.CENTER);
+
+        // Bileşenleri yerleştirme
+        JPanel contentContainer = new JPanel(new BorderLayout(0, 10));
+        contentContainer.setOpaque(false);
+        contentContainer.add(searchPanel, BorderLayout.NORTH);
+        contentContainer.add(scrollPane, BorderLayout.CENTER);
+        contentContainer.add(statusPanel, BorderLayout.SOUTH);
+
+        mainPanel.add(contentContainer, BorderLayout.CENTER);
+
+        // --- AKSİYONLAR ---
+        btnSorgula.addActionListener(e -> sorgulaIslemi());
+        txtAramaGirdisi.addActionListener(e -> sorgulaIslemi());
+
+        btnTemizle.addActionListener(e -> {
+            txtAramaGirdisi.setText("");
+            txtBilgiEkrani.setText("\n\n      Ekran temizlendi.");
+            progressBar.setVisible(false);
+            lblDurumMesaji.setVisible(false);
+        });
+
+        // Arama türü değişince ipucunu güncelle
+        cmbAramaTuru.addActionListener(e -> {
+            txtAramaGirdisi.setText("");
+            if (cmbAramaTuru.getSelectedIndex() == 0) {
+                txtAramaGirdisi.putClientProperty("JTextField.placeholderText", "Örn: TEL-1234");
+            } else {
+                txtAramaGirdisi.putClientProperty("JTextField.placeholderText", "Örn: 5551234567");
+            }
         });
     }
 
-    private void sorgulaIslemi() {
-        String arananSeriNo = txtSeriNo.getText().trim(); // Kutudaki yazıyı al ve boşlukları sil
+    private JButton createButton(String text, Color bg) {
+        JButton btn = new JButton(text);
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setPreferredSize(new Dimension(100, 35));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
 
-        if (arananSeriNo.isEmpty()) { // Eğer kutu boşsa uyarı ver
-            JOptionPane.showMessageDialog(this, "Lütfen Seri Numarası alanını boş bırakmayınız.", "Uyarı", JOptionPane.WARNING_MESSAGE);
+    private void sorgulaIslemi() {
+        String girdi = txtAramaGirdisi.getText().trim();
+        if (girdi.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen arama kutusunu boş bırakmayınız.", "Uyarı", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        txtBilgiEkrani.setForeground(new Color(40, 40, 40)); // Yazı rengini normale döndürdük
-        txtBilgiEkrani.setText("Sorgulanıyor...\nLütfen bekleyiniz."); // Kullanıcıya işlem yapıldığını belirtme
+        txtBilgiEkrani.setText("Sorgulanıyor...\nLütfen bekleyiniz.");
+        progressBar.setVisible(false);
+        lblDurumMesaji.setVisible(false);
 
+        // Arama Türüne Göre Mantık
+        if (cmbAramaTuru.getSelectedIndex() == 0) {
+            // SERİ NO İLE ARAMA (Eski mantık + Progress Bar)
+            seriNoIleAra(girdi);
+        } else {
+            // TELEFON İLE ARAMA (Yeni özellik)
+            telefonIleAra(girdi);
+        }
+    }
+
+    // YENİ: Telefon numarasına göre tüm cihazları bulur
+    private void telefonIleAra(String telefon) {
+        String dosyaYolu = System.getProperty("user.dir") + System.getProperty("file.separator") + "cihazlar.txt";
+        List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
+
+        StringBuilder sonuc = new StringBuilder();
+        sonuc.append("=== MÜŞTERİ CİHAZ LİSTESİ ===\n\n");
+        sonuc.append("Sorgulanan Telefon: ").append(telefon).append("\n");
+        sonuc.append("-----------------------------------------\n");
+
+        int cihazSayisi = 0;
+        // Telefon numarasını temizleyip (boşluksuz) karşılaştıralım
+        String arananTelTemiz = telefon.replaceAll("\\s+", "");
+
+        for (Cihaz c : cihazlar) {
+            String kayitliTelTemiz = c.getSahip().getTelefon().replaceAll("\\s+", "");
+            // contains kullanarak "555" yazsa bile bulmasını sağlıyoruz
+            if (kayitliTelTemiz.contains(arananTelTemiz)) {
+                cihazSayisi++;
+                sonuc.append(cihazSayisi).append(". CİHAZ\n");
+                sonuc.append("Model: ").append(c.getMarka()).append(" ").append(c.getModel()).append("\n");
+                sonuc.append("Seri No: ").append(c.getSeriNo()).append("\n");
+                sonuc.append("Sahibi: ").append(c.getSahip().getAd()).append(" ").append(c.getSahip().getSoyad()).append("\n");
+                sonuc.append("Garanti: ").append(c.garantiAktifMi() ? "Devam Ediyor" : "Bitti").append("\n");
+
+                // Servis Durumu Kontrolü
+                ServisYonetimi sy = new ServisYonetimi(cihazlar);
+                boolean servisteMi = false;
+                for(ServisKaydi k : sy.getKayitlar()) {
+                    if(k.getCihaz().getSeriNo().equals(c.getSeriNo()) && k.getDurum() != ServisDurumu.TAMAMLANDI) {
+                        sonuc.append("SERVİS DURUMU: ").append(k.getDurum()).append("\n");
+                        servisteMi = true;
+                    }
+                }
+                if(!servisteMi) sonuc.append("SERVİS DURUMU: Serviste Değil\n");
+
+                sonuc.append("-----------------------------------------\n");
+            }
+        }
+
+        if (cihazSayisi == 0) {
+            txtBilgiEkrani.setForeground(new Color(192, 57, 43));
+            txtBilgiEkrani.setText("\n!!! KAYIT BULUNAMADI !!!\n\nBu telefon numarasına kayıtlı cihaz yok.");
+        } else {
+            txtBilgiEkrani.setForeground(new Color(40, 40, 40));
+            txtBilgiEkrani.setText(sonuc.toString());
+            // Çoklu sonuçta progress bar göstermiyoruz, sadece liste veriyoruz
+        }
+    }
+
+    // Seri No ile Arama (Mevcut mantığın geliştirilmiş hali)
+    private void seriNoIleAra(String seriNo) {
         try {
-            String rapor = RaporlamaHizmeti.musteriCihazDurumRaporuOlustur(arananSeriNo); // Servisten raporu çağırdık
+            // Raporu al
+            String rapor = RaporlamaHizmeti.musteriCihazDurumRaporuOlustur(seriNo);
 
-            StringBuilder susluRapor = new StringBuilder(); // Yazıları birleştirmek için StringBuilder kullandık
+            // Metni hazırla
+            StringBuilder susluRapor = new StringBuilder();
             susluRapor.append("=========================================\n");
-            susluRapor.append("          SERVİS DURUM RAPORU            \n");
+            susluRapor.append("          DETAYLI CİHAZ RAPORU           \n");
             susluRapor.append("=========================================\n\n");
-            susluRapor.append(rapor); // Gelen raporu araya ekleme
-            susluRapor.append("\n\n=========================================\n");
-            susluRapor.append("   Bizi tercih ettiğiniz için teşekkürler  \n");
+            susluRapor.append(rapor);
 
-            txtBilgiEkrani.setText(susluRapor.toString()); // Hazırladığımız metni ekrana yazdır
+            txtBilgiEkrani.setForeground(new Color(40, 40, 40));
+            txtBilgiEkrani.setText(susluRapor.toString());
 
-            // Eğer kayıt yoksa burası çalışır
+            // --- PROGRESS BAR GÜNCELLEME ---
+            ServisDurumu durum = servisDurumunuBul(seriNo);
+            gorselDurumuGuncelle(durum);
+
         } catch (KayitBulunamadiException ex) {
-            txtBilgiEkrani.setForeground(new Color(192, 57, 43)); // Hata mesajının rengi kırmızı
-            txtBilgiEkrani.setText("\n!!! KAYIT BULUNAMADI !!!\n\n" +
-                    "Girilen Seri No: " + arananSeriNo + "\n\n" +
-                    "Hata Mesajı: " + ex.getMessage() + "\n\n" +
-                    "Lütfen seri numaranızı kontrol edip tekrar deneyiniz.");
-        } catch (Exception ex) { // Başka bir hata olursa burası çalışır
-            txtBilgiEkrani.setText("Beklenmeyen bir hata oluştu: " + ex.getMessage());
+            txtBilgiEkrani.setForeground(new Color(192, 57, 43));
+            txtBilgiEkrani.setText("\n!!! KAYIT BULUNAMADI !!!\n\n" + ex.getMessage());
+            gorselDurumuGuncelle(null); // Çubuğu gizle
+        } catch (Exception ex) {
+            txtBilgiEkrani.setText("Hata: " + ex.getMessage());
+        }
+    }
+
+    // Seri numarasından o anki servis durumunu bulan yardımcı metot
+    private ServisDurumu servisDurumunuBul(String seriNo) {
+        String dosyaYolu = System.getProperty("user.dir") + System.getProperty("file.separator") + "cihazlar.txt";
+        List<Cihaz> cihazlar = DosyaIslemleri.cihazlariYukle(dosyaYolu);
+        ServisYonetimi sy = new ServisYonetimi(cihazlar);
+
+        for (ServisKaydi k : sy.getKayitlar()) {
+            // Sadece aktif (tamamlanmamış) veya en son işlem gören kaydı bulmaya çalışıyoruz
+            if (k.getCihaz().getSeriNo().equalsIgnoreCase(seriNo)) {
+                return k.getDurum();
+            }
+        }
+        return null; // Servis kaydı yok
+    }
+
+    // Progress barı duruma göre ayarlayan metot
+    private void gorselDurumuGuncelle(ServisDurumu durum) {
+        if (durum == null) {
+            progressBar.setVisible(false);
+            lblDurumMesaji.setVisible(true);
+            lblDurumMesaji.setText("Bu cihaz şu an serviste değil.");
+            lblDurumMesaji.setForeground(Color.GRAY);
+            return;
+        }
+
+        progressBar.setVisible(true);
+        lblDurumMesaji.setVisible(true);
+
+        if (durum == ServisDurumu.KABUL_EDILDI) {
+            progressBar.setValue(30);
+            progressBar.setString("%30 - İşleme Alındı");
+            progressBar.setForeground(new Color(241, 196, 15)); // Sarı
+            lblDurumMesaji.setText("Cihazınız teknisyen tarafından inceleniyor.");
+            lblDurumMesaji.setForeground(new Color(211, 84, 0));
+        } else if (durum == ServisDurumu.TAMAMLANDI) {
+            progressBar.setValue(100);
+            progressBar.setString("%100 - Tamamlandı");
+            progressBar.setForeground(new Color(46, 204, 113)); // Yeşil
+            lblDurumMesaji.setText("Cihazınızın işlemleri bitti. Teslim alabilirsiniz.");
+            lblDurumMesaji.setForeground(new Color(39, 174, 96));
         }
     }
 }

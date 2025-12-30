@@ -1,16 +1,11 @@
-Laptop;;LAP-1023;;Dell;;XPS 15;;90000,00;;2023-05-10;;0;;AHMET;;YILMAZ;;+905551234567;;true
-Tablet;;TAB-3012;;Samsung;;Galaxy Tab S9 FE;;12000,00;;2023-11-20;;0;;MEHMET;;KAYA;;+905051112233;;false;;true
-Laptop;;LAP-4056;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-08-01;;0;;ZEYNEP;;ÇELİK;;+905423334455;;true
-Telefon;;TEL-5078;;Samsung;;Galaxy S24 Ultra;;70000,00;;2024-02-28;;12;;CAN;;ÖZTÜRK;;+905335556677;;true
-Tablet;;TAB-6091;;Apple;;iPad Pro (M4);;45000,00;;2024-03-10;;6;;ELİF;;YILDIZ;;+905307778899;;true;;false
-Laptop;;LAP-7102;;Msi;;Titan GT77;;150000,00;;2023-12-05;;24;;BURAK;;ŞAHİN;;+905510001122;;true
-Telefon;;TEL-8123;;Xiaomi;;Redmi Note 13 Pro;;18000,00;;2023-06-15;;0;;SELİN;;ARSLAN;;+905442223344;;false
-Laptop;;LAP-9134;;Apple;;MacBook Air M3;;45000,00;;2024-01-05;;0;;CEM;;POLAT;;+905358889900;;false
-Tablet;;TAB-1542;;Huawei;;MatePad Pro 13.2;;30000,00;;2023-09-01;;36;;DENİZ;;AKSOY;;+905364445566;;false;;true
-Telefon;;TEL-3660;;Samsung;;Galaxy Flip 5;;40000,00;;2023-08-23;;0;;AYŞE;;AYŞE;;(+90)5235232323;;false
-Telefon;;TEL-0408;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-21;;0;;ALİ;;ALİ;;+905787898998;;false
-Telefon;;TEL-7531;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-21;;0;;AYBERK;;OEEE;;+90;;false
-Telefon;;TEL-2022;;Apple;;iPhone 15 Pro Max;;10000,00;;2024-06-02;;0;;AYBERK;;ÖÇ;;+905699877885;;true
-Telefon;;TEL-7674;;Samsung;;Galaxy S23 FE;;10000,00;;2025-02-27;;0;;A;;A;;+905466544565;;true
-Telefon;;TEL-4137;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-03-18;;0;;A;;B;;+907418529631;;false
-Telefon;;TEL-8534;;Apple;;iPhone 15 Pro Max;;85000,00;;2025-12-22;;0;;B;;C;;+901475239871;;false
+Telefon;;TEL-TEST01;;Samsung;;Galaxy S24 Ultra;;70000,00;;2025-01-15;;0;;AHMET;;YILMAZ;;+905551112233;;false
+Laptop;;LAP-TEST02;;Dell;;XPS 15;;90000,00;;2019-05-20;;0;;MEHMET;;DEMİR;;+905322223344;;true
+Tablet;;TAB-TEST03;;Apple;;iPad Pro (M4);;45000,00;;2022-06-01;;12;;AYŞE;;ÇELİK;;+905053334455;;false;;true
+Telefon;;TEL-TEST04;;Apple;;iPhone 15 Pro Max;;85000,00;;2023-11-10;;0;;ZEYNEP;;KAYA;;+905424445566;;true
+Laptop;;LAP-TEST05;;Lenovo;;ThinkPad X1 Carbon;;80000,00;;2022-01-01;;24;;CAN;;ÖZTÜRK;;+905355556677;;false
+Tablet;;TAB-TEST06;;Samsung;;Galaxy Tab S9 FE;;12000,00;;2020-03-15;;0;;ELİF;;YILDIZ;;+905336667788;;true;;false
+Telefon;;TEL-TEST07;;Xiaomi;;Redmi Note 13 Pro;;18000,00;;2024-05-20;;0;;BURAK;;ŞAHİN;;+905447778899;;false
+Laptop;;LAP-TEST08;;Msi;;Titan GT77;;150000,00;;2024-12-01;;0;;CEM;;POLAT;;+905368889900;;true
+Tablet;;TAB-TEST09;;Huawei;;MatePad Pro 13.2;;30000,00;;2023-08-30;;6;;DENİZ;;AKSOY;;+905559990011;;false;;true
+Telefon;;TEL-TEST10;;Huawei;;Pura 70 Ultra;;60000,00;;2021-01-01;;0;;SELİN;;ARSLAN;;+905320001122;;true
+Telefon;;TEL-3687;;Apple;;iPhone SE;;28000,00;;2025-12-30;;0;;CAN;;ÖZTÜRK;;+905355556677;;false

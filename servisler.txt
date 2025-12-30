@@ -1,1 +1,7 @@
-TEL-3660;;Telefon;;Samsung;;Galaxy Flip 5;;Kasa/Kapak Değişimi;;2025-12-22;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;4000,00;;Yok
+TEL-TEST01;;Telefon;;Samsung;;Galaxy S24 Ultra;;Ekran Kırık;;2025-01-20;;Kabul Edildi;;Çağatay Oğuz;;Telefon Onarım;;0,00;;Yok
+LAP-TEST02;;Laptop;;Dell;;XPS 15;;Anakart/Sıvı Teması;;2024-11-15;;Tamamlandı;;Osman Can Küçdemir;;Laptop Onarım;;28800,00;;2024-11-25
+TAB-TEST06;;Tablet;;Samsung;;Galaxy Tab S9 FE;;Batarya/Pil Değişimi;;2024-12-10;;Tamamlandı;;İsmail Onur Koru;;Tablet Onarım;;1200,00;;2025-12-22
+LAP-TEST08;;Laptop;;Msi;;Titan GT77;;Kasa/Kapak Değişimi;;2025-01-05;;Kabul Edildi;;Osman Can Küçdemir;;Laptop Onarım;;0,00;;Yok
+TEL-TEST10;;Telefon;;Huawei;;Pura 70 Ultra;;Kamera Arızası;;2024-10-01;;Tamamlandı;;Çağatay Oğuz;;Telefon Onarım;;7200,00;;2024-10-05
+TAB-TEST03;;Tablet;;Apple;;iPad Pro (M4);;Dokunmatik Arızası;;2025-01-18;;Kabul Edildi;;İsmail Onur Koru;;Tablet Onarım;;0,00;;Yok
+TEL-TEST07;;Telefon;;Xiaomi;;Redmi Note 13 Pro;;Yazılım/Format;;2024-09-15;;Tamamlandı;;Çağatay Oğuz;;Telefon Onarım;;500,00;;2024-09-16
