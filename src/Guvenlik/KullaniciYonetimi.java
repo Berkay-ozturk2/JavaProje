@@ -16,37 +16,18 @@ public class KullaniciYonetimi {
     }
 
     public static Kullanici dogrula(String kAdi, String sifre) {
-        // Null kontrolü
-        if (kAdi == null || sifre == null) {
-            System.out.println("DEBUG: Kullanıcı adı veya şifre boş geldi.");
-            return null;
-        }
+        if (kAdi == null || sifre == null) return null;
 
-        // Hem kullanıcı adı hem şifredeki boşlukları temizliyoruz (Daha kullanıcı dostu)
         String temizKAdi = kAdi.trim();
         String temizSifre = sifre.trim();
 
-        System.out.println("DEBUG: Doğrulama İsteği -> Gelen Ad: '" + temizKAdi + "'");
-
         for (Kullanici k : kullanicilar) {
-            // Kullanıcı adı (büyük/küçük harf duyarsız)
-            boolean adEslesiyor = k.getKullaniciAdi().equalsIgnoreCase(temizKAdi);
-
-            if (adEslesiyor) {
-                // Şifre kontrolü (birebir eşleşme)
-                boolean sifreEslesiyor = k.getSifre().equals(temizSifre);
-
-                if (sifreEslesiyor) {
-                    System.out.println("DEBUG: Eşleşme BAŞARILI! Giriş yapan: " + k.getKullaniciAdi());
+            if (k.getKullaniciAdi().equalsIgnoreCase(temizKAdi)) {
+                if (k.getSifre().equals(temizSifre)) {
                     return k;
-                } else {
-                    System.out.println("DEBUG: Kullanıcı adı doğru ama şifre yanlış.");
-                    // Güvenlik gereği burada null dönüyoruz ama loglara hatayı yazdık
                 }
             }
         }
-
-        System.out.println("DEBUG: Eşleşme BAŞARISIZ. Kayıt bulunamadı.");
         return null;
     }
 }
