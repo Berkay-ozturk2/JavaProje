@@ -85,6 +85,10 @@ public class ServisTakipEkrani extends JFrame {
         JButton btnDurumGuncelle = createStyledButton("Durum Güncelle (Tamamla)", new Color(52, 152, 219));
         btnDurumGuncelle.addActionListener(e -> durumGuncelleIslemi());
 
+        // YENİ BUTON: GEÇMİŞİ GÖR
+        JButton btnGecmis = createStyledButton("Geçmiş İşlemler", new Color(155, 89, 182)); // Mor renk
+        btnGecmis.addActionListener(e -> gecmisGoruntuleIslemi());
+
         // Kayıt silme butonunu oluşturur ve işlevini atar.
         JButton btnSil = createStyledButton("Kaydı Sil", new Color(231, 76, 60));
         btnSil.addActionListener(e -> kayitSilIslemi());
@@ -104,6 +108,7 @@ public class ServisTakipEkrani extends JFrame {
         }
 
         buttonPanel.add(btnDurumGuncelle);
+        buttonPanel.add(btnGecmis); // Araya ekledik
         buttonPanel.add(btnSil);
         buttonPanel.add(Box.createHorizontalStrut(20)); // Boşluk
         buttonPanel.add(btnTumunuSil);
@@ -178,15 +183,55 @@ public class ServisTakipEkrani extends JFrame {
         return null;
     }
 
+    // YENİ: Geçmişi görüntüleyen metot
+    private void gecmisGoruntuleIslemi() {
+        ServisKaydi kayit = getSeciliKayit();
+        if (kayit != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("CİHAZ: ").append(kayit.getCihaz().getModel()).append("\n");
+            sb.append("SERİ NO: ").append(kayit.getCihaz().getSeriNo()).append("\n\n");
+            sb.append("=== İŞLEM TARİHÇESİ ===\n");
+
+            for (String islem : kayit.getIslemGecmisi()) {
+                sb.append(islem).append("\n");
+            }
+
+            JTextArea textArea = new JTextArea(sb.toString());
+            textArea.setEditable(false);
+            textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+
+            JScrollPane scrollPane = new JScrollPane(textArea);
+            scrollPane.setPreferredSize(new Dimension(400, 300));
+
+            JOptionPane.showMessageDialog(this, scrollPane, "Servis Geçmişi", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Lütfen geçmişini görmek istediğiniz kaydı seçin.");
+        }
+    }
+
     // Seçili kaydın durumunu 'Tamamlandı' olarak günceller ve listeyi yeniler.
     private void durumGuncelleIslemi() {
         ServisKaydi kayit = getSeciliKayit();
         if (kayit != null) {
             if (kayit.getDurum() != ServisDurumu.TAMAMLANDI) {
-                kayit.setDurum(ServisDurumu.TAMAMLANDI);
-                servisYonetimi.kayitGuncelle();
-                kayitlariTabloyaDoldur();
-                JOptionPane.showMessageDialog(this, "Kayıt durumu 'Tamamlandı' olarak güncellendi.");
+
+                // YENİ: Kullanıcıdan işlem notu alalım
+                String aciklama = JOptionPane.showInputDialog(this,
+                        "Yapılan işlem hakkında kısa bilgi giriniz:",
+                        "İşlem Tamamlama", JOptionPane.QUESTION_MESSAGE);
+
+                if (aciklama != null && !aciklama.trim().isEmpty()) {
+                    kayit.setDurum(ServisDurumu.TAMAMLANDI);
+
+                    // YENİ: LOGLAMA İŞLEMİ
+                    kayit.islemEkle("Durum 'Tamamlandı' olarak güncellendi. Not: " + aciklama);
+
+                    servisYonetimi.kayitGuncelle();
+                    kayitlariTabloyaDoldur();
+                    JOptionPane.showMessageDialog(this, "Kayıt güncellendi ve işlem geçmişine eklendi.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Açıklama girilmediği için işlem iptal edildi.");
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Bu kayıt zaten tamamlanmış.");
             }

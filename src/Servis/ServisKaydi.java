@@ -4,6 +4,9 @@ import Arayuzler.IRaporIslemleri;
 import Cihazlar.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter; // YENİ: Tarih formatı için eklendi
+import java.util.ArrayList; // YENİ
+import java.util.List; // YENİ
 
 // Servisteki her bir işlem kaydını temsil eden ve raporlama yeteneği olan sınıf
 public class ServisKaydi implements IRaporIslemleri {
@@ -17,6 +20,9 @@ public class ServisKaydi implements IRaporIslemleri {
     private LocalDate tamamlamaTarihi;  // Tamir bittiyse bitiş tarihi
     private Teknisyen atananTeknisyen;  // Bu işi hangi usta yapıyor
 
+    // YENİ EKLENEN ALAN: İşlem Geçmişi Listesi
+    private List<String> islemGecmisi;
+
     // Yeni bir kayıt açılırken sadece cihazı ve sorunu alıyoruz, gerisini otomatik dolduruyoruz
     public ServisKaydi(Cihaz cihaz, String sorunAciklamasi) {
         this.cihaz = cihaz;
@@ -27,10 +33,22 @@ public class ServisKaydi implements IRaporIslemleri {
         this.tamamlamaTarihi = null;             // Henüz bitmediği için null
         this.tahminiTamirUcreti = 0.0;
         this.atananTeknisyen = null;             // Henüz bir usta atanmadı
+
+        // YENİ: İşlem geçmişini başlatıyoruz ve ilk logu atıyoruz
+        this.islemGecmisi = new ArrayList<>();
+        islemEkle("Kayıt oluşturuldu. Belirtilen Sorun: " + sorunAciklamasi);
     }
 
-    // --- KALDIRILAN METOTLAR ---
-    // toTxtFormat ve fromTxtFormat -> Araclar.Formatlayici sınıfına taşındı.
+    // YENİ METOT: Tarih damgasıyla log ekler
+    public void islemEkle(String aciklama) {
+        String zaman = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+        this.islemGecmisi.add("[" + zaman + "] " + aciklama);
+    }
+
+    // YENİ: Getter
+    public List<String> getIslemGecmisi() {
+        return islemGecmisi;
+    }
 
     // Getter ve Setterlar (Verilere erişmek ve değiştirmek için)
     public Cihaz getCihaz() { return cihaz; }

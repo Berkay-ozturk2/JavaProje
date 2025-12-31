@@ -54,6 +54,11 @@ public class ServisYonetimi implements IVeriIslemleri {
         yeniKayit.setTahminiTamirUcreti(musteriOdeyecek);
         yeniKayit.setAtananTeknisyen(atananTeknisyen);
 
+        // YENİ: Teknisyen atamasını da loga ekleyelim
+        if (atananTeknisyen != null) {
+            yeniKayit.islemEkle("Teknisyen Atandı: " + atananTeknisyen.getAd() + " (" + atananTeknisyen.getUzmanlikAlani() + ")");
+        }
+
         servisKaydiEkle(yeniKayit); // Listeye ve dosyaya ekliyoruz
         return yeniKayit;
     }
@@ -64,11 +69,6 @@ public class ServisYonetimi implements IVeriIslemleri {
     @Override
     public void Kaydet() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(DOSYA_ADI))) {
-            // STREAM API KULLANIMI: Döngü yerine forEach kullanımı
-            // Checked Exception (IOException) stream içinde yönetmek zor olduğu için
-            // burada klasik döngü daha güvenli olabilir ama stream ile yazmak istersek
-            // try-catch bloğunu içine almamız gerekir.
-            // Dosya işlemlerinde klasik for-each bazen daha temizdir, ancak mantığı göstermek adına:
             for (ServisKaydi k : kayitlar) {
                 bw.write(Formatlayici.servisKaydiMetneDonustur(k));
                 bw.newLine();
@@ -84,13 +84,11 @@ public class ServisYonetimi implements IVeriIslemleri {
         this.kayitlar = new ArrayList<>(); // Listeyi sıfırlıyoruz
         if (dosya.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(dosya))) {
-                // STREAM API KULLANIMI: BufferedReader'dan satırları akış olarak alıp işliyoruz
-                // lines() metodu Stream<String> döner.
                 br.lines()
-                        .filter(line -> !line.trim().isEmpty()) // Boş satırları filtrele
-                        .map(line -> Formatlayici.metniServisKaydinaDonustur(line, this.cihazListesiRef)) // Nesneye dönüştür
-                        .filter(Objects::nonNull) // Null dönenleri (hatalı satırları) filtrele
-                        .forEach(kayitlar::add); // Listeye ekle
+                        .filter(line -> !line.trim().isEmpty())
+                        .map(line -> Formatlayici.metniServisKaydinaDonustur(line, this.cihazListesiRef))
+                        .filter(Objects::nonNull)
+                        .forEach(kayitlar::add);
 
             } catch (IOException e) {
                 System.err.println("Yükleme hatası.");
@@ -109,12 +107,6 @@ public class ServisYonetimi implements IVeriIslemleri {
 
     // Set yapısı kullanarak aynı ismin listede tekrar etmesini engelliyoruz
     public Set<String> getBenzersizTeknisyenIsimleri() {
-        // STREAM API KULLANIMI:
-        // 1. Kayıtlardan akış oluştur
-        // 2. Teknisyen nesnesini al
-        // 3. Null olanları filtrele (Atanmamış olabilir)
-        // 4. Teknisyen ismini al (Map)
-        // 5. Set olarak topla (Collect)
         return kayitlar.stream()
                 .map(ServisKaydi::getAtananTeknisyen)
                 .filter(Objects::nonNull)
