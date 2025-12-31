@@ -32,35 +32,41 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
     private Map<String, JTable> tables = new HashMap<>();
 
     private List<Cihaz> cihazListesi = new ArrayList<>();
+
+    // PC'ye özel Cihaz Dosya Yolu
     private static final String CIHAZ_DOSYA_ADI = System.getProperty("user.dir") +
             System.getProperty("file.separator") +
             "cihazlar.txt";
 
+    // PC'ye özel Servis Dosya Yolu (DEĞİŞİKLİK BURADA)
+    private static final String SERVIS_DOSYA_ADI = System.getProperty("user.dir") +
+            System.getProperty("file.separator") +
+            "servisler.txt";
+
     private ServisYonetimi servisYonetimi;
-    private Kullanici aktifKullanici; // Giriş yapan kullanıcı bilgisi
+    private Kullanici aktifKullanici;
 
     private static final Color COLOR_ACTION_PRIMARY = new Color(52, 152, 219);
     private static final Color COLOR_ACTION_SECONDARY = new Color(52, 73, 94);
     private static final Color COLOR_DANGER = new Color(231, 76, 60);
     private static final Color COLOR_NEUTRAL = new Color(149, 165, 166);
 
-    // Default constructor kaldırıldı veya parametreli olana yönlendirilebilir.
-    // Biz burada parametresiz olanı test için admin olarak başlatıyoruz ama normalde GirisEkrani'ndan gelinmeli.
     public AnaMenu() {
         this(new Kullanici("TestAdmin", "", KullaniciRol.ADMIN));
     }
 
-    // YENİ: Kullanıcı alan Constructor
     public AnaMenu(Kullanici kullanici) {
         this.aktifKullanici = kullanici;
 
         cihazListesi = DosyaIslemleri.cihazlariYukle(CIHAZ_DOSYA_ADI);
-        servisYonetimi = new ServisYonetimi(cihazListesi);
+
+        // DEĞİŞİKLİK: Dosya yolunu parametre olarak gönderiyoruz
+        servisYonetimi = new ServisYonetimi(cihazListesi, SERVIS_DOSYA_ADI);
 
         initUI();
         cihazListesiniTabloyaDoldur(cihazListesi);
 
-        System.out.println("Sistem başlatıldı. Kullanıcı: " + kullanici.getKullaniciAdi() + " [" + kullanici.getRol() + "]");
+        System.out.println("Sistem başlatıldı. Kullanıcı: " + kullanici.getKullaniciAdi());
     }
 
     private void initUI() {
@@ -74,7 +80,7 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         setContentPane(mainPanel);
 
-        // --- 1. HEADER ---
+        // HEADER
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
 
@@ -82,7 +88,6 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(new Color(44, 62, 80));
 
-        // Rol bilgisini başlığa ekledik
         String yetki = aktifKullanici.getRol() == KullaniciRol.ADMIN ? "Yönetici" : "Teknisyen";
         JLabel lblSub = new JLabel("Hoşgeldiniz, Sayın " + aktifKullanici.getKullaniciAdi() + " (" + yetki + ")");
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -96,7 +101,7 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         headerPanel.add(textPanel, BorderLayout.WEST);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // --- 2. ORTA BÖLÜM ---
+        // TABS
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabbedPane.putClientProperty(FlatClientProperties.STYLE, "tabSeparators: true");
@@ -108,12 +113,11 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        // --- 3. ALT BÖLÜM (YETKİLENDİRME BURADA YAPILIYOR) ---
+        // BOTTOM PANEL
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        // GRUP 1: Operasyonel İşlemler
         JPanel leftActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftActions.setOpaque(false);
 
@@ -129,31 +133,20 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         JButton btnGaranti = createStyledButton("Garanti Uzat", COLOR_ACTION_PRIMARY);
         btnGaranti.addActionListener(e -> garantiUzatmaIslemi());
 
-        // YETKİ KONTROLÜ: Teknisyenler yeni cihaz ekleyemez ve garanti uzatamaz, sadece servis kaydı açabilir (Varsayım)
-        // Veya teknisyen sadece tamir eder, kayıt açamaz diyorsak onu da kapatabiliriz.
-        // Bizim senaryoda Teknisyen bu butonları göremesin.
         if (aktifKullanici.getRol() == KullaniciRol.TEKNISYEN) {
             btnEkle.setEnabled(false);
-            btnEkle.setToolTipText("Yetkiniz Yok");
-
             btnGaranti.setEnabled(false);
-            btnGaranti.setToolTipText("Yetkiniz Yok");
-
-            // Servis kaydı açmayı da admin'e bırakalım
             btnServis.setEnabled(false);
-            btnServis.setToolTipText("Yetkiniz Yok");
         }
 
         leftActions.add(btnEkle);
         leftActions.add(btnServis);
         leftActions.add(btnGaranti);
 
-        // GRUP 2: İzleme ve Raporlama
         JPanel centerActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         centerActions.setOpaque(false);
 
         JButton btnTakip = createStyledButton("Servis Takip Ekranı", COLOR_ACTION_SECONDARY);
-        // Takip ekranına da kullanıcıyı gönderiyoruz
         btnTakip.addActionListener(e -> new ServisTakipEkrani(servisYonetimi, aktifKullanici).setVisible(true));
 
         JButton btnRapor = createStyledButton("Rapor Al", COLOR_ACTION_SECONDARY);
@@ -162,16 +155,14 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
         centerActions.add(btnTakip);
         centerActions.add(btnRapor);
 
-        // GRUP 3: Silme ve Çıkış
         JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightActions.setOpaque(false);
 
         JButton btnSil = createStyledButton("Cihazı Sil", COLOR_DANGER);
         btnSil.addActionListener(e -> cihazSilIslemi());
 
-        // YETKİ KONTROLÜ: Teknisyen cihaz silemez
         if (aktifKullanici.getRol() != KullaniciRol.ADMIN) {
-            btnSil.setVisible(false); // Direkt gizledik
+            btnSil.setVisible(false);
         }
 
         JButton btnCikis = createStyledButton("Çıkış Yap", COLOR_NEUTRAL);
@@ -262,8 +253,6 @@ public class AnaMenu extends JFrame implements CihazEkleListener {
 
         return btn;
     }
-
-    // --- İŞ MANTIĞI ---
 
     @Override
     public void cihazEklendi(Cihaz cihaz) {
